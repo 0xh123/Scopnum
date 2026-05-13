@@ -7,18 +7,22 @@
   <title>Scopnum — [AI studio]</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,400;1,9..144,600;1,9..144,900&family=Inter+Tight:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,900;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,900&family=Inter+Tight:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!-- SVG filters (goo cursor) -->
+  <!-- SVG filters and defs -->
   <svg class="svg-defs" aria-hidden="true">
     <defs>
       <filter id="goo">
         <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
         <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10" result="goo" />
         <feBlend in="SourceGraphic" in2="goo" />
+      </filter>
+      <filter id="displace">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="3" result="t"/>
+        <feDisplacementMap in="SourceGraphic" in2="t" scale="20" xChannelSelector="R" yChannelSelector="G"/>
       </filter>
       <linearGradient id="accentGrad" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stop-color="#ff4d15"/>
@@ -27,17 +31,22 @@
     </defs>
   </svg>
 
+  <!-- cursor trail canvas -->
+  <canvas class="cursor-trail" id="cursorTrail" aria-hidden="true"></canvas>
+
   <!-- ===== PRELOADER ===== -->
   <div class="loader" id="loader">
+    <div class="loader__veil"><span></span><span></span><span></span><span></span><span></span></div>
     <div class="loader__row">
       <div class="loader__text">
         <span>S</span><span>C</span><span>O</span><span>P</span><span>N</span><span>U</span><span>M</span>
       </div>
-      <div class="loader__percent"><span id="loaderPct">0</span>%</div>
+      <div class="loader__percent"><span id="loaderPct">0</span><em>%</em></div>
     </div>
     <div class="loader__bar"><i></i></div>
     <div class="loader__meta">
       <span>[booting ai runtime]</span>
+      <span>[loading assets]</span>
       <span>[stage / 01]</span>
     </div>
   </div>
@@ -47,13 +56,35 @@
     <div class="cursor__goo">
       <span class="cursor__dot"></span>
       <span class="cursor__ring"></span>
-      <span class="cursor__trail"></span>
     </div>
     <div class="cursor__label" id="cursorLabel">[drag]</div>
   </div>
 
   <!-- ===== SCROLL PROGRESS ===== -->
-  <div class="progress" aria-hidden="true"><span></span></div>
+  <div class="progress" aria-hidden="true">
+    <span></span>
+    <em id="progressPct">00</em>
+  </div>
+
+  <!-- ===== SIDE RAIL ===== -->
+  <aside class="rail" aria-hidden="true">
+    <span class="rail__line"><i></i></span>
+    <ul class="rail__dots">
+      <li data-rail="0" class="is-active"><span>01</span><em>[intro]</em></li>
+      <li data-rail="1"><span>02</span><em>[about]</em></li>
+      <li data-rail="2"><span>03</span><em>[works]</em></li>
+      <li data-rail="3"><span>04</span><em>[process]</em></li>
+      <li data-rail="4"><span>05</span><em>[quote]</em></li>
+      <li data-rail="5"><span>06</span><em>[features]</em></li>
+      <li data-rail="6"><span>07</span><em>[manifesto]</em></li>
+      <li data-rail="7"><span>08</span><em>[stats]</em></li>
+      <li data-rail="8"><span>09</span><em>[contact]</em></li>
+    </ul>
+  </aside>
+
+  <!-- smooth scroll wrapper -->
+  <div class="smooth" id="smooth">
+  <div class="smooth__content" id="smoothContent">
 
   <!-- ===== NAV ===== -->
   <header class="nav" id="nav">
@@ -72,8 +103,8 @@
     </a>
 
     <nav class="nav__menu">
-      <a href="#products" data-hover data-preview="01"><i>01</i><span>[работы]</span></a>
-      <a href="#process" data-hover data-preview="02"><i>02</i><span>[продукты]</span></a>
+      <a href="#works" data-hover data-preview="01"><i>01</i><span>[работы]</span></a>
+      <a href="#process" data-hover data-preview="02"><i>02</i><span>[процесс]</span></a>
       <a href="#manifesto" data-hover data-preview="03"><i>03</i><span>[манифест]</span></a>
       <a href="#contact" data-hover data-preview="04"><i>04</i><span>[контакты]</span></a>
     </nav>
@@ -89,31 +120,35 @@
       </button>
     </div>
 
-    <!-- floating preview that follows cursor on nav link hover -->
     <div class="nav__preview" id="navPreview" aria-hidden="true">
-      <div class="nav__preview-inner" data-preview-content="01">
-        <div class="pv pv--01"></div>
-      </div>
-      <div class="nav__preview-inner" data-preview-content="02">
-        <div class="pv pv--02"></div>
-      </div>
-      <div class="nav__preview-inner" data-preview-content="03">
-        <div class="pv pv--03"></div>
-      </div>
-      <div class="nav__preview-inner" data-preview-content="04">
-        <div class="pv pv--04"></div>
-      </div>
+      <div class="nav__preview-inner" data-preview-content="01"><div class="pv pv--01"></div></div>
+      <div class="nav__preview-inner" data-preview-content="02"><div class="pv pv--02"></div></div>
+      <div class="nav__preview-inner" data-preview-content="03"><div class="pv pv--03"></div></div>
+      <div class="nav__preview-inner" data-preview-content="04"><div class="pv pv--04"></div></div>
     </div>
   </header>
 
   <!-- ===== HERO ===== -->
-  <section class="hero">
-    <canvas class="hero__canvas" id="heroCanvas"></canvas>
-    <div class="hero__overlay" aria-hidden="true"></div>
-    <div class="hero__grain" aria-hidden="true"></div>
+  <section class="hero" data-chapter="0">
+    <!-- 7 layered backgrounds -->
+    <div class="hero__layers" aria-hidden="true">
+      <canvas class="hero__canvas" id="heroCanvas" data-parallax="-0.02"></canvas>
+      <div class="hero__grid" data-parallax="0.05"></div>
+      <div class="hero__overlay"></div>
+      <!-- depth orbs -->
+      <div class="hero__orb hero__orb--1" data-parallax="0.25" data-rot="0.05"></div>
+      <div class="hero__orb hero__orb--2" data-parallax="-0.2" data-rot="-0.08"></div>
+      <div class="hero__orb hero__orb--3" data-parallax="0.4" data-rot="0.03"></div>
+      <!-- floating ghost text -->
+      <span class="hero__ghost hero__ghost--1" data-parallax="-0.3">ai ⌁ studio</span>
+      <span class="hero__ghost hero__ghost--2" data-parallax="0.35">since 2024</span>
+      <span class="hero__ghost hero__ghost--3" data-parallax="-0.5">[version 4.2]</span>
+      <span class="hero__ghost hero__ghost--4" data-parallax="0.6">neural · design</span>
+      <div class="hero__grain"></div>
+    </div>
 
-    <!-- side meta -->
-    <aside class="hero__side hero__side--l">
+    <!-- side meta with their own depth -->
+    <aside class="hero__side hero__side--l" data-parallax="0.08">
       <div class="hero__tag">
         <span class="dot-pulse"></span>
         <span data-scramble>[a / 001 live]</span>
@@ -125,7 +160,7 @@
       </ul>
     </aside>
 
-    <aside class="hero__side hero__side--r">
+    <aside class="hero__side hero__side--r" data-parallax="-0.12">
       <div class="hero__spec" data-tilt data-hover>
         <div class="hero__spec-head">
           <span class="hero__spec-label" data-scramble>[live spec]</span>
@@ -134,21 +169,17 @@
         <div class="hero__spec-val">
           <strong data-count="99.97">0</strong><em>%</em>
         </div>
-        <div class="hero__spec-foot">
-          <span>[здесь будет описание метрики]</span>
-        </div>
+        <div class="hero__spec-foot"><span>[здесь будет описание метрики]</span></div>
       </div>
-      <div class="hero__chip">
-        <span>[scroll ↓]</span>
-      </div>
+      <div class="hero__chip"><span>[scroll ↓]</span></div>
     </aside>
 
-    <!-- main title -->
+    <!-- main title with per-line scroll parallax -->
     <div class="hero__main">
-      <h1 class="hero__title" data-split-lines>
-        <span class="line"><span class="word">[создаём</span> <span class="word">AI</span></span>
-        <span class="line"><span class="word it">продукты</span> <span class="word it">которые</span></span>
-        <span class="line"><span class="word">думают</span> <span class="word out">будущим]</span></span>
+      <h1 class="hero__title">
+        <span class="line" data-parallax="0.02"><span class="word">[создаём</span> <span class="word">AI</span></span>
+        <span class="line" data-parallax="-0.04"><span class="word it">продукты</span> <span class="word it">которые</span></span>
+        <span class="line" data-parallax="0.06"><span class="word">думают</span> <span class="word out">будущим]</span></span>
       </h1>
 
       <div class="hero__row">
@@ -156,7 +187,7 @@
           <small>[design / engineering]</small>
           <strong>[Scopnum Studio]</strong>
         </div>
-        <a href="#products" class="hero__cta" data-hover data-magnetic>
+        <a href="#works" class="hero__cta" data-hover data-magnetic>
           <span class="hero__cta-label">[показать работы]</span>
           <span class="hero__cta-arrow">
             <svg viewBox="0 0 40 40"><path d="M8 20h24M22 10l10 10-10 10" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
@@ -166,15 +197,27 @@
     </div>
 
     <!-- floating caption with line -->
-    <div class="hero__caption">
+    <div class="hero__caption" data-parallax="0.15">
       <div class="hero__caption-line"></div>
       <p>[здесь будет мини-описание проекта — 1–2 строки о визуальной концепции Scopnum]</p>
     </div>
+
+    <div class="hero__scroll-hint">
+      <i></i>
+      <span>[прокрутите чтобы погрузиться]</span>
+    </div>
   </section>
 
+  <!-- ===== CHAPTER MARKER 01 ===== -->
+  <div class="chapter" data-reveal>
+    <em>[chapter / 01]</em>
+    <span>[introduction]</span>
+    <i></i>
+  </div>
+
   <!-- ===== TICKER ===== -->
-  <div class="ticker">
-    <div class="ticker__track">
+  <div class="ticker" id="ticker">
+    <div class="ticker__track" id="tickerTrack">
       <span class="t">scopnum</span><span class="s">✳</span>
       <span class="t it">ai products</span><span class="s">✳</span>
       <span class="t">since 2024</span><span class="s">✳</span>
@@ -191,8 +234,8 @@
   </div>
 
   <!-- ===== BAND / ABOUT ===== -->
-  <section class="band" id="about">
-    <div class="band__stamp">
+  <section class="band" id="about" data-chapter="1">
+    <div class="band__stamp" data-parallax="0.15" data-rot="0.1">
       <svg viewBox="0 0 220 220" class="band__stamp-svg">
         <defs>
           <path id="stampPath" d="M 110,110 m -82,0 a 82,82 0 1,1 164,0 a 82,82 0 1,1 -164,0"/>
@@ -227,13 +270,27 @@
       </div>
     </div>
 
-    <div class="band__num" data-parallax-y="0.3">
-      <span data-count="01">01</span>
+    <div class="band__num" data-parallax="0.35">
+      <span>01</span>
     </div>
   </section>
 
+  <!-- ===== GIANT STRIPE (interstitial) ===== -->
+  <div class="stripe" data-stripe>
+    <div class="stripe__track" data-stripe-track>
+      <span>Scopnum</span><em>·</em>
+      <span class="it">создаём</span><em>·</em>
+      <span>AI</em><em>·</em>
+      <span class="it">продукты</span><em>·</em>
+      <span>будущего</span><em>·</em>
+      <span class="it">Scopnum</span><em>·</em>
+      <span>studio</span><em>·</em>
+      <span class="it">2026</span><em>·</em>
+    </div>
+  </div>
+
   <!-- ===== HORIZONTAL PRODUCTS ===== -->
-  <section class="h-scroll" id="products">
+  <section class="h-scroll" id="works" data-chapter="2">
     <div class="h-scroll__wrap">
       <div class="h-scroll__sticky">
         <div class="h-scroll__head">
@@ -243,11 +300,11 @@
             <span class="it">которые</span>
             <span>работают]</span>
           </h2>
-          <div class="h-scroll__hint"><span>↔</span><span>[drag or scroll]</span></div>
+          <div class="h-scroll__hint"><span>↔</span><span>[scroll to pan]</span></div>
         </div>
 
         <div class="h-scroll__track" id="hTrack">
-          <article class="card" data-tilt data-hover>
+          <article class="card" data-card data-hover>
             <div class="card__top">
               <span class="card__num">/01</span>
               <span class="card__year">[2026]</span>
@@ -267,9 +324,7 @@
             <div class="card__body">
               <h3 class="card__title">[Scopnum <i>Core</i>]</h3>
               <p class="card__desc">[здесь будет описание продукта — что он делает и для кого]</p>
-              <div class="card__tags">
-                <span>[core]</span><span>[api]</span><span>[ml]</span>
-              </div>
+              <div class="card__tags"><span>[core]</span><span>[api]</span><span>[ml]</span></div>
             </div>
             <a href="#" class="card__link" data-hover>
               <span>[открыть]</span>
@@ -277,7 +332,7 @@
             </a>
           </article>
 
-          <article class="card card--alt" data-tilt data-hover>
+          <article class="card card--alt" data-card data-hover>
             <div class="card__top">
               <span class="card__num">/02</span>
               <span class="card__year">[2026]</span>
@@ -295,9 +350,7 @@
             <div class="card__body">
               <h3 class="card__title">[Scopnum <i>Vision</i>]</h3>
               <p class="card__desc">[здесь будет описание модуля компьютерного зрения]</p>
-              <div class="card__tags">
-                <span>[vision]</span><span>[video]</span><span>[sdk]</span>
-              </div>
+              <div class="card__tags"><span>[vision]</span><span>[video]</span><span>[sdk]</span></div>
             </div>
             <a href="#" class="card__link" data-hover>
               <span>[открыть]</span>
@@ -305,7 +358,7 @@
             </a>
           </article>
 
-          <article class="card" data-tilt data-hover>
+          <article class="card" data-card data-hover>
             <div class="card__top">
               <span class="card__num">/03</span>
               <span class="card__year">[2026]</span>
@@ -326,9 +379,7 @@
             <div class="card__body">
               <h3 class="card__title">[Scopnum <i>Voice</i>]</h3>
               <p class="card__desc">[здесь будет описание аудио-модуля и синтеза речи]</p>
-              <div class="card__tags">
-                <span>[voice]</span><span>[tts]</span><span>[real-time]</span>
-              </div>
+              <div class="card__tags"><span>[voice]</span><span>[tts]</span><span>[real-time]</span></div>
             </div>
             <a href="#" class="card__link" data-hover>
               <span>[открыть]</span>
@@ -336,7 +387,7 @@
             </a>
           </article>
 
-          <article class="card card--alt" data-tilt data-hover>
+          <article class="card card--alt" data-card data-hover>
             <div class="card__top">
               <span class="card__num">/04</span>
               <span class="card__year">[2026]</span>
@@ -355,9 +406,7 @@
             <div class="card__body">
               <h3 class="card__title">[Scopnum <i>Flow</i>]</h3>
               <p class="card__desc">[здесь будет описание оркестратора AI-процессов]</p>
-              <div class="card__tags">
-                <span>[flow]</span><span>[orchestration]</span><span>[auto]</span>
-              </div>
+              <div class="card__tags"><span>[flow]</span><span>[orchestration]</span><span>[auto]</span></div>
             </div>
             <a href="#" class="card__link" data-hover>
               <span>[открыть]</span>
@@ -365,7 +414,7 @@
             </a>
           </article>
 
-          <article class="card card--end" data-hover>
+          <article class="card card--end" data-card data-hover>
             <div class="card__end">
               <span class="section__tag"><i></i><span>[end]</span></span>
               <h3>[посмотреть <i>всё</i>]</h3>
@@ -382,8 +431,15 @@
     </div>
   </section>
 
+  <!-- ===== CHAPTER MARKER 02 ===== -->
+  <div class="chapter" data-reveal>
+    <em>[chapter / 02]</em>
+    <span>[process / methodology]</span>
+    <i></i>
+  </div>
+
   <!-- ===== PINNED SHOWCASE ===== -->
-  <section class="pin" id="process">
+  <section class="pin" id="process" data-chapter="3">
     <div class="pin__wrap">
       <div class="pin__sticky">
         <div class="pin__visual">
@@ -438,6 +494,7 @@
             <span data-frame="2">[03 — разработка]</span>
             <span data-frame="3">[04 — запуск]</span>
           </div>
+          <div class="pin__bar"><i id="pinBarFill"></i></div>
         </div>
 
         <div class="pin__text">
@@ -465,8 +522,47 @@
     </div>
   </section>
 
+  <!-- ===== CHAPTER MARKER 03 ===== -->
+  <div class="chapter" data-reveal>
+    <em>[chapter / 03]</em>
+    <span>[cinematic quote]</span>
+    <i></i>
+  </div>
+
+  <!-- ===== CINEMATIC QUOTE (zoom in/out on scroll) ===== -->
+  <section class="cine" data-chapter="4">
+    <div class="cine__wrap">
+      <div class="cine__sticky">
+        <div class="cine__bg" data-parallax="0.3"></div>
+        <div class="cine__mark" data-parallax="-0.15">«</div>
+        <blockquote class="cine__quote" id="cineQuote">
+          <span class="cine__word">[мы</span>
+          <span class="cine__word">верим</span>
+          <span class="cine__word">в</span>
+          <span class="cine__word cine__word--hl">дизайн</span>
+          <span class="cine__word">который</span>
+          <span class="cine__word">обучается</span>
+          <span class="cine__word cine__word--hl">сам</span>
+          <span class="cine__word">—</span>
+          <span class="cine__word">в</span>
+          <span class="cine__word cine__word--hl">продукты</span>
+          <span class="cine__word">которые</span>
+          <span class="cine__word">чувствуют</span>
+          <span class="cine__word">контекст]</span>
+        </blockquote>
+        <div class="cine__author">
+          <div class="cine__avatar"></div>
+          <div>
+            <strong>[имя директора]</strong>
+            <span>[founder · scopnum studio]</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== BENTO ===== -->
-  <section class="section bento-section">
+  <section class="section bento-section" data-chapter="5">
     <div class="section__head">
       <span class="section__tag"><i></i><span data-scramble>[d / 004 — features]</span></span>
       <h2 class="section__title" data-split-chars>[что мы <i>умеем</i> и делаем]</h2>
@@ -551,12 +647,32 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
     </div>
   </section>
 
+  <!-- ===== STRIPE 2 ===== -->
+  <div class="stripe stripe--accent" data-stripe>
+    <div class="stripe__track" data-stripe-track>
+      <span>↗</span><em>·</em>
+      <span>[радикальный</span><em>·</em>
+      <span class="it">дизайн</span><em>·</em>
+      <span>это</span><em>·</em>
+      <span class="it">путь</span><em>·</em>
+      <span>к</span><em>·</em>
+      <span class="it">ясности]</span><em>·</em>
+      <span>↘</span><em>·</em>
+      <span>[радикальный</span><em>·</em>
+      <span class="it">дизайн</span><em>·</em>
+      <span>это</span><em>·</em>
+      <span class="it">путь</span><em>·</em>
+      <span>к</span><em>·</em>
+      <span class="it">ясности]</span><em>·</em>
+    </div>
+  </div>
+
   <!-- ===== MANIFESTO (DARK INVERTED) ===== -->
-  <section class="manifesto" id="manifesto">
+  <section class="manifesto" id="manifesto" data-chapter="6">
     <div class="manifesto__inner">
       <div class="manifesto__head">
         <span class="section__tag"><i></i><span data-scramble>[e / 005 — manifesto]</span></span>
-        <em>[∞]</em>
+        <em data-parallax="0.2">[∞]</em>
       </div>
       <h2 class="manifesto__title" data-split-words>
         [мы верим — дизайн это мышление, а не оформление; AI это инструмент, а не магия; а студия — это <i>люди</i>, которые делают разницу]
@@ -576,13 +692,20 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
         </div>
       </div>
     </div>
-    <div class="manifesto__drift" aria-hidden="true">
-      <span>SCOPNUM · SCOPNUM · SCOPNUM ·</span>
+    <div class="manifesto__drift" aria-hidden="true" data-parallax-x="0.5">
+      <span>SCOPNUM · SCOPNUM · SCOPNUM · SCOPNUM · SCOPNUM · SCOPNUM ·</span>
     </div>
   </section>
 
+  <!-- ===== CHAPTER MARKER 04 ===== -->
+  <div class="chapter chapter--inv" data-reveal>
+    <em>[chapter / 04]</em>
+    <span>[numbers and scale]</span>
+    <i></i>
+  </div>
+
   <!-- ===== STATS ===== -->
-  <section class="section stats-section">
+  <section class="section stats-section" data-chapter="7">
     <div class="section__head">
       <span class="section__tag"><i></i><span data-scramble>[f / 006 — numbers]</span></span>
       <h2 class="section__title" data-split-chars>[цифры в <i>холодных</i> фактах]</h2>
@@ -682,13 +805,13 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
   </section>
 
   <!-- ===== CTA ===== -->
-  <section class="cta" id="contact">
+  <section class="cta" id="contact" data-chapter="8">
     <div class="cta__bg" aria-hidden="true"></div>
     <div class="cta__inner">
       <span class="section__tag"><i></i><span data-scramble>[h / 008 — contact]</span></span>
       <h2 class="cta__title" data-split-chars>
         [давайте <i>создадим</i>
-        <br/>что-то большое]
+        что-то большое]
       </h2>
       <div class="cta__row">
         <a href="mailto:" class="cta__mail" data-hover data-magnetic>
@@ -750,7 +873,7 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
       </div>
     </div>
 
-    <div class="footer__huge" data-parallax-y="0.15">
+    <div class="footer__huge" data-parallax="0.25">
       <span>Scopnum</span>
     </div>
 
@@ -760,6 +883,9 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
       <span class="footer__live"><i></i> [all systems nominal]</span>
     </div>
   </footer>
+
+  </div><!-- /smooth__content -->
+  </div><!-- /smooth -->
 
   <script src="script.js"></script>
 </body>
