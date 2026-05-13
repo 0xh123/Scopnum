@@ -21,9 +21,9 @@
 
   function initSmooth() {
     if (!useSmoothScroll) {
-      document.documentElement.classList.add('no-smooth');
       return;
     }
+    document.documentElement.classList.add('has-smooth');
     const measure = () => {
       contentH = content.scrollHeight;
       document.body.style.height = contentH + 'px';
