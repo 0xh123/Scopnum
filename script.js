@@ -317,7 +317,7 @@
     hTrack.style.transform = `translateX(${-p * trackScroll}px)`;
     if (hProgress) hProgress.style.width = (p * 100) + '%';
 
-    // depth: scale cards based on distance from center
+    // depth: scale cards based on distance from center + 3D rotateY
     const cards = hTrack.querySelectorAll('[data-card]');
     const cx = window.innerWidth / 2;
     cards.forEach((card) => {
@@ -326,7 +326,9 @@
       const dist = Math.abs(cardCenter - cx) / (window.innerWidth / 2);
       const scale = 1 - dist * 0.08;
       const blur = dist * 2;
-      card.style.transform = `scale(${clamp(scale, 0.88, 1)})`;
+      const sign = cardCenter < cx ? 1 : -1;
+      const rotateY = sign * dist * 3;
+      card.style.transform = `perspective(1200px) scale(${clamp(scale, 0.88, 1)}) rotateY(${rotateY}deg)`;
       card.style.filter = blur > 0.5 ? `blur(${blur.toFixed(1)}px)` : 'none';
       card.style.opacity = 1 - dist * 0.3;
     });
@@ -380,9 +382,11 @@
     const p = clamp(scrolled / max, 0, 1);
     const total = cineWords.length;
     const litCount = Math.floor(p * (total + 2));
+    const middle = Math.floor(total / 2);
 
     cineWords.forEach((w, i) => {
-      w.classList.toggle('is-lit', i < litCount);
+      const distFromMiddle = Math.abs(i - middle);
+      w.classList.toggle('is-lit', distFromMiddle < litCount);
     });
   }
 
@@ -530,6 +534,16 @@
         const x = (e.clientX - r.left) / r.width;
         const y = (e.clientY - r.top) / r.height;
         el.style.transform = `perspective(1200px) rotateX(${-(y - 0.5) * 10}deg) rotateY(${(x - 0.5) * 10}deg)`;
+        // Animate reflection layer on hero__spec
+        const reflection = el.querySelector('.hero__spec') ? el : (el.classList.contains('hero__spec') ? el : null);
+        const before = el.style;
+        if (el.classList.contains('hero__spec') || el.closest('.hero__spec')) {
+          const target = el.classList.contains('hero__spec') ? el : el.closest('.hero__spec');
+          if (target) {
+            target.style.setProperty('--reflect-x', ((x - 0.5) * 100) + '%');
+            target.style.setProperty('--reflect-y', ((y - 0.5) * 100) + '%');
+          }
+        }
       });
       el.addEventListener('mouseleave', () => { el.style.transform = ''; });
     });
@@ -881,6 +895,68 @@
   }
 
   /* ============================================
+     FOOTER GENERATIVE CANVAS (morphing concentric rings)
+     ============================================ */
+  const footerCanvasEl = document.getElementById('footerCanvas');
+  let footerCtx, footerW, footerH, footerTime = 0;
+
+  if (footerCanvasEl && !prefersReduced) {
+    footerCtx = footerCanvasEl.getContext('2d');
+    const resizeFooterCanvas = () => {
+      const rect = footerCanvasEl.parentElement.getBoundingClientRect();
+      footerW = rect.width;
+      footerH = rect.height;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      footerCanvasEl.width = footerW * dpr;
+      footerCanvasEl.height = footerH * dpr;
+      footerCanvasEl.style.width = footerW + 'px';
+      footerCanvasEl.style.height = footerH + 'px';
+      footerCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resizeFooterCanvas();
+    window.addEventListener('resize', resizeFooterCanvas);
+  }
+
+  function footerCanvasTick() {
+    if (!footerCtx) return;
+    footerTime += 0.012;
+    footerCtx.clearRect(0, 0, footerW, footerH);
+
+    const cx = footerW / 2;
+    const cy = footerH / 2;
+    const maxR = Math.max(footerW, footerH) * 0.45;
+    const rings = 8;
+    const colors = [
+      { r: 255, g: 77, b: 21 },
+      { r: 33, g: 54, b: 240 },
+      { r: 183, g: 255, b: 46 }
+    ];
+
+    for (var ri = 0; ri < rings; ri++) {
+      var baseRadius = (ri + 1) / rings * maxR;
+      var pulse = Math.sin(footerTime * 1.2 + ri * 0.7) * 0.08;
+      var radius = baseRadius * (1 + pulse);
+      var c = colors[ri % 3];
+      var alpha = 0.3 - ri * 0.025;
+
+      footerCtx.beginPath();
+      var segments = 64;
+      for (var s = 0; s <= segments; s++) {
+        var angle = (s / segments) * Math.PI * 2;
+        var morph = Math.sin(angle * 3 + footerTime + ri * 0.5) * baseRadius * 0.06;
+        var px = cx + Math.cos(angle) * (radius + morph);
+        var py = cy + Math.sin(angle) * (radius + morph);
+        if (s === 0) footerCtx.moveTo(px, py);
+        else footerCtx.lineTo(px, py);
+      }
+      footerCtx.closePath();
+      footerCtx.strokeStyle = 'rgba(' + c.r + ', ' + c.g + ', ' + c.b + ', ' + alpha + ')';
+      footerCtx.lineWidth = 1.5 - ri * 0.1;
+      footerCtx.stroke();
+    }
+  }
+
+  /* ============================================
      SECTION THEME TRANSITION (fixed UI color changes in dark zones)
      ============================================ */
   const sectionBgEls = document.querySelectorAll('[data-section-bg]');
@@ -919,6 +995,7 @@
     hScrollTick();
     pinTick();
     cineTick();
+    footerCanvasTick();
     sectionThemeTick();
     requestAnimationFrame(masterLoop);
   }
