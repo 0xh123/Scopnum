@@ -215,7 +215,8 @@
       const speed = parseFloat(el.dataset.parallax) || 0.2;
       const rect = el.getBoundingClientRect();
       const center = rect.top + rect.height / 2;
-      const offset = (center - vh / 2) * speed * 1.5; // amplified
+      const velFactor = 1 + Math.min(Math.abs(scrollVelocity) * 0.05, 0.8);
+      const offset = (center - vh / 2) * speed * 1.5 * velFactor;
       // Multi-axis: horizontal drift + micro-rotation
       const hDrift = offset * 0.1;
       const microRot = offset * 0.01;
@@ -409,7 +410,9 @@
       const start = performance.now();
       const tick = (now) => {
         const p = Math.min((now - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - p, 3);
+        const eased = p < 0.7 
+          ? (1 - Math.pow(1 - p / 0.7, 3)) * 1.08
+          : 1.08 - 0.08 * ((p - 0.7) / 0.3);
         const val = target * eased;
         el.textContent = isInt ? Math.floor(val) : val.toFixed(val < 10 ? 2 : 1);
         if (p < 1) requestAnimationFrame(tick);
@@ -515,6 +518,90 @@
       el.addEventListener('mouseleave', () => { bx = 0; by = 0; el.style.removeProperty('--mx'); el.style.removeProperty('--my'); cancelAnimationFrame(raf); raf = requestAnimationFrame(run); });
     });
   }
+
+  /* ============================================
+     SMOOTH SCROLL TO ANCHOR
+     ============================================ */
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      if (!href || href === '#') return;
+      const target = document.querySelector(href);
+      if (!target) return;
+      e.preventDefault();
+      const start = window.scrollY;
+      const end = target.getBoundingClientRect().top + window.scrollY - 80;
+      const duration = 1000;
+      const startTime = performance.now();
+      const easeInOutCubic = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const animate = (now) => {
+        const elapsed = now - startTime;
+        const p = Math.min(elapsed / duration, 1);
+        window.scrollTo(0, start + (end - start) * easeInOutCubic(p));
+        if (p < 1) requestAnimationFrame(animate);
+      };
+      requestAnimationFrame(animate);
+    });
+  });
+
+  /* ============================================
+     AUDIO INFRASTRUCTURE (subtle UI sounds)
+     ============================================ */
+  let audioCtx = null;
+  let audioReady = false;
+
+  function initAudio() {
+    if (audioReady) return;
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioReady = true;
+    } catch (e) { /* silent fail */ }
+  }
+
+  function playTick() {
+    if (!audioCtx || !audioReady) return;
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 2000;
+      gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.03);
+    } catch (e) {}
+  }
+
+  function playWhoosh() {
+    if (!audioCtx || !audioReady) return;
+    try {
+      const bufferSize = audioCtx.sampleRate * 0.06;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+      const source = audioCtx.createBufferSource();
+      source.buffer = buffer;
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 800;
+      source.connect(filter).connect(gain).connect(audioCtx.destination);
+      source.start(audioCtx.currentTime);
+    } catch (e) {}
+  }
+
+  // Initialize on first interaction
+  document.addEventListener('click', () => { initAudio(); }, { once: true });
+  document.addEventListener('touchstart', () => { initAudio(); }, { once: true });
+
+  // Attach sounds to interactive elements
+  document.querySelectorAll('[data-hover]').forEach((el) => {
+    el.addEventListener('mouseenter', () => { if (audioReady) playWhoosh(); });
+    el.addEventListener('click', () => { if (audioReady) playTick(); });
+  });
 
   /* ============================================
      3D TILT
