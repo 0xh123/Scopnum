@@ -124,6 +124,7 @@ html.no-smooth body { overflow-y: auto; }
   will-change: transform;
   background: var(--ink);
   mix-blend-mode: difference;
+  transition: width 0.3s var(--ease), height 0.3s var(--ease);
 }
 
 .cursor__dot { width: 8px; height: 8px; }
@@ -555,11 +556,12 @@ html.no-smooth body { overflow-y: auto; }
   border-radius: 50%;
   font-size: .85rem;
   transition: transform .4s var(--ease);
+  transform: rotate(-45deg);
 }
-.btn--pill:hover .btn__arrow { animation: arrowBounce 0.6s var(--ease); transform: rotate(-45deg); }
+.btn--pill:hover .btn__arrow { animation: arrowBounce 0.6s var(--ease); animation-fill-mode: forwards; }
 
 @keyframes arrowBounce {
-  0% { transform: rotate(0); }
+  0% { transform: rotate(-45deg); }
   60% { transform: rotate(-55deg); }
   100% { transform: rotate(-45deg); }
 }
@@ -1850,7 +1852,6 @@ html.no-smooth body { overflow-y: auto; }
   border: 1px solid var(--line-2);
   border-radius: var(--radius-lg);
   background: var(--cream);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -2121,6 +2122,11 @@ html.no-smooth body { overflow-y: auto; }
   white-space: nowrap;
   pointer-events: none;
   will-change: transform;
+  animation: manifestoDrift 30s linear infinite;
+}
+@keyframes manifestoDrift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 .manifesto__drift span {
   display: inline-block;
@@ -2447,7 +2453,7 @@ html.no-smooth body { overflow-y: auto; }
   width: 100%;
   height: 100%;
   z-index: -1;
-  opacity: 0.15;
+  opacity: 0.28;
   pointer-events: none;
 }
 .footer__huge span {
@@ -2592,7 +2598,7 @@ html.no-smooth body { overflow-y: auto; }
                     radial-gradient(1px 1px at 85% 15%, var(--ink) 50%, transparent 100%);
   background-size: 300px 300px, 250px 250px, 350px 350px, 200px 200px;
   animation: ambientDrift 60s linear infinite;
-  opacity: 0.04;
+  opacity: 0.07;
 }
 .ambient::after {
   background-image: radial-gradient(1px 1px at 60% 20%, var(--ink) 50%, transparent 100%),
@@ -2600,7 +2606,7 @@ html.no-smooth body { overflow-y: auto; }
                     radial-gradient(1px 1px at 80% 50%, var(--ink) 50%, transparent 100%);
   background-size: 280px 280px, 320px 320px, 240px 240px;
   animation: ambientDrift2 80s linear infinite;
-  opacity: 0.05;
+  opacity: 0.09;
 }
 
 @keyframes ambientDrift {
@@ -2649,7 +2655,7 @@ html.no-smooth body { overflow-y: auto; }
 }
 
 /* --- Step 7: Horizontal scroll edge fade masks --- */
-.h-scroll__sticky {
+.h-scroll__track {
   -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
   mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
 }

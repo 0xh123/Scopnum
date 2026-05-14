@@ -25,20 +25,16 @@
   const smooth = document.getElementById('smooth');
   const content = document.getElementById('smoothContent');
   let scrollY = 0, smoothY = 0, scrollVelocity = 0;
-  let contentH = 0;
   // Smooth scroll inertia applied to parallax/ticker calculations only.
   // Native scroll stays untouched so sticky sections work.
-  let useSmoothScroll = true;
   const SMOOTH_LERP = 0.1;
-
-  function initSmooth() {}
-  initSmooth();
 
   function smoothTick() {
     const prev = smoothY;
     scrollY = window.scrollY;
     // Lerp the smoothed value toward actual scroll - gives premium inertia to parallax
     smoothY = lerp(smoothY, scrollY, SMOOTH_LERP);
+    if (Math.abs(smoothY - scrollY) < 0.5) smoothY = scrollY;
     scrollVelocity = smoothY - prev;
   }
 
@@ -191,9 +187,6 @@
     let activeChapter = 0;
     const vh = window.innerHeight;
     chapters.forEach((ch) => {
-      const rect = ch.getBoundingClientRect();
-      const top = useSmoothScroll ? (rect.top + smoothY - scrollY + rect.top) : rect.top;
-      // simpler: use real bounding
       if (ch.getBoundingClientRect().top < vh * 0.5) {
         activeChapter = parseInt(ch.dataset.chapter);
       }
@@ -580,7 +573,8 @@
     tick(); setInterval(tick, 1000);
   }
 
-  document.getElementById('footerYear').textContent = new Date().getFullYear();
+  const footerYearEl = document.getElementById('footerYear');
+  if (footerYearEl) footerYearEl.textContent = new Date().getFullYear();
 
   /* ============================================
      FAQ
