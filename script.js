@@ -881,6 +881,30 @@
   }
 
   /* ============================================
+     SECTION THEME TRANSITION (fixed UI color changes in dark zones)
+     ============================================ */
+  const sectionBgEls = document.querySelectorAll('[data-section-bg]');
+
+  function sectionThemeTick() {
+    if (!sectionBgEls.length) return;
+    const vh = window.innerHeight;
+    const center = vh / 2;
+    let inDark = false;
+
+    for (let i = 0; i < sectionBgEls.length; i++) {
+      const rect = sectionBgEls[i].getBoundingClientRect();
+      if (rect.top <= center && rect.bottom >= center) {
+        if (sectionBgEls[i].dataset.sectionBg === 'ink') {
+          inDark = true;
+        }
+        break;
+      }
+    }
+
+    document.body.classList.toggle('is-dark-zone', inDark);
+  }
+
+  /* ============================================
      MASTER RAF LOOP
      ============================================ */
   function masterLoop() {
@@ -895,6 +919,7 @@
     hScrollTick();
     pinTick();
     cineTick();
+    sectionThemeTick();
     requestAnimationFrame(masterLoop);
   }
   requestAnimationFrame(masterLoop);
