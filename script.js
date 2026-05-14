@@ -17,31 +17,17 @@
   const content = document.getElementById('smoothContent');
   let scrollY = 0, smoothY = 0, scrollVelocity = 0;
   let contentH = 0;
-  let useSmoothScroll = !prefersReduced && hasHover && smooth && content;
+  // Smooth scroll DISABLED — native scroll used for sticky sections compatibility
+  let useSmoothScroll = false;
 
-  function initSmooth() {
-    if (!useSmoothScroll) {
-      return;
-    }
-    document.documentElement.classList.add('has-smooth');
-    const measure = () => {
-      contentH = content.scrollHeight;
-      document.body.style.height = contentH + 'px';
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    new ResizeObserver(measure).observe(content);
-  }
+  function initSmooth() {}
   initSmooth();
 
   function smoothTick() {
-    if (!useSmoothScroll) return;
-    scrollY = window.scrollY;
     const prev = smoothY;
-    smoothY = lerp(smoothY, scrollY, 0.09);
-    if (Math.abs(smoothY - scrollY) < 0.5) smoothY = scrollY;
-    scrollVelocity = smoothY - prev;
-    content.style.transform = `translate3d(0, ${-smoothY}px, 0)`;
+    scrollY = window.scrollY;
+    smoothY = scrollY;
+    scrollVelocity = scrollY - prev;
   }
 
   /* ============================================
@@ -191,32 +177,27 @@
   function parallaxTick() {
     if (prefersReduced) return;
     const vh = window.innerHeight;
-    const sy = useSmoothScroll ? smoothY : scrollY;
+    const sy = scrollY;
 
     parallaxEls.forEach((el) => {
       const speed = parseFloat(el.dataset.parallax) || 0.2;
       const rect = el.getBoundingClientRect();
-      const elTop = rect.top + (useSmoothScroll ? smoothY : 0);
-      const center = elTop + rect.height / 2 - sy;
-      const offset = (center - vh / 2) * speed;
+      const center = rect.top + rect.height / 2;
+      const offset = (center - vh / 2) * speed * 1.5; // amplified
       el.style.transform = `translate3d(0, ${-offset}px, 0)`;
     });
 
     parallaxXEls.forEach((el) => {
       const speed = parseFloat(el.dataset.parallaxX) || 0.5;
       const offset = sy * speed;
-      el.querySelector('span').style.transform = `translate3d(${-offset}px, 0, 0)`;
+      const span = el.querySelector('span');
+      if (span) span.style.transform = `translate3d(${-offset}px, 0, 0)`;
     });
 
     rotEls.forEach((el) => {
       const speed = parseFloat(el.dataset.rot) || 0.05;
       const angle = sy * speed;
-      const prev = el.style.transform || '';
-      if (prev.includes('translate3d')) {
-        el.style.transform = prev.replace(/rotate\([^)]*\)/, `rotate(${angle}deg)`);
-      } else {
-        el.style.transform = `rotate(${angle}deg)`;
-      }
+      el.style.transform = `rotate(${angle}deg)`;
     });
   }
 
@@ -228,8 +209,8 @@
 
   function tickerTick() {
     if (!tickerTrack) return;
-    const baseSpeed = 1.2;
-    const velBoost = Math.abs(scrollVelocity) * 0.5;
+    const baseSpeed = 1.5;
+    const velBoost = Math.abs(scrollVelocity) * 1.2;
     tickerX -= (baseSpeed + velBoost);
     const half = tickerTrack.scrollWidth / 2;
     if (Math.abs(tickerX) >= half) tickerX = 0;
@@ -243,10 +224,10 @@
 
   function stripeTick() {
     if (!stripeTracks.length) return;
-    const sy = useSmoothScroll ? smoothY : scrollY;
+    const sy = scrollY;
     stripeTracks.forEach((track, i) => {
       const dir = i % 2 === 0 ? -1 : 1;
-      const offset = sy * 0.3 * dir;
+      const offset = sy * 0.5 * dir;
       track.style.transform = `translate3d(${offset}px, 0, 0)`;
     });
   }
@@ -552,9 +533,9 @@
 
     // 3 layers of particles at different depths
     const layers = [
-      { count: 60, speed: 0.15, size: [1, 2.5], opacity: 0.12, color: '255,77,21', connectDist: 160 },
-      { count: 45, speed: 0.3, size: [2, 4], opacity: 0.25, color: '33,54,240', connectDist: 130 },
-      { count: 30, speed: 0.5, size: [3, 6], opacity: 0.5, color: '14,14,14', connectDist: 100 },
+      { count: 80, speed: 0.12, size: [1, 2], opacity: 0.15, color: '255,77,21', connectDist: 180 },
+      { count: 55, speed: 0.25, size: [1.5, 3.5], opacity: 0.3, color: '33,54,240', connectDist: 150 },
+      { count: 40, speed: 0.45, size: [2.5, 5.5], opacity: 0.55, color: '14,14,14', connectDist: 120 },
     ];
     let particles = [];
 
@@ -701,15 +682,15 @@
         }
       }
 
-      // Floating geometric shapes (rotating hexagons at random positions)
-      ctx.strokeStyle = 'rgba(14, 14, 14, 0.04)';
-      ctx.lineWidth = 1;
-      for (let i = 0; i < 5; i++) {
-        const cx = (w * (0.15 + i * 0.18)) + Math.sin(time * 0.3 + i * 2) * 30;
-        const cy = (h * (0.2 + (i % 3) * 0.3)) + Math.cos(time * 0.2 + i) * 20;
-        const r = 30 + i * 15;
-        const sides = 6;
-        const rot = time * 0.2 * (i % 2 === 0 ? 1 : -1);
+      // Floating geometric shapes (rotating hexagons + triangles + circles at random positions)
+      ctx.strokeStyle = 'rgba(14, 14, 14, 0.05)';
+      ctx.lineWidth = 0.8;
+      for (let i = 0; i < 7; i++) {
+        const cx = (w * (0.1 + i * 0.13)) + Math.sin(time * 0.2 + i * 1.8) * 40;
+        const cy = (h * (0.15 + (i % 4) * 0.22)) + Math.cos(time * 0.15 + i) * 30;
+        const r = 25 + i * 12;
+        const sides = i % 3 === 0 ? 6 : (i % 3 === 1 ? 3 : 8);
+        const rot = time * 0.15 * (i % 2 === 0 ? 1 : -1);
         ctx.beginPath();
         for (let s = 0; s <= sides; s++) {
           const angle = (s / sides) * Math.PI * 2 + rot;
@@ -720,7 +701,33 @@
         }
         ctx.closePath();
         ctx.stroke();
+        // Inner shape
+        if (i % 2 === 0) {
+          ctx.beginPath();
+          for (let s = 0; s <= sides; s++) {
+            const angle = (s / sides) * Math.PI * 2 - rot * 0.5;
+            const px = cx + Math.cos(angle) * r * 0.5;
+            const py = cy + Math.sin(angle) * r * 0.5;
+            if (s === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.stroke();
+        }
       }
+
+      // Floating dotted circles
+      ctx.setLineDash([2, 4]);
+      ctx.strokeStyle = 'rgba(255, 77, 21, 0.04)';
+      for (let i = 0; i < 4; i++) {
+        const cx = w * (0.2 + i * 0.2) + Math.sin(time * 0.1 + i * 3) * 50;
+        const cy = h * (0.3 + (i % 2) * 0.4) + Math.cos(time * 0.08 + i * 2) * 40;
+        const r = 50 + i * 20;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
 
       requestAnimationFrame(draw);
     };
