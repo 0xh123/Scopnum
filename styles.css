@@ -2499,6 +2499,178 @@ html.no-smooth body { overflow-y: auto; }
    RESPONSIVE
    ============================================= */
 
+/* =============================================
+   FEAT-005: POLISH PASS
+   ============================================= */
+
+/* --- Step 1: Decorative geometric SVGs --- */
+.geo-deco {
+  position: relative;
+  width: 100%;
+  height: 80px;
+  pointer-events: none;
+  overflow: hidden;
+}
+.geo-deco__shape {
+  position: absolute;
+  color: var(--ink);
+}
+.geo-deco--1 .geo-deco__shape--ring {
+  width: 60px; height: 60px;
+  top: 10px; left: 12%;
+  opacity: 0.08;
+  animation: geoRotate 24s linear infinite;
+}
+.geo-deco--1 .geo-deco__shape--dot {
+  width: 20px; height: 20px;
+  top: 30px; left: 55%;
+  opacity: 0.1;
+  animation: geoPulse 4s ease-in-out infinite;
+}
+.geo-deco--1 .geo-deco__shape--circle {
+  width: 44px; height: 44px;
+  top: 14px; right: 15%;
+  opacity: 0.06;
+  animation: geoRotate 32s linear infinite reverse;
+}
+.geo-deco--2 .geo-deco__shape--ring2 {
+  width: 50px; height: 50px;
+  top: 16px; right: 20%;
+  opacity: 0.09;
+  animation: geoRotate 28s linear infinite;
+}
+.geo-deco--2 .geo-deco__shape--dot2 {
+  width: 16px; height: 16px;
+  top: 34px; left: 30%;
+  opacity: 0.12;
+  animation: geoPulse 5s ease-in-out infinite;
+}
+
+@keyframes geoRotate {
+  to { transform: rotate(360deg); }
+}
+@keyframes geoPulse {
+  0%, 100% { transform: scale(1); opacity: 0.1; }
+  50% { transform: scale(1.3); opacity: 0.06; }
+}
+
+/* --- Step 2: Nav menu advanced hover --- */
+.nav__menu a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 100px;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0;
+  transition: opacity .4s;
+  z-index: 0;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+.nav__menu a:hover::after {
+  opacity: 0.03;
+}
+.nav__menu a:hover {
+  text-shadow: 0 0 20px rgba(242, 236, 224, 0.4);
+}
+
+/* --- Step 3: Ambient floating dots --- */
+.ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.ambient::before,
+.ambient::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(1.5px 1.5px at 20% 30%, var(--ink) 50%, transparent 100%),
+                    radial-gradient(1px 1px at 70% 60%, var(--ink) 50%, transparent 100%),
+                    radial-gradient(1.5px 1.5px at 40% 80%, var(--ink) 50%, transparent 100%),
+                    radial-gradient(1px 1px at 85% 15%, var(--ink) 50%, transparent 100%);
+  background-size: 300px 300px, 250px 250px, 350px 350px, 200px 200px;
+  animation: ambientDrift 60s linear infinite;
+  opacity: 0.04;
+}
+.ambient::after {
+  background-image: radial-gradient(1px 1px at 60% 20%, var(--ink) 50%, transparent 100%),
+                    radial-gradient(1.5px 1.5px at 30% 70%, var(--ink) 50%, transparent 100%),
+                    radial-gradient(1px 1px at 80% 50%, var(--ink) 50%, transparent 100%);
+  background-size: 280px 280px, 320px 320px, 240px 240px;
+  animation: ambientDrift2 80s linear infinite;
+  opacity: 0.05;
+}
+
+@keyframes ambientDrift {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-60px, -80px); }
+}
+@keyframes ambientDrift2 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(40px, -60px); }
+}
+
+/* --- Step 4: Section tag line draw-in animation --- */
+.section__tag i {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.8s var(--ease-out) 0.3s;
+}
+[data-reveal].is-visible .section__tag i,
+.is-split-in .section__tag i {
+  transform: scaleX(1);
+}
+
+/* --- Step 5: Magnetic button gradient-follow effect --- */
+.btn--pill:hover::before {
+  background: radial-gradient(circle at calc(var(--mx, 0.5) * 100%) calc(var(--my, 0.5) * 100%), var(--accent), var(--accent-2));
+  transform: translateY(0);
+}
+
+/* --- Step 6: Hero staggered load sequence --- */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.hero.is-in .hero__side--l {
+  animation: fadeSlideUp 1s var(--ease-out) 0.4s both;
+}
+.hero.is-in .hero__side--r {
+  animation: fadeSlideUp 1s var(--ease-out) 0.6s both;
+}
+.hero.is-in .hero__caption {
+  animation: fadeSlideUp 1s var(--ease-out) 0.9s both;
+}
+.hero.is-in .hero__scroll-hint {
+  animation: fadeSlideUp 1s var(--ease-out) 1.2s both;
+}
+
+/* --- Step 7: Horizontal scroll edge fade masks --- */
+.h-scroll__sticky {
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+}
+
+/* --- Step 8: Bento cell hover glow border --- */
+.bento__cell::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s;
+  filter: blur(8px);
+  pointer-events: none;
+}
+.bento__cell:hover::after {
+  opacity: 0.5;
+}
+
 @media (max-width: 1100px) {
   .rail { display: none; }
   .progress em { display: none; }

@@ -272,7 +272,8 @@
     tickerX -= (baseSpeed + velBoost);
     const half = tickerTrack.scrollWidth / 2;
     if (Math.abs(tickerX) >= half) tickerX = 0;
-    tickerTrack.style.transform = `translate3d(${tickerX}px, 0, 0)`;
+    const skew = clamp(scrollVelocity * -0.08, -3, 3);
+    tickerTrack.style.transform = `translate3d(${tickerX}px, 0, 0) skewX(${skew}deg)`;
   }
 
   /* ============================================
@@ -518,9 +519,13 @@
         const r = el.getBoundingClientRect();
         bx = (e.clientX - r.left - r.width / 2) * 0.3;
         by = (e.clientY - r.top - r.height / 2) * 0.3;
+        const normX = (e.clientX - r.left) / r.width;
+        const normY = (e.clientY - r.top) / r.height;
+        el.style.setProperty('--mx', normX.toFixed(3));
+        el.style.setProperty('--my', normY.toFixed(3));
         cancelAnimationFrame(raf); raf = requestAnimationFrame(run);
       });
-      el.addEventListener('mouseleave', () => { bx = 0; by = 0; cancelAnimationFrame(raf); raf = requestAnimationFrame(run); });
+      el.addEventListener('mouseleave', () => { bx = 0; by = 0; el.style.removeProperty('--mx'); el.style.removeProperty('--my'); cancelAnimationFrame(raf); raf = requestAnimationFrame(run); });
     });
   }
 
