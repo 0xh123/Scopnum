@@ -312,12 +312,27 @@
             <div class="card__media">
               <div class="card__viz card__viz--a">
                 <svg viewBox="0 0 200 200">
-                  <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="1"/>
-                  <circle cx="100" cy="100" r="55" fill="none" stroke="currentColor" stroke-width="1"/>
-                  <circle cx="100" cy="100" r="30" fill="none" stroke="currentColor" stroke-width="1"/>
-                  <circle cx="100" cy="100" r="8" fill="currentColor"/>
-                  <line x1="100" y1="20" x2="100" y2="180" stroke="currentColor" stroke-width=".5" opacity=".4"/>
-                  <line x1="20" y1="100" x2="180" y2="100" stroke="currentColor" stroke-width=".5" opacity=".4"/>
+                  <defs><clipPath id="hexClip"><polygon points="100,10 180,50 180,150 100,190 20,150 20,50"/></clipPath></defs>
+                  <g clip-path="url(#hexClip)">
+                    <circle cx="100" cy="100" r="88" fill="none" stroke="currentColor" stroke-width=".8" stroke-dasharray="4 3"/>
+                    <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" stroke-width=".6" stroke-dasharray="2 4"/>
+                    <circle cx="100" cy="100" r="52" fill="none" stroke="currentColor" stroke-width=".8"/>
+                    <circle cx="100" cy="100" r="34" fill="none" stroke="currentColor" stroke-width="1"/>
+                    <circle cx="100" cy="100" r="16" fill="currentColor" opacity=".2"/>
+                    <circle cx="100" cy="100" r="6" fill="currentColor"/>
+                  </g>
+                  <polygon points="100,10 180,50 180,150 100,190 20,150 20,50" fill="none" stroke="currentColor" stroke-width="1"/>
+                  <polygon points="100,30 160,60 160,140 100,170 40,140 40,60" fill="none" stroke="currentColor" stroke-width=".5" opacity=".5"/>
+                  <line x1="100" y1="10" x2="100" y2="190" stroke="currentColor" stroke-width=".3" opacity=".4"/>
+                  <line x1="20" y1="100" x2="180" y2="100" stroke="currentColor" stroke-width=".3" opacity=".4"/>
+                  <line x1="20" y1="50" x2="180" y2="150" stroke="currentColor" stroke-width=".3" opacity=".3"/>
+                  <line x1="180" y1="50" x2="20" y2="150" stroke="currentColor" stroke-width=".3" opacity=".3"/>
+                  <circle cx="100" cy="10" r="3" fill="currentColor"/>
+                  <circle cx="180" cy="50" r="3" fill="currentColor"/>
+                  <circle cx="180" cy="150" r="3" fill="currentColor"/>
+                  <circle cx="100" cy="190" r="3" fill="currentColor"/>
+                  <circle cx="20" cy="150" r="3" fill="currentColor"/>
+                  <circle cx="20" cy="50" r="3" fill="currentColor"/>
                 </svg>
               </div>
             </div>
@@ -341,9 +356,24 @@
               <div class="card__viz card__viz--b">
                 <svg viewBox="0 0 200 200">
                   <rect x="20" y="20" width="160" height="160" fill="none" stroke="currentColor" stroke-width="1"/>
-                  <rect x="40" y="40" width="120" height="120" fill="none" stroke="currentColor" stroke-width="1" transform="rotate(22.5 100 100)"/>
-                  <rect x="60" y="60" width="80" height="80" fill="currentColor" opacity=".15"/>
+                  <rect x="35" y="35" width="130" height="130" fill="none" stroke="currentColor" stroke-width=".6" transform="rotate(12 100 100)"/>
+                  <rect x="50" y="50" width="100" height="100" fill="none" stroke="currentColor" stroke-width=".8" transform="rotate(24 100 100)"/>
+                  <rect x="65" y="65" width="70" height="70" fill="none" stroke="currentColor" stroke-width=".6" transform="rotate(36 100 100)"/>
+                  <rect x="80" y="80" width="40" height="40" fill="currentColor" opacity=".1" transform="rotate(45 100 100)"/>
                   <circle cx="100" cy="100" r="4" fill="currentColor"/>
+                  <!-- Corner details -->
+                  <circle cx="20" cy="20" r="2.5" fill="currentColor" opacity=".6"/>
+                  <circle cx="180" cy="20" r="2.5" fill="currentColor" opacity=".6"/>
+                  <circle cx="180" cy="180" r="2.5" fill="currentColor" opacity=".6"/>
+                  <circle cx="20" cy="180" r="2.5" fill="currentColor" opacity=".6"/>
+                  <!-- Diagonal guides -->
+                  <line x1="20" y1="20" x2="180" y2="180" stroke="currentColor" stroke-width=".3" opacity=".25" stroke-dasharray="3 5"/>
+                  <line x1="180" y1="20" x2="20" y2="180" stroke="currentColor" stroke-width=".3" opacity=".25" stroke-dasharray="3 5"/>
+                  <!-- Measurement marks -->
+                  <line x1="100" y1="14" x2="100" y2="26" stroke="currentColor" stroke-width=".5"/>
+                  <line x1="100" y1="174" x2="100" y2="186" stroke="currentColor" stroke-width=".5"/>
+                  <line x1="14" y1="100" x2="26" y2="100" stroke="currentColor" stroke-width=".5"/>
+                  <line x1="174" y1="100" x2="186" y2="100" stroke="currentColor" stroke-width=".5"/>
                 </svg>
               </div>
             </div>
@@ -366,13 +396,22 @@
             <div class="card__media">
               <div class="card__viz card__viz--c">
                 <svg viewBox="0 0 200 200">
-                  <g stroke="currentColor" fill="none" stroke-width="1">
-                    <path d="M20 100 Q 60 40 100 100 T 180 100"/>
-                    <path d="M20 120 Q 60 60 100 120 T 180 120" opacity=".6"/>
-                    <path d="M20 80 Q 60 20 100 80 T 180 80" opacity=".6"/>
-                    <path d="M20 140 Q 60 80 100 140 T 180 140" opacity=".3"/>
-                    <path d="M20 60 Q 60 0 100 60 T 180 60" opacity=".3"/>
+                  <g stroke="currentColor" fill="none" stroke-width=".8">
+                    <path d="M10 100 Q 35 30 60 100 T 110 100 T 160 100 T 190 100"/>
+                    <path d="M10 115 Q 35 55 60 115 T 110 115 T 160 115 T 190 115" opacity=".7"/>
+                    <path d="M10 85 Q 35 15 60 85 T 110 85 T 160 85 T 190 85" opacity=".7"/>
+                    <path d="M10 130 Q 35 75 60 130 T 110 130 T 160 130 T 190 130" opacity=".45"/>
+                    <path d="M10 70 Q 35 5 60 70 T 110 70 T 160 70 T 190 70" opacity=".45"/>
+                    <path d="M10 145 Q 35 95 60 145 T 110 145 T 160 145 T 190 145" opacity=".25"/>
+                    <path d="M10 55 Q 35 -5 60 55 T 110 55 T 160 55 T 190 55" opacity=".25"/>
                   </g>
+                  <!-- Frequency markers -->
+                  <circle cx="60" cy="100" r="2" fill="currentColor" opacity=".6"/>
+                  <circle cx="110" cy="100" r="2" fill="currentColor" opacity=".6"/>
+                  <circle cx="160" cy="100" r="2" fill="currentColor" opacity=".6"/>
+                  <!-- Amplitude envelope -->
+                  <path d="M10 160 L60 145 L110 155 L160 148 L190 160" stroke="currentColor" fill="none" stroke-width=".4" stroke-dasharray="2 3" opacity=".4"/>
+                  <path d="M10 40 L60 55 L110 45 L160 52 L190 40" stroke="currentColor" fill="none" stroke-width=".4" stroke-dasharray="2 3" opacity=".4"/>
                 </svg>
               </div>
             </div>
@@ -395,11 +434,25 @@
             <div class="card__media">
               <div class="card__viz card__viz--d">
                 <svg viewBox="0 0 200 200">
-                  <g stroke="currentColor" fill="none" stroke-width="1">
-                    <polygon points="100,20 180,100 100,180 20,100"/>
-                    <polygon points="100,50 150,100 100,150 50,100"/>
-                    <polygon points="100,80 120,100 100,120 80,100" fill="currentColor"/>
+                  <g stroke="currentColor" fill="none" stroke-width=".8">
+                    <!-- Nested diamonds with fibonacci-like rotation -->
+                    <polygon points="100,15 185,100 100,185 15,100"/>
+                    <polygon points="100,35 165,100 100,165 35,100" transform="rotate(8 100 100)"/>
+                    <polygon points="100,52 148,100 100,148 52,100" transform="rotate(16 100 100)"/>
+                    <polygon points="100,66 134,100 100,134 66,100" transform="rotate(24 100 100)"/>
+                    <polygon points="100,78 122,100 100,122 78,100" transform="rotate(32 100 100)" fill="currentColor" opacity=".08"/>
                   </g>
+                  <circle cx="100" cy="100" r="5" fill="currentColor"/>
+                  <!-- Vertex accents -->
+                  <circle cx="100" cy="15" r="2.5" fill="currentColor" opacity=".7"/>
+                  <circle cx="185" cy="100" r="2.5" fill="currentColor" opacity=".7"/>
+                  <circle cx="100" cy="185" r="2.5" fill="currentColor" opacity=".7"/>
+                  <circle cx="15" cy="100" r="2.5" fill="currentColor" opacity=".7"/>
+                  <!-- Connecting arcs -->
+                  <path d="M100 15 A 60 60 0 0 1 185 100" stroke="currentColor" fill="none" stroke-width=".3" stroke-dasharray="2 4" opacity=".4"/>
+                  <path d="M185 100 A 60 60 0 0 1 100 185" stroke="currentColor" fill="none" stroke-width=".3" stroke-dasharray="2 4" opacity=".4"/>
+                  <path d="M100 185 A 60 60 0 0 1 15 100" stroke="currentColor" fill="none" stroke-width=".3" stroke-dasharray="2 4" opacity=".4"/>
+                  <path d="M15 100 A 60 60 0 0 1 100 15" stroke="currentColor" fill="none" stroke-width=".3" stroke-dasharray="2 4" opacity=".4"/>
                 </svg>
               </div>
             </div>
@@ -446,24 +499,52 @@
           <div class="pin__frame" id="pinFrame">
             <div class="pin__frame-item is-active" data-frame="0">
               <svg viewBox="0 0 400 400" class="pin__svg">
-                <g stroke="currentColor" fill="none" stroke-width="1">
-                  <circle cx="200" cy="200" r="180"/>
-                  <circle cx="200" cy="200" r="140" opacity=".6"/>
-                  <circle cx="200" cy="200" r="100" opacity=".4"/>
-                  <circle cx="200" cy="200" r="60" opacity=".3"/>
-                  <circle cx="200" cy="200" r="20" fill="currentColor"/>
+                <g stroke="currentColor" fill="none" stroke-width=".8">
+                  <circle cx="200" cy="200" r="180" stroke-dasharray="6 4"/>
+                  <circle cx="200" cy="200" r="155" opacity=".6"/>
+                  <circle cx="200" cy="200" r="130" stroke-dasharray="3 6" opacity=".5"/>
+                  <circle cx="200" cy="200" r="105" opacity=".4"/>
+                  <circle cx="200" cy="200" r="80" stroke-dasharray="2 3" opacity=".4"/>
+                  <circle cx="200" cy="200" r="55" opacity=".3"/>
+                  <circle cx="200" cy="200" r="30"/>
+                  <circle cx="200" cy="200" r="12" fill="currentColor" opacity=".3"/>
+                  <circle cx="200" cy="200" r="5" fill="currentColor"/>
                 </g>
+                <!-- Orbital dots -->
+                <circle cx="200" cy="20" r="4" fill="currentColor" opacity=".6"/>
+                <circle cx="355" cy="200" r="3" fill="currentColor" opacity=".5"/>
+                <circle cx="200" cy="380" r="4" fill="currentColor" opacity=".6"/>
+                <circle cx="45" cy="200" r="3" fill="currentColor" opacity=".5"/>
+                <!-- Cross-hair guides -->
+                <line x1="200" y1="20" x2="200" y2="380" stroke="currentColor" stroke-width=".3" opacity=".2" stroke-dasharray="4 8"/>
+                <line x1="20" y1="200" x2="380" y2="200" stroke="currentColor" stroke-width=".3" opacity=".2" stroke-dasharray="4 8"/>
+                <!-- Radial spokes -->
+                <line x1="200" y1="200" x2="340" y2="80" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="200" y1="200" x2="340" y2="320" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="200" y1="200" x2="60" y2="80" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="200" y1="200" x2="60" y2="320" stroke="currentColor" stroke-width=".3" opacity=".15"/>
               </svg>
             </div>
             <div class="pin__frame-item" data-frame="1">
               <svg viewBox="0 0 400 400" class="pin__svg">
-                <g stroke="currentColor" fill="none" stroke-width="1">
-                  <rect x="40" y="40" width="320" height="320"/>
-                  <rect x="70" y="70" width="260" height="260" transform="rotate(15 200 200)"/>
-                  <rect x="100" y="100" width="200" height="200" transform="rotate(30 200 200)"/>
-                  <rect x="130" y="130" width="140" height="140" transform="rotate(45 200 200)" fill="currentColor" opacity=".2"/>
-                  <circle cx="200" cy="200" r="12" fill="currentColor"/>
+                <g stroke="currentColor" fill="none" stroke-width=".8">
+                  <rect x="30" y="30" width="340" height="340" rx="4"/>
+                  <rect x="55" y="55" width="290" height="290" rx="3" transform="rotate(6 200 200)"/>
+                  <rect x="80" y="80" width="240" height="240" rx="2" transform="rotate(12 200 200)"/>
+                  <rect x="105" y="105" width="190" height="190" rx="2" transform="rotate(18 200 200)"/>
+                  <rect x="130" y="130" width="140" height="140" rx="1" transform="rotate(24 200 200)" fill="currentColor" opacity=".06"/>
+                  <rect x="155" y="155" width="90" height="90" transform="rotate(30 200 200)" fill="currentColor" opacity=".08"/>
+                  <rect x="175" y="175" width="50" height="50" transform="rotate(36 200 200)" fill="currentColor" opacity=".12"/>
                 </g>
+                <circle cx="200" cy="200" r="6" fill="currentColor"/>
+                <!-- Corner accent dots -->
+                <circle cx="30" cy="30" r="3" fill="currentColor" opacity=".5"/>
+                <circle cx="370" cy="30" r="3" fill="currentColor" opacity=".5"/>
+                <circle cx="370" cy="370" r="3" fill="currentColor" opacity=".5"/>
+                <circle cx="30" cy="370" r="3" fill="currentColor" opacity=".5"/>
+                <!-- Grid lines -->
+                <line x1="200" y1="30" x2="200" y2="370" stroke="currentColor" stroke-width=".25" opacity=".15"/>
+                <line x1="30" y1="200" x2="370" y2="200" stroke="currentColor" stroke-width=".25" opacity=".15"/>
               </svg>
             </div>
             <div class="pin__frame-item" data-frame="2">

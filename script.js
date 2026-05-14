@@ -17,31 +17,17 @@
   const content = document.getElementById('smoothContent');
   let scrollY = 0, smoothY = 0, scrollVelocity = 0;
   let contentH = 0;
-  let useSmoothScroll = !prefersReduced && hasHover && smooth && content;
+  // Smooth scroll DISABLED — native scroll used for sticky sections compatibility
+  let useSmoothScroll = false;
 
-  function initSmooth() {
-    if (!useSmoothScroll) {
-      return;
-    }
-    document.documentElement.classList.add('has-smooth');
-    const measure = () => {
-      contentH = content.scrollHeight;
-      document.body.style.height = contentH + 'px';
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    new ResizeObserver(measure).observe(content);
-  }
+  function initSmooth() {}
   initSmooth();
 
   function smoothTick() {
-    if (!useSmoothScroll) return;
-    scrollY = window.scrollY;
     const prev = smoothY;
-    smoothY = lerp(smoothY, scrollY, 0.09);
-    if (Math.abs(smoothY - scrollY) < 0.5) smoothY = scrollY;
-    scrollVelocity = smoothY - prev;
-    content.style.transform = `translate3d(0, ${-smoothY}px, 0)`;
+    scrollY = window.scrollY;
+    smoothY = scrollY;
+    scrollVelocity = scrollY - prev;
   }
 
   /* ============================================
@@ -191,32 +177,27 @@
   function parallaxTick() {
     if (prefersReduced) return;
     const vh = window.innerHeight;
-    const sy = useSmoothScroll ? smoothY : scrollY;
+    const sy = scrollY;
 
     parallaxEls.forEach((el) => {
       const speed = parseFloat(el.dataset.parallax) || 0.2;
       const rect = el.getBoundingClientRect();
-      const elTop = rect.top + (useSmoothScroll ? smoothY : 0);
-      const center = elTop + rect.height / 2 - sy;
-      const offset = (center - vh / 2) * speed;
+      const center = rect.top + rect.height / 2;
+      const offset = (center - vh / 2) * speed * 1.5; // amplified
       el.style.transform = `translate3d(0, ${-offset}px, 0)`;
     });
 
     parallaxXEls.forEach((el) => {
       const speed = parseFloat(el.dataset.parallaxX) || 0.5;
       const offset = sy * speed;
-      el.querySelector('span').style.transform = `translate3d(${-offset}px, 0, 0)`;
+      const span = el.querySelector('span');
+      if (span) span.style.transform = `translate3d(${-offset}px, 0, 0)`;
     });
 
     rotEls.forEach((el) => {
       const speed = parseFloat(el.dataset.rot) || 0.05;
       const angle = sy * speed;
-      const prev = el.style.transform || '';
-      if (prev.includes('translate3d')) {
-        el.style.transform = prev.replace(/rotate\([^)]*\)/, `rotate(${angle}deg)`);
-      } else {
-        el.style.transform = `rotate(${angle}deg)`;
-      }
+      el.style.transform = `rotate(${angle}deg)`;
     });
   }
 
@@ -228,8 +209,8 @@
 
   function tickerTick() {
     if (!tickerTrack) return;
-    const baseSpeed = 1.2;
-    const velBoost = Math.abs(scrollVelocity) * 0.5;
+    const baseSpeed = 1.5;
+    const velBoost = Math.abs(scrollVelocity) * 1.2;
     tickerX -= (baseSpeed + velBoost);
     const half = tickerTrack.scrollWidth / 2;
     if (Math.abs(tickerX) >= half) tickerX = 0;
@@ -243,10 +224,10 @@
 
   function stripeTick() {
     if (!stripeTracks.length) return;
-    const sy = useSmoothScroll ? smoothY : scrollY;
+    const sy = scrollY;
     stripeTracks.forEach((track, i) => {
       const dir = i % 2 === 0 ? -1 : 1;
-      const offset = sy * 0.3 * dir;
+      const offset = sy * 0.5 * dir;
       track.style.transform = `translate3d(${offset}px, 0, 0)`;
     });
   }
@@ -540,50 +521,220 @@
   });
 
   /* ============================================
-     HERO WEBGL SHADER
+     HERO GENERATIVE VIDEO (particle neural field)
+     3 depth layers, organic flow, mouse-reactive
      ============================================ */
   const heroCanvas = document.getElementById('heroCanvas');
   if (heroCanvas && !prefersReduced) {
-    const gl = heroCanvas.getContext('webgl', { antialias: false, alpha: true });
-    if (gl) initShader(gl, heroCanvas);
-  }
-
-  function initShader(gl, canvas) {
-    const vert = `attribute vec2 p;void main(){gl_Position=vec4(p,0,1);}`;
-    const frag = `
-precision highp float;
-uniform vec2 u_r;uniform float u_t;uniform vec2 u_m;
-vec3 perm(vec3 x){return mod(((x*34.0)+1.0)*x,289.0);}
-float snoise(vec2 v){const vec4 C=vec4(.2113,.3660,-.5774,.0244);vec2 i=floor(v+dot(v,C.yy));vec2 x0=v-i+dot(i,C.xx);vec2 i1=(x0.x>x0.y)?vec2(1,0):vec2(0,1);vec4 x12=x0.xyxy+C.xxzz;x12.xy-=i1;i=mod(i,289.0);vec3 p=perm(perm(i.y+vec3(0,i1.y,1))+i.x+vec3(0,i1.x,1));vec3 m=max(.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.0);m=m*m;m=m*m;vec3 x=2.0*fract(p*C.www)-1.0;vec3 h=abs(x)-.5;vec3 ox=floor(x+.5);vec3 a0=x-ox;m*=1.792-0.854*(a0*a0+h*h);vec3 g;g.x=a0.x*x0.x+h.x*x0.y;g.yz=a0.yz*x12.xz+h.yz*x12.yw;return 130.0*dot(m,g);}
-void main(){vec2 uv=gl_FragCoord.xy/u_r;vec2 p=(gl_FragCoord.xy-u_r*.5)/min(u_r.x,u_r.y);float t=u_t*.1;vec2 m=(u_m/u_r-.5);float md=length(p-m*1.5);float mi=smoothstep(.6,.0,md)*.3;float n1=snoise(p*1.5+vec2(t,t*.8))*.5;float n2=snoise(p*3.0+vec2(-t*.6,t*.4))*.3;float n3=snoise(p*5.0+vec2(t*.3,-t*.5))*.2;float f=n1+n2+n3+mi;vec3 cream=vec3(.949,.925,.878);vec3 c2=vec3(.922,.886,.823);vec3 orange=vec3(1.,.302,.082);vec3 indigo=vec3(.129,.212,.941);vec3 col=mix(cream,c2,uv.y);col=mix(col,orange,smoothstep(.1,-.4,f-.2)*.35);col=mix(col,indigo,smoothstep(.1,-.4,-f-.15)*.22);col*=mix(.85,1.,smoothstep(1.,.3,length(p)));gl_FragColor=vec4(col,1);}`;
-
-    const compile = (t, s) => { const sh = gl.createShader(t); gl.shaderSource(sh, s); gl.compileShader(sh); return sh; };
-    const vs = compile(gl.VERTEX_SHADER, vert);
-    const fs = compile(gl.FRAGMENT_SHADER, frag);
-    const prog = gl.createProgram();
-    gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
-
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]), gl.STATIC_DRAW);
-    const posLoc = gl.getAttribLocation(prog, 'p');
-    const resLoc = gl.getUniformLocation(prog, 'u_r');
-    const timeLoc = gl.getUniformLocation(prog, 'u_t');
-    const mouseLoc = gl.getUniformLocation(prog, 'u_m');
-
-    let gmx = 0, gmy = 0;
-    canvas.addEventListener('mousemove', (e) => { const r = canvas.getBoundingClientRect(); gmx = e.clientX - r.left; gmy = r.height - (e.clientY - r.top); });
-
-    const resize = () => { const dpr = Math.min(window.devicePixelRatio || 1, 2); canvas.width = canvas.offsetWidth * dpr; canvas.height = canvas.offsetHeight * dpr; gl.viewport(0, 0, canvas.width, canvas.height); };
-    resize(); window.addEventListener('resize', resize);
-    const t0 = performance.now();
+    const ctx = heroCanvas.getContext('2d');
+    let w, h, dpr;
+    let hmx = 0, hmy = 0;
     let running = true;
 
-    const render = () => { if (!running) return; gl.useProgram(prog); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.enableVertexAttribArray(posLoc); gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0); gl.uniform2f(resLoc, canvas.width, canvas.height); gl.uniform1f(timeLoc, (performance.now() - t0) / 1000); gl.uniform2f(mouseLoc, gmx * (window.devicePixelRatio || 1), gmy * (window.devicePixelRatio || 1)); gl.drawArrays(gl.TRIANGLES, 0, 6); requestAnimationFrame(render); };
-    render();
+    // 3 layers of particles at different depths
+    const layers = [
+      { count: 80, speed: 0.12, size: [1, 2], opacity: 0.15, color: '255,77,21', connectDist: 180 },
+      { count: 55, speed: 0.25, size: [1.5, 3.5], opacity: 0.3, color: '33,54,240', connectDist: 150 },
+      { count: 40, speed: 0.45, size: [2.5, 5.5], opacity: 0.55, color: '14,14,14', connectDist: 120 },
+    ];
+    let particles = [];
+
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      w = heroCanvas.offsetWidth;
+      h = heroCanvas.offsetHeight;
+      heroCanvas.width = w * dpr;
+      heroCanvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      initParticles();
+    };
+
+    const initParticles = () => {
+      particles = [];
+      layers.forEach((layer, li) => {
+        for (let i = 0; i < layer.count; i++) {
+          particles.push({
+            layer: li,
+            x: Math.random() * w,
+            y: Math.random() * h,
+            vx: (Math.random() - 0.5) * layer.speed,
+            vy: (Math.random() - 0.5) * layer.speed,
+            baseR: layer.size[0] + Math.random() * (layer.size[1] - layer.size[0]),
+            phase: Math.random() * Math.PI * 2,
+            orbitR: 20 + Math.random() * 40,
+            orbitSpeed: (0.2 + Math.random() * 0.4) * (Math.random() > 0.5 ? 1 : -1),
+          });
+        }
+      });
+    };
+
+    heroCanvas.addEventListener('mousemove', (e) => {
+      const r = heroCanvas.getBoundingClientRect();
+      hmx = e.clientX - r.left;
+      hmy = e.clientY - r.top;
+    });
+    heroCanvas.addEventListener('mouseleave', () => { hmx = -999; hmy = -999; });
+    window.addEventListener('resize', resize);
+    resize();
+
+    let time = 0;
+    const draw = () => {
+      if (!running) return;
+      time += 0.016;
+      ctx.clearRect(0, 0, w, h);
+
+      // Draw connections first, then particles on top
+      for (let li = 0; li < layers.length; li++) {
+        const layer = layers[li];
+        const layerP = particles.filter(p => p.layer === li);
+
+        // Update positions with organic orbital motion
+        for (const p of layerP) {
+          p.phase += 0.008 * p.orbitSpeed;
+          p.x += p.vx + Math.sin(p.phase) * 0.3 * layer.speed;
+          p.y += p.vy + Math.cos(p.phase * 0.7) * 0.2 * layer.speed;
+
+          // Wrap
+          if (p.x < -20) p.x = w + 20;
+          if (p.x > w + 20) p.x = -20;
+          if (p.y < -20) p.y = h + 20;
+          if (p.y > h + 20) p.y = -20;
+
+          // Mouse repulsion (stronger for front layers)
+          if (hmx > 0) {
+            const dx = p.x - hmx;
+            const dy = p.y - hmy;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const repelDist = 120 + li * 40;
+            if (dist < repelDist) {
+              const force = (repelDist - dist) / repelDist * (0.5 + li * 0.3);
+              p.x += (dx / dist) * force;
+              p.y += (dy / dist) * force;
+            }
+          }
+        }
+
+        // Draw connections (neural links)
+        for (let i = 0; i < layerP.length; i++) {
+          const a = layerP[i];
+          for (let j = i + 1; j < layerP.length; j++) {
+            const b = layerP[j];
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < layer.connectDist) {
+              const alpha = (1 - dist / layer.connectDist) * layer.opacity * 0.6;
+              ctx.strokeStyle = `rgba(${layer.color}, ${alpha})`;
+              ctx.lineWidth = 0.5 + li * 0.3;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              // Curved connections for organic feel
+              const mx2 = (a.x + b.x) / 2 + Math.sin(time + i) * 8;
+              const my2 = (a.y + b.y) / 2 + Math.cos(time + j) * 8;
+              ctx.quadraticCurveTo(mx2, my2, b.x, b.y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Draw particles with glow
+        for (const p of layerP) {
+          const pulseR = p.baseR + Math.sin(time * 2 + p.phase) * p.baseR * 0.3;
+
+          // Outer glow
+          const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, pulseR * 5);
+          grad.addColorStop(0, `rgba(${layer.color}, ${layer.opacity * 0.5})`);
+          grad.addColorStop(1, `rgba(${layer.color}, 0)`);
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, pulseR * 5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Core
+          ctx.fillStyle = `rgba(${layer.color}, ${layer.opacity})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, pulseR, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Inner bright dot
+          ctx.fillStyle = `rgba(${layer.color}, ${layer.opacity * 1.5})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, pulseR * 0.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Mouse attraction beams (front layer only)
+        if (li === 2 && hmx > 0) {
+          for (const p of layerP) {
+            const dx = p.x - hmx;
+            const dy = p.y - hmy;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 200) {
+              const alpha = (1 - dist / 200) * 0.4;
+              ctx.strokeStyle = `rgba(255, 77, 21, ${alpha})`;
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(hmx, hmy);
+              ctx.stroke();
+            }
+          }
+        }
+      }
+
+      // Floating geometric shapes (rotating hexagons + triangles + circles at random positions)
+      ctx.strokeStyle = 'rgba(14, 14, 14, 0.05)';
+      ctx.lineWidth = 0.8;
+      for (let i = 0; i < 7; i++) {
+        const cx = (w * (0.1 + i * 0.13)) + Math.sin(time * 0.2 + i * 1.8) * 40;
+        const cy = (h * (0.15 + (i % 4) * 0.22)) + Math.cos(time * 0.15 + i) * 30;
+        const r = 25 + i * 12;
+        const sides = i % 3 === 0 ? 6 : (i % 3 === 1 ? 3 : 8);
+        const rot = time * 0.15 * (i % 2 === 0 ? 1 : -1);
+        ctx.beginPath();
+        for (let s = 0; s <= sides; s++) {
+          const angle = (s / sides) * Math.PI * 2 + rot;
+          const px = cx + Math.cos(angle) * r;
+          const py = cy + Math.sin(angle) * r;
+          if (s === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        // Inner shape
+        if (i % 2 === 0) {
+          ctx.beginPath();
+          for (let s = 0; s <= sides; s++) {
+            const angle = (s / sides) * Math.PI * 2 - rot * 0.5;
+            const px = cx + Math.cos(angle) * r * 0.5;
+            const py = cy + Math.sin(angle) * r * 0.5;
+            if (s === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.stroke();
+        }
+      }
+
+      // Floating dotted circles
+      ctx.setLineDash([2, 4]);
+      ctx.strokeStyle = 'rgba(255, 77, 21, 0.04)';
+      for (let i = 0; i < 4; i++) {
+        const cx = w * (0.2 + i * 0.2) + Math.sin(time * 0.1 + i * 3) * 50;
+        const cy = h * (0.3 + (i % 2) * 0.4) + Math.cos(time * 0.08 + i * 2) * 40;
+        const r = 50 + i * 20;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+
+      requestAnimationFrame(draw);
+    };
+    draw();
 
     const heroEl = document.querySelector('.hero');
-    if (heroEl) new IntersectionObserver((e) => { running = e[0].isIntersecting; if (running) render(); }, { threshold: 0 }).observe(heroEl);
+    if (heroEl) new IntersectionObserver((e) => { running = e[0].isIntersecting; if (running) draw(); }, { threshold: 0 }).observe(heroEl);
   }
 
   /* ============================================
