@@ -10,6 +10,15 @@
   const lerp = (a, b, n) => a + (b - a) * n;
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
+  /* Spring physics utility - returns {value, velocity} */
+  function spring(current, target, velocity, stiffness, damping) {
+    if (stiffness === undefined) stiffness = 0.08;
+    if (damping === undefined) damping = 0.82;
+    const force = (target - current) * stiffness;
+    velocity = (velocity + force) * damping;
+    return { value: current + velocity, velocity: velocity };
+  }
+
   /* ============================================
      SMOOTH SCROLL ENGINE (lerp-based)
      ============================================ */
@@ -17,8 +26,10 @@
   const content = document.getElementById('smoothContent');
   let scrollY = 0, smoothY = 0, scrollVelocity = 0;
   let contentH = 0;
-  // Smooth scroll DISABLED — native scroll used for sticky sections compatibility
-  let useSmoothScroll = false;
+  // Smooth scroll inertia applied to parallax/ticker calculations only.
+  // Native scroll stays untouched so sticky sections work.
+  let useSmoothScroll = true;
+  const SMOOTH_LERP = 0.1;
 
   function initSmooth() {}
   initSmooth();
@@ -26,8 +37,9 @@
   function smoothTick() {
     const prev = smoothY;
     scrollY = window.scrollY;
-    smoothY = scrollY;
-    scrollVelocity = scrollY - prev;
+    // Lerp the smoothed value toward actual scroll - gives premium inertia to parallax
+    smoothY = lerp(smoothY, scrollY, SMOOTH_LERP);
+    scrollVelocity = smoothY - prev;
   }
 
   /* ============================================
@@ -60,7 +72,7 @@
   }
 
   /* ============================================
-     CURSOR (goo)
+     CURSOR (goo) — spring physics for elastic overshoot
      ============================================ */
   const cursor = document.querySelector('.cursor');
   const cDot = document.querySelector('.cursor__dot');
@@ -68,6 +80,8 @@
   const cLabel = document.getElementById('cursorLabel');
   let mx = window.innerWidth / 2, my = window.innerHeight / 2;
   let dx = mx, dy = my, rx = mx, ry = my;
+  // Spring velocities for the ring
+  let ringVx = 0, ringVy = 0;
 
   if (cursor && hasHover) {
     window.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; });
@@ -80,13 +94,40 @@
 
   function cursorTick() {
     if (!cursor || !hasHover) return;
+    // Dot follows with simple lerp (fast)
     dx = lerp(dx, mx, 0.5);
     dy = lerp(dy, my, 0.5);
-    rx = lerp(rx, mx, 0.15);
-    ry = lerp(ry, my, 0.15);
+    // Ring follows with spring physics (elastic overshoot)
+    const sx = spring(rx, mx, ringVx, 0.08, 0.82);
+    const sy = spring(ry, my, ringVy, 0.08, 0.82);
+    rx = sx.value;
+    ry = sy.value;
+    ringVx = sx.velocity;
+    ringVy = sy.velocity;
     if (cDot) cDot.style.transform = `translate(${dx}px, ${dy}px) translate(-50%, -50%)`;
     if (cRing) cRing.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
     if (cLabel) cLabel.style.transform = `translate(${mx + 18}px, ${my + 18}px)`;
+
+    // Theme detection: check if cursor overlaps a dark-themed section
+    cursorThemeTick();
+  }
+
+  /* ============================================
+     CURSOR THEME DETECTION (auto-invert on dark sections)
+     ============================================ */
+  const darkSections = document.querySelectorAll('[data-theme="dark"]');
+
+  function cursorThemeTick() {
+    if (!cursor || !darkSections.length) return;
+    let onDark = false;
+    for (let i = 0; i < darkSections.length; i++) {
+      const rect = darkSections[i].getBoundingClientRect();
+      if (my >= rect.top && my <= rect.bottom) {
+        onDark = true;
+        break;
+      }
+    }
+    cursor.classList.toggle('is-dark', onDark);
   }
 
   /* ============================================
@@ -118,6 +159,9 @@
     if (trail.length > TRAIL_LEN) trail.shift();
 
     trailCtx.clearRect(0, 0, trailW, trailH);
+    // Determine trail color based on cursor theme
+    const onDark = cursor && cursor.classList.contains('is-dark');
+    const trailColor = onDark ? '242, 236, 224' : '255, 77, 21';
     for (let i = 0; i < trail.length; i++) {
       const p = trail[i];
       p.life -= 0.035;
@@ -125,7 +169,7 @@
       const r = p.life * 12;
       trailCtx.beginPath();
       trailCtx.arc(p.x, p.y, r, 0, Math.PI * 2);
-      trailCtx.fillStyle = `rgba(255, 77, 21, ${p.life * 0.25})`;
+      trailCtx.fillStyle = `rgba(${trailColor}, ${p.life * 0.25})`;
       trailCtx.fill();
     }
   }
@@ -177,7 +221,8 @@
   function parallaxTick() {
     if (prefersReduced) return;
     const vh = window.innerHeight;
-    const sy = scrollY;
+    // Use smoothY for parallax calculations to add inertia/depth perception
+    const sy = smoothY;
 
     parallaxEls.forEach((el) => {
       const speed = parseFloat(el.dataset.parallax) || 0.2;

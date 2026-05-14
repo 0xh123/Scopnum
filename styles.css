@@ -93,7 +93,7 @@ html.no-smooth body { overflow-y: auto; }
   inset: 0;
   pointer-events: none;
   z-index: 9997;
-  mix-blend-mode: multiply;
+  mix-blend-mode: screen;
 }
 
 .cursor {
@@ -118,6 +118,7 @@ html.no-smooth body { overflow-y: auto; }
   transform: translate(-50%, -50%);
   will-change: transform;
   background: var(--ink);
+  mix-blend-mode: difference;
 }
 
 .cursor__dot { width: 8px; height: 8px; }
