@@ -129,15 +129,15 @@
   </header>
 
   <!-- ===== HERO ===== -->
-  <section class="hero" data-chapter="0">
+  <section class="hero" data-chapter="0" data-section-bg="cream">
     <!-- 7 layered backgrounds -->
     <div class="hero__layers" aria-hidden="true">
       <canvas class="hero__canvas" id="heroCanvas" data-parallax="-0.02"></canvas>
-      <div class="hero__grid" data-parallax="0.05"></div>
+      <div class="hero__grid" data-parallax="0.05" data-parallax-scale="-0.02"></div>
       <div class="hero__overlay"></div>
       <!-- depth orbs -->
-      <div class="hero__orb hero__orb--1" data-parallax="0.25" data-rot="0.05"></div>
-      <div class="hero__orb hero__orb--2" data-parallax="-0.2" data-rot="-0.08"></div>
+      <div class="hero__orb hero__orb--1" data-parallax="0.25" data-rot="0.05" data-parallax-scale="0.03"></div>
+      <div class="hero__orb hero__orb--2" data-parallax="-0.2" data-rot="-0.08" data-parallax-scale="0.03"></div>
       <div class="hero__orb hero__orb--3" data-parallax="0.4" data-rot="0.03"></div>
       <!-- floating ghost text -->
       <span class="hero__ghost hero__ghost--1" data-parallax="-0.3">ai ⌁ studio</span>
@@ -216,7 +216,7 @@
   </div>
 
   <!-- ===== TICKER ===== -->
-  <div class="ticker" id="ticker">
+  <div class="ticker" id="ticker" data-theme="dark" data-section-bg="ink">
     <div class="ticker__track" id="tickerTrack">
       <span class="t">scopnum</span><span class="s">✳</span>
       <span class="t it">ai products</span><span class="s">✳</span>
@@ -233,8 +233,15 @@
     </div>
   </div>
 
+  <!-- ===== GEO DECO 1 ===== -->
+  <div class="geo-deco geo-deco--1" aria-hidden="true">
+    <svg class="geo-deco__shape geo-deco__shape--ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width=".8" stroke-dasharray="4 6"/></svg>
+    <svg class="geo-deco__shape geo-deco__shape--dot" viewBox="0 0 100 100"><circle cx="50" cy="50" r="6" fill="currentColor"/></svg>
+    <svg class="geo-deco__shape geo-deco__shape--circle" viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+  </div>
+
   <!-- ===== BAND / ABOUT ===== -->
-  <section class="band" id="about" data-chapter="1">
+  <section class="band" id="about" data-chapter="1" data-section-bg="cream">
     <div class="band__stamp" data-parallax="0.15" data-rot="0.1">
       <svg viewBox="0 0 220 220" class="band__stamp-svg">
         <defs>
@@ -280,7 +287,7 @@
     <div class="stripe__track" data-stripe-track>
       <span>Scopnum</span><em>·</em>
       <span class="it">создаём</span><em>·</em>
-      <span>AI</em><em>·</em>
+      <span>AI</span><em>·</em>
       <span class="it">продукты</span><em>·</em>
       <span>будущего</span><em>·</em>
       <span class="it">Scopnum</span><em>·</em>
@@ -290,7 +297,7 @@
   </div>
 
   <!-- ===== HORIZONTAL PRODUCTS ===== -->
-  <section class="h-scroll" id="works" data-chapter="2">
+  <section class="h-scroll" id="works" data-chapter="2" data-section-bg="cream">
     <div class="h-scroll__wrap">
       <div class="h-scroll__sticky">
         <div class="h-scroll__head">
@@ -347,7 +354,7 @@
             </a>
           </article>
 
-          <article class="card card--alt" data-card data-hover>
+          <article class="card card--alt" data-card data-hover data-theme="dark">
             <div class="card__top">
               <span class="card__num">/02</span>
               <span class="card__year">[2026]</span>
@@ -426,7 +433,7 @@
             </a>
           </article>
 
-          <article class="card card--alt" data-card data-hover>
+          <article class="card card--alt" data-card data-hover data-theme="dark">
             <div class="card__top">
               <span class="card__num">/04</span>
               <span class="card__year">[2026]</span>
@@ -492,7 +499,7 @@
   </div>
 
   <!-- ===== PINNED SHOWCASE ===== -->
-  <section class="pin" id="process" data-chapter="3">
+  <section class="pin" id="process" data-chapter="3" data-section-bg="cream">
     <div class="pin__wrap">
       <div class="pin__sticky">
         <div class="pin__visual">
@@ -611,7 +618,7 @@
   </div>
 
   <!-- ===== CINEMATIC QUOTE (zoom in/out on scroll) ===== -->
-  <section class="cine" data-chapter="4">
+  <section class="cine" data-chapter="4" data-section-bg="cream">
     <div class="cine__wrap">
       <div class="cine__sticky">
         <div class="cine__bg" data-parallax="0.3"></div>
@@ -643,7 +650,7 @@
   </section>
 
   <!-- ===== BENTO ===== -->
-  <section class="section bento-section" data-chapter="5">
+  <section class="section bento-section" data-chapter="5" data-section-bg="cream">
     <div class="section__head">
       <span class="section__tag"><i></i><span data-scramble>[d / 004 — features]</span></span>
       <h2 class="section__title" data-split-chars>[что мы <i>умеем</i> и делаем]</h2>
@@ -728,6 +735,13 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
     </div>
   </section>
 
+  <!-- ===== GEO DECO 3 ===== -->
+  <div class="geo-deco geo-deco--3" aria-hidden="true">
+    <svg class="geo-deco__shape geo-deco__shape--tri" viewBox="0 0 100 100"><polygon points="50,15 85,85 15,85" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+    <svg class="geo-deco__shape geo-deco__shape--cross" viewBox="0 0 100 100"><line x1="50" y1="20" x2="50" y2="80" stroke="currentColor" stroke-width="1"/><line x1="20" y1="50" x2="80" y2="50" stroke="currentColor" stroke-width="1"/></svg>
+    <svg class="geo-deco__shape geo-deco__shape--hex" viewBox="0 0 100 100"><polygon points="50,10 90,30 90,70 50,90 10,70 10,30" fill="none" stroke="currentColor" stroke-width=".8" stroke-dasharray="3 5"/></svg>
+  </div>
+
   <!-- ===== STRIPE 2 ===== -->
   <div class="stripe stripe--accent" data-stripe>
     <div class="stripe__track" data-stripe-track>
@@ -749,7 +763,7 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
   </div>
 
   <!-- ===== MANIFESTO (DARK INVERTED) ===== -->
-  <section class="manifesto" id="manifesto" data-chapter="6">
+  <section class="manifesto" id="manifesto" data-chapter="6" data-theme="dark" data-section-bg="ink">
     <div class="manifesto__inner">
       <div class="manifesto__head">
         <span class="section__tag"><i></i><span data-scramble>[e / 005 — manifesto]</span></span>
@@ -774,7 +788,7 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
       </div>
     </div>
     <div class="manifesto__drift" aria-hidden="true" data-parallax-x="0.5">
-      <span>SCOPNUM · SCOPNUM · SCOPNUM · SCOPNUM · SCOPNUM · SCOPNUM ·</span>
+      <span>SCOPNUM &middot; SCOPNUM &middot; SCOPNUM &middot; SCOPNUM &middot; SCOPNUM &middot; SCOPNUM &middot;</span><span>SCOPNUM &middot; SCOPNUM &middot; SCOPNUM &middot; SCOPNUM &middot; SCOPNUM &middot; SCOPNUM &middot;</span>
     </div>
   </section>
 
@@ -785,8 +799,14 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
     <i></i>
   </div>
 
+  <!-- ===== GEO DECO 2 ===== -->
+  <div class="geo-deco geo-deco--2" aria-hidden="true">
+    <svg class="geo-deco__shape geo-deco__shape--ring2" viewBox="0 0 100 100"><circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 4"/></svg>
+    <svg class="geo-deco__shape geo-deco__shape--dot2" viewBox="0 0 100 100"><circle cx="50" cy="50" r="4" fill="currentColor"/></svg>
+  </div>
+
   <!-- ===== STATS ===== -->
-  <section class="section stats-section" data-chapter="7">
+  <section class="section stats-section" data-chapter="7" data-section-bg="cream">
     <div class="section__head">
       <span class="section__tag"><i></i><span data-scramble>[f / 006 — numbers]</span></span>
       <h2 class="section__title" data-split-chars>[цифры в <i>холодных</i> фактах]</h2>
@@ -824,8 +844,15 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
     </div>
   </section>
 
+  <!-- ===== GEO DECO 4 ===== -->
+  <div class="geo-deco geo-deco--4" aria-hidden="true">
+    <svg class="geo-deco__shape geo-deco__shape--diamond" viewBox="0 0 100 100"><polygon points="50,10 90,50 50,90 10,50" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+    <svg class="geo-deco__shape geo-deco__shape--arc" viewBox="0 0 100 100"><path d="M20 80 Q 50 10 80 80" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+    <svg class="geo-deco__shape geo-deco__shape--dots3" viewBox="0 0 100 100"><circle cx="30" cy="50" r="3" fill="currentColor"/><circle cx="50" cy="50" r="3" fill="currentColor"/><circle cx="70" cy="50" r="3" fill="currentColor"/></svg>
+  </div>
+
   <!-- ===== FAQ ===== -->
-  <section class="section faq-section">
+  <section class="section faq-section" data-section-bg="cream">
     <div class="section__head">
       <span class="section__tag"><i></i><span data-scramble>[g / 007 — faq]</span></span>
       <h2 class="section__title" data-split-chars>[частые <i>вопросы</i>]</h2>
@@ -886,7 +913,7 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
   </section>
 
   <!-- ===== CTA ===== -->
-  <section class="cta" id="contact" data-chapter="8">
+  <section class="cta" id="contact" data-chapter="8" data-section-bg="cream">
     <div class="cta__bg" aria-hidden="true"></div>
     <div class="cta__inner">
       <span class="section__tag"><i></i><span data-scramble>[h / 008 — contact]</span></span>
@@ -895,7 +922,7 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
         что-то большое]
       </h2>
       <div class="cta__row">
-        <a href="mailto:" class="cta__mail" data-hover data-magnetic>
+        <a href="mailto:" class="cta__mail" data-hover data-magnetic data-tilt>
           <span>[hello@scopnum.ai]</span>
           <span class="cta__mail-arrow">
             <svg viewBox="0 0 60 60"><path d="M15 30h30M35 18l12 12-12 12" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
@@ -923,28 +950,28 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
   <footer class="footer">
     <div class="footer__top">
       <div class="footer__cols">
-        <div>
+        <div data-reveal>
           <h4>[навигация]</h4>
           <a href="#" data-hover>[работы]</a>
           <a href="#" data-hover>[продукты]</a>
           <a href="#" data-hover>[процесс]</a>
           <a href="#" data-hover>[манифест]</a>
         </div>
-        <div>
+        <div data-reveal>
           <h4>[ресурсы]</h4>
           <a href="#" data-hover>[документация]</a>
           <a href="#" data-hover>[changelog]</a>
           <a href="#" data-hover>[status]</a>
           <a href="#" data-hover>[api]</a>
         </div>
-        <div>
+        <div data-reveal>
           <h4>[компания]</h4>
           <a href="#" data-hover>[о нас]</a>
           <a href="#" data-hover>[careers]</a>
           <a href="#" data-hover>[press]</a>
           <a href="#" data-hover>[legal]</a>
         </div>
-        <div>
+        <div data-reveal>
           <h4>[социальные]</h4>
           <a href="#" data-hover>[twitter]</a>
           <a href="#" data-hover>[linkedin]</a>
@@ -955,6 +982,7 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
     </div>
 
     <div class="footer__huge" data-parallax="0.25">
+      <canvas class="footer__canvas" id="footerCanvas" aria-hidden="true"></canvas>
       <span>Scopnum</span>
     </div>
 
@@ -967,6 +995,9 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
 
   </div><!-- /smooth__content -->
   </div><!-- /smooth -->
+
+  <!-- ===== AMBIENT PARTICLES ===== -->
+  <div class="ambient" aria-hidden="true"></div>
 
   <script src="script.js"></script>
 </body>
