@@ -114,20 +114,14 @@
 
   /* ============================================
      CURSOR THEME DETECTION (auto-invert on dark sections)
+     Uses IntersectionObserver-driven flag from sectionThemeTick
+     instead of per-frame getBoundingClientRect calls.
      ============================================ */
-  const darkSections = document.querySelectorAll('[data-theme="dark"]');
+  let cursorOnDark = false;
 
   function cursorThemeTick() {
-    if (!cursor || !darkSections.length) return;
-    let onDark = false;
-    for (let i = 0; i < darkSections.length; i++) {
-      const rect = darkSections[i].getBoundingClientRect();
-      if (my >= rect.top && my <= rect.bottom) {
-        onDark = true;
-        break;
-      }
-    }
-    cursor.classList.toggle('is-dark', onDark);
+    if (!cursor) return;
+    cursor.classList.toggle('is-dark', cursorOnDark);
   }
 
   /* ============================================
@@ -711,9 +705,12 @@
     resize();
 
     let time = 0;
+    let lastFrameTime = performance.now();
     const draw = () => {
       if (!running) return;
-      time += 0.016;
+      const now = performance.now();
+      time += (now - lastFrameTime) * 0.001;
+      lastFrameTime = now;
       ctx.clearRect(0, 0, w, h);
 
       const cx = w / 2;
@@ -896,7 +893,7 @@
     draw();
 
     const heroEl = document.querySelector('.hero');
-    if (heroEl) new IntersectionObserver((e) => { running = e[0].isIntersecting; if (running) draw(); }, { threshold: 0 }).observe(heroEl);
+    if (heroEl) new IntersectionObserver((e) => { running = e[0].isIntersecting; if (running) { lastFrameTime = performance.now(); draw(); } }, { threshold: 0 }).observe(heroEl);
   }
 
   /* ============================================
@@ -904,6 +901,8 @@
      ============================================ */
   const footerCanvasEl = document.getElementById('footerCanvas');
   let footerCtx, footerW, footerH, footerTime = 0;
+  let footerRunning = false;
+  let footerLastTime = performance.now();
 
   if (footerCanvasEl && !prefersReduced) {
     footerCtx = footerCanvasEl.getContext('2d');
@@ -920,11 +919,19 @@
     };
     resizeFooterCanvas();
     window.addEventListener('resize', resizeFooterCanvas);
+
+    // Visibility gating: only tick when footer is in viewport
+    new IntersectionObserver((entries) => {
+      footerRunning = entries[0].isIntersecting;
+      if (footerRunning) footerLastTime = performance.now();
+    }, { threshold: 0 }).observe(footerCanvasEl);
   }
 
   function footerCanvasTick() {
-    if (!footerCtx) return;
-    footerTime += 0.012;
+    if (!footerCtx || !footerRunning) return;
+    const now = performance.now();
+    footerTime += (now - footerLastTime) * 0.001 * 0.75;
+    footerLastTime = now;
     footerCtx.clearRect(0, 0, footerW, footerH);
 
     const cx = footerW / 2;
@@ -963,26 +970,32 @@
 
   /* ============================================
      SECTION THEME TRANSITION (fixed UI color changes in dark zones)
+     Uses IntersectionObserver instead of per-frame getBoundingClientRect.
      ============================================ */
   const sectionBgEls = document.querySelectorAll('[data-section-bg]');
+  let currentSectionDark = false;
+
+  if (sectionBgEls.length) {
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const isDark = entry.target.dataset.sectionBg === 'ink';
+          currentSectionDark = isDark;
+          document.body.classList.toggle('is-dark-zone', isDark);
+          // Also update cursor dark flag for cursorThemeTick
+          cursorOnDark = isDark;
+        }
+      });
+    }, {
+      // rootMargin narrows detection to the center band of the viewport
+      rootMargin: '-45% 0px -45% 0px',
+      threshold: 0
+    });
+    sectionBgEls.forEach((el) => sectionObserver.observe(el));
+  }
 
   function sectionThemeTick() {
-    if (!sectionBgEls.length) return;
-    const vh = window.innerHeight;
-    const center = vh / 2;
-    let inDark = false;
-
-    for (let i = 0; i < sectionBgEls.length; i++) {
-      const rect = sectionBgEls[i].getBoundingClientRect();
-      if (rect.top <= center && rect.bottom >= center) {
-        if (sectionBgEls[i].dataset.sectionBg === 'ink') {
-          inDark = true;
-        }
-        break;
-      }
-    }
-
-    document.body.classList.toggle('is-dark-zone', inDark);
+    // No-op: theme detection is now handled by IntersectionObserver above
   }
 
   /* ============================================
