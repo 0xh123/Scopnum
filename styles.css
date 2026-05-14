@@ -600,6 +600,11 @@ html.no-smooth body { overflow-y: auto; }
   inset: -10% -5%;
   z-index: 0;
   pointer-events: none;
+  perspective: 1200px;
+}
+
+.hero__layers > * {
+  transform-style: preserve-3d;
 }
 
 .hero__canvas {
@@ -646,16 +651,43 @@ html.no-smooth body { overflow-y: auto; }
   top: 10%; left: 5%;
   width: 380px; height: 380px;
   background: radial-gradient(circle, rgba(255, 77, 21, .6), transparent 65%);
+  transform: translateZ(-50px);
 }
 .hero__orb--2 {
   bottom: 5%; right: 8%;
   width: 460px; height: 460px;
   background: radial-gradient(circle, rgba(33, 54, 240, .35), transparent 65%);
+  transform: translateZ(-80px);
 }
 .hero__orb--3 {
   top: 50%; left: 45%;
   width: 260px; height: 260px;
   background: radial-gradient(circle, rgba(183, 255, 46, .25), transparent 65%);
+  transform: translateZ(-30px);
+}
+
+.hero__orb--1 { animation: orbFloat1 12s ease-in-out infinite; }
+.hero__orb--2 { animation: orbFloat2 16s ease-in-out infinite; }
+.hero__orb--3 { animation: orbFloat3 10s ease-in-out infinite; }
+
+@keyframes orbFloat1 {
+  0%, 100% { transform: translateX(0) translateY(0) scale(1); }
+  25% { transform: translateX(30px) translateY(-20px) scale(1.08); }
+  50% { transform: translateX(-15px) translateY(-35px) scale(0.92); }
+  75% { transform: translateX(-25px) translateY(15px) scale(1.12); }
+}
+
+@keyframes orbFloat2 {
+  0%, 100% { transform: translateX(0) translateY(0) scale(1); }
+  25% { transform: translateX(-35px) translateY(25px) scale(0.88); }
+  50% { transform: translateX(20px) translateY(40px) scale(1.15); }
+  75% { transform: translateX(30px) translateY(-20px) scale(0.95); }
+}
+
+@keyframes orbFloat3 {
+  0%, 100% { transform: translateX(0) translateY(0) scale(1); }
+  33% { transform: translateX(25px) translateY(-30px) scale(1.1); }
+  66% { transform: translateX(-20px) translateY(20px) scale(0.85); }
 }
 
 .hero__ghost {
@@ -696,6 +728,21 @@ html.no-smooth body { overflow-y: auto; }
   opacity: .09;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' /%3E%3C/svg%3E");
+  animation: grainShift 0.15s steps(1) infinite;
+}
+
+@keyframes grainShift {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -10%); }
+  20% { transform: translate(8%, 5%); }
+  30% { transform: translate(-3%, 12%); }
+  40% { transform: translate(10%, -6%); }
+  50% { transform: translate(-8%, 3%); }
+  60% { transform: translate(4%, -12%); }
+  70% { transform: translate(-10%, 8%); }
+  80% { transform: translate(6%, -4%); }
+  90% { transform: translate(-2%, 10%); }
+  100% { transform: translate(7%, -8%); }
 }
 
 .hero__side {

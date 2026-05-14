@@ -229,7 +229,20 @@
       const rect = el.getBoundingClientRect();
       const center = rect.top + rect.height / 2;
       const offset = (center - vh / 2) * speed * 1.5; // amplified
-      el.style.transform = `translate3d(0, ${-offset}px, 0)`;
+      // Multi-axis: horizontal drift + micro-rotation
+      const hDrift = offset * 0.1;
+      const microRot = offset * 0.01;
+      // Scale if data-parallax-scale is present
+      const scaleAttr = el.dataset.parallaxScale;
+      let scaleStr = '';
+      if (scaleAttr !== undefined) {
+        const scaleFactor = parseFloat(scaleAttr) || 0;
+        const total = document.documentElement.scrollHeight - vh;
+        const progress = total > 0 ? sy / total : 0;
+        const scaleVal = 1 + scaleFactor * progress;
+        scaleStr = ` scale(${scaleVal.toFixed(4)})`;
+      }
+      el.style.transform = `translate3d(${hDrift}px, ${-offset}px, 0) rotate(${microRot}deg)${scaleStr}`;
     });
 
     parallaxXEls.forEach((el) => {
@@ -566,23 +579,99 @@
   });
 
   /* ============================================
-     HERO GENERATIVE VIDEO (particle neural field)
-     3 depth layers, organic flow, mouse-reactive
+     HERO GENERATIVE VIDEO (morphing geometry system)
+     Central morphing shape, flowing field lines, simplex noise
      ============================================ */
   const heroCanvas = document.getElementById('heroCanvas');
   if (heroCanvas && !prefersReduced) {
     const ctx = heroCanvas.getContext('2d');
     let w, h, dpr;
-    let hmx = 0, hmy = 0;
+    let hmx = -999, hmy = -999;
     let running = true;
 
-    // 3 layers of particles at different depths
-    const layers = [
-      { count: 80, speed: 0.12, size: [1, 2], opacity: 0.15, color: '255,77,21', connectDist: 180 },
-      { count: 55, speed: 0.25, size: [1.5, 3.5], opacity: 0.3, color: '33,54,240', connectDist: 150 },
-      { count: 40, speed: 0.45, size: [2.5, 5.5], opacity: 0.55, color: '14,14,14', connectDist: 120 },
+    /* Minimal 2D simplex noise implementation */
+    const noise2D = (() => {
+      const F2 = 0.5 * (Math.sqrt(3) - 1);
+      const G2 = (3 - Math.sqrt(3)) / 6;
+      const grad = [[1,1],[-1,1],[1,-1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]];
+      const perm = new Uint8Array(512);
+      const p = new Uint8Array(256);
+      for (let i = 0; i < 256; i++) p[i] = i;
+      // Fisher-Yates shuffle with fixed seed
+      let seed = 42;
+      for (let i = 255; i > 0; i--) {
+        seed = (seed * 16807 + 0) % 2147483647;
+        const j = seed % (i + 1);
+        const tmp = p[i]; p[i] = p[j]; p[j] = tmp;
+      }
+      for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
+
+      return function(x, y) {
+        const s = (x + y) * F2;
+        const i = Math.floor(x + s);
+        const j = Math.floor(y + s);
+        const t = (i + j) * G2;
+        const X0 = i - t, Y0 = j - t;
+        const x0 = x - X0, y0 = y - Y0;
+        const i1 = x0 > y0 ? 1 : 0;
+        const j1 = x0 > y0 ? 0 : 1;
+        const x1 = x0 - i1 + G2, y1 = y0 - j1 + G2;
+        const x2 = x0 - 1 + 2 * G2, y2 = y0 - 1 + 2 * G2;
+        const ii = i & 255, jj = j & 255;
+        let n0 = 0, n1 = 0, n2 = 0;
+        let t0 = 0.5 - x0 * x0 - y0 * y0;
+        if (t0 > 0) { t0 *= t0; const gi = perm[ii + perm[jj]] % 8; n0 = t0 * t0 * (grad[gi][0] * x0 + grad[gi][1] * y0); }
+        let t1 = 0.5 - x1 * x1 - y1 * y1;
+        if (t1 > 0) { t1 *= t1; const gi = perm[ii + i1 + perm[jj + j1]] % 8; n1 = t1 * t1 * (grad[gi][0] * x1 + grad[gi][1] * y1); }
+        let t2 = 0.5 - x2 * x2 - y2 * y2;
+        if (t2 > 0) { t2 *= t2; const gi = perm[ii + 1 + perm[jj + 1]] % 8; n2 = t2 * t2 * (grad[gi][0] * x2 + grad[gi][1] * y2); }
+        return 70 * (n0 + n1 + n2);
+      };
+    })();
+
+    /* Shape definitions: returns points on a unit shape at angle t [0..1] */
+    function shapeCircle(t) {
+      const a = t * Math.PI * 2;
+      return { x: Math.cos(a), y: Math.sin(a) };
+    }
+    function shapeHexagon(t) {
+      const a = t * Math.PI * 2;
+      const sector = Math.floor(t * 6);
+      const frac = t * 6 - sector;
+      const a1 = (sector / 6) * Math.PI * 2;
+      const a2 = ((sector + 1) / 6) * Math.PI * 2;
+      return { x: Math.cos(a1) + (Math.cos(a2) - Math.cos(a1)) * frac, y: Math.sin(a1) + (Math.sin(a2) - Math.sin(a1)) * frac };
+    }
+    function shapeTriangle(t) {
+      const sector = Math.floor(t * 3);
+      const frac = t * 3 - sector;
+      const a1 = (sector / 3) * Math.PI * 2 - Math.PI / 2;
+      const a2 = ((sector + 1) / 3) * Math.PI * 2 - Math.PI / 2;
+      return { x: Math.cos(a1) + (Math.cos(a2) - Math.cos(a1)) * frac, y: Math.sin(a1) + (Math.sin(a2) - Math.sin(a1)) * frac };
+    }
+    function shapeDiamond(t) {
+      const sector = Math.floor(t * 4);
+      const frac = t * 4 - sector;
+      const angles = [0, Math.PI / 2, Math.PI, Math.PI * 1.5];
+      const a1 = angles[sector];
+      const a2 = angles[(sector + 1) % 4];
+      const x1 = Math.cos(a1), y1 = Math.sin(a1);
+      const x2 = Math.cos(a2), y2 = Math.sin(a2);
+      return { x: x1 + (x2 - x1) * frac, y: y1 + (y2 - y1) * frac };
+    }
+
+    const shapes = [shapeCircle, shapeHexagon, shapeTriangle, shapeDiamond];
+    const MORPH_DURATION = 4; // seconds per shape transition
+    const SHAPE_POINTS = 64;
+    const FIELD_LINES = 18;
+    const FIELD_SEGMENTS = 20;
+
+    // Brand colors for ambient glow
+    const brandColors = [
+      { r: 255, g: 77, b: 21 },   // orange
+      { r: 33, g: 54, b: 240 },   // indigo
+      { r: 183, g: 255, b: 46 },  // lime
     ];
-    let particles = [];
 
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -591,26 +680,6 @@
       heroCanvas.width = w * dpr;
       heroCanvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      initParticles();
-    };
-
-    const initParticles = () => {
-      particles = [];
-      layers.forEach((layer, li) => {
-        for (let i = 0; i < layer.count; i++) {
-          particles.push({
-            layer: li,
-            x: Math.random() * w,
-            y: Math.random() * h,
-            vx: (Math.random() - 0.5) * layer.speed,
-            vy: (Math.random() - 0.5) * layer.speed,
-            baseR: layer.size[0] + Math.random() * (layer.size[1] - layer.size[0]),
-            phase: Math.random() * Math.PI * 2,
-            orbitR: 20 + Math.random() * 40,
-            orbitSpeed: (0.2 + Math.random() * 0.4) * (Math.random() > 0.5 ? 1 : -1),
-          });
-        }
-      });
     };
 
     heroCanvas.addEventListener('mousemove', (e) => {
@@ -628,151 +697,180 @@
       time += 0.016;
       ctx.clearRect(0, 0, w, h);
 
-      // Draw connections first, then particles on top
-      for (let li = 0; li < layers.length; li++) {
-        const layer = layers[li];
-        const layerP = particles.filter(p => p.layer === li);
+      const cx = w / 2;
+      const cy = h / 2;
+      const baseRadius = Math.min(w, h) * 0.18;
 
-        // Update positions with organic orbital motion
-        for (const p of layerP) {
-          p.phase += 0.008 * p.orbitSpeed;
-          p.x += p.vx + Math.sin(p.phase) * 0.3 * layer.speed;
-          p.y += p.vy + Math.cos(p.phase * 0.7) * 0.2 * layer.speed;
+      // Determine current and next shape for morphing
+      const totalCycle = MORPH_DURATION * shapes.length;
+      const cycleTime = time % totalCycle;
+      const shapeIdx = Math.floor(cycleTime / MORPH_DURATION);
+      const nextIdx = (shapeIdx + 1) % shapes.length;
+      const morphT = (cycleTime % MORPH_DURATION) / MORPH_DURATION;
+      // Smooth easing for morph
+      const ease = morphT < 0.5 ? 2 * morphT * morphT : 1 - Math.pow(-2 * morphT + 2, 2) / 2;
 
-          // Wrap
-          if (p.x < -20) p.x = w + 20;
-          if (p.x > w + 20) p.x = -20;
-          if (p.y < -20) p.y = h + 20;
-          if (p.y > h + 20) p.y = -20;
+      const currentShape = shapes[shapeIdx];
+      const nextShape = shapes[nextIdx];
 
-          // Mouse repulsion (stronger for front layers)
-          if (hmx > 0) {
-            const dx = p.x - hmx;
-            const dy = p.y - hmy;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            const repelDist = 120 + li * 40;
-            if (dist < repelDist) {
-              const force = (repelDist - dist) / repelDist * (0.5 + li * 0.3);
-              p.x += (dx / dist) * force;
-              p.y += (dy / dist) * force;
-            }
-          }
-        }
-
-        // Draw connections (neural links)
-        for (let i = 0; i < layerP.length; i++) {
-          const a = layerP[i];
-          for (let j = i + 1; j < layerP.length; j++) {
-            const b = layerP[j];
-            const dx = a.x - b.x;
-            const dy = a.y - b.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < layer.connectDist) {
-              const alpha = (1 - dist / layer.connectDist) * layer.opacity * 0.6;
-              ctx.strokeStyle = `rgba(${layer.color}, ${alpha})`;
-              ctx.lineWidth = 0.5 + li * 0.3;
-              ctx.beginPath();
-              ctx.moveTo(a.x, a.y);
-              // Curved connections for organic feel
-              const mx2 = (a.x + b.x) / 2 + Math.sin(time + i) * 8;
-              const my2 = (a.y + b.y) / 2 + Math.cos(time + j) * 8;
-              ctx.quadraticCurveTo(mx2, my2, b.x, b.y);
-              ctx.stroke();
-            }
-          }
-        }
-
-        // Draw particles with glow
-        for (const p of layerP) {
-          const pulseR = p.baseR + Math.sin(time * 2 + p.phase) * p.baseR * 0.3;
-
-          // Outer glow
-          const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, pulseR * 5);
-          grad.addColorStop(0, `rgba(${layer.color}, ${layer.opacity * 0.5})`);
-          grad.addColorStop(1, `rgba(${layer.color}, 0)`);
-          ctx.fillStyle = grad;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, pulseR * 5, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Core
-          ctx.fillStyle = `rgba(${layer.color}, ${layer.opacity})`;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, pulseR, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Inner bright dot
-          ctx.fillStyle = `rgba(${layer.color}, ${layer.opacity * 1.5})`;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, pulseR * 0.4, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Mouse attraction beams (front layer only)
-        if (li === 2 && hmx > 0) {
-          for (const p of layerP) {
-            const dx = p.x - hmx;
-            const dy = p.y - hmy;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 200) {
-              const alpha = (1 - dist / 200) * 0.4;
-              ctx.strokeStyle = `rgba(255, 77, 21, ${alpha})`;
-              ctx.lineWidth = 1;
-              ctx.beginPath();
-              ctx.moveTo(p.x, p.y);
-              ctx.lineTo(hmx, hmy);
-              ctx.stroke();
-            }
-          }
-        }
+      // Generate morphed shape points with noise displacement
+      const shapePoints = [];
+      for (let i = 0; i < SHAPE_POINTS; i++) {
+        const t = i / SHAPE_POINTS;
+        const p1 = currentShape(t);
+        const p2 = nextShape(t);
+        const mx2 = p1.x + (p2.x - p1.x) * ease;
+        const my2 = p1.y + (p2.y - p1.y) * ease;
+        // Noise displacement for organic movement
+        const noiseVal = noise2D(t * 3 + time * 0.5, time * 0.3) * 0.15;
+        const noiseVal2 = noise2D(t * 3 + 100, time * 0.4 + 50) * 0.1;
+        const px = cx + (mx2 + noiseVal) * baseRadius;
+        const py = cy + (my2 + noiseVal2) * baseRadius;
+        shapePoints.push({ x: px, y: py });
       }
 
-      // Floating geometric shapes (rotating hexagons + triangles + circles at random positions)
-      ctx.strokeStyle = 'rgba(14, 14, 14, 0.05)';
-      ctx.lineWidth = 0.8;
-      for (let i = 0; i < 7; i++) {
-        const cx = (w * (0.1 + i * 0.13)) + Math.sin(time * 0.2 + i * 1.8) * 40;
-        const cy = (h * (0.15 + (i % 4) * 0.22)) + Math.cos(time * 0.15 + i) * 30;
-        const r = 25 + i * 12;
-        const sides = i % 3 === 0 ? 6 : (i % 3 === 1 ? 3 : 8);
-        const rot = time * 0.15 * (i % 2 === 0 ? 1 : -1);
+      // Draw ambient glow behind shape
+      for (let gi = 0; gi < 3; gi++) {
+        const c = brandColors[gi];
+        const angle = time * 0.3 + gi * (Math.PI * 2 / 3);
+        const glowX = cx + Math.cos(angle) * baseRadius * 0.3;
+        const glowY = cy + Math.sin(angle) * baseRadius * 0.3;
+        const grad = ctx.createRadialGradient(glowX, glowY, 0, glowX, glowY, baseRadius * 1.8);
+        grad.addColorStop(0, `rgba(${c.r}, ${c.g}, ${c.b}, 0.06)`);
+        grad.addColorStop(1, `rgba(${c.r}, ${c.g}, ${c.b}, 0)`);
+        ctx.fillStyle = grad;
         ctx.beginPath();
-        for (let s = 0; s <= sides; s++) {
-          const angle = (s / sides) * Math.PI * 2 + rot;
-          const px = cx + Math.cos(angle) * r;
-          const py = cy + Math.sin(angle) * r;
-          if (s === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
-        }
-        ctx.closePath();
-        ctx.stroke();
-        // Inner shape
-        if (i % 2 === 0) {
-          ctx.beginPath();
-          for (let s = 0; s <= sides; s++) {
-            const angle = (s / sides) * Math.PI * 2 - rot * 0.5;
-            const px = cx + Math.cos(angle) * r * 0.5;
-            const py = cy + Math.sin(angle) * r * 0.5;
-            if (s === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
+        ctx.arc(glowX, glowY, baseRadius * 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Draw flowing field lines radiating from center
+      for (let i = 0; i < FIELD_LINES; i++) {
+        const baseAngle = (i / FIELD_LINES) * Math.PI * 2 + time * 0.1;
+        const colorIdx = i % 3;
+        const c = brandColors[colorIdx];
+
+        ctx.beginPath();
+        let prevX = cx;
+        let prevY = cy;
+
+        for (let s = 1; s <= FIELD_SEGMENTS; s++) {
+          const progress = s / FIELD_SEGMENTS;
+          const dist = baseRadius * 0.4 + progress * baseRadius * 1.8;
+          // Field lines respond to mouse
+          let angleOffset = 0;
+          if (hmx > 0) {
+            const mouseAngle = Math.atan2(hmy - cy, hmx - cx);
+            const diff = baseAngle - mouseAngle;
+            angleOffset = Math.sin(diff) * 0.15 * (1 - progress);
           }
-          ctx.closePath();
+          const noiseOffset = noise2D(i * 2 + progress * 4, time * 0.6) * 0.4;
+          const angle = baseAngle + noiseOffset + angleOffset;
+          const px = cx + Math.cos(angle) * dist;
+          const py = cy + Math.sin(angle) * dist;
+
+          if (s === 1) {
+            ctx.moveTo(px, py);
+          } else {
+            // Use bezier curves for flowing lines
+            const cpx = (prevX + px) / 2 + noise2D(i + s, time * 0.4) * 15;
+            const cpy = (prevY + py) / 2 + noise2D(i + s + 50, time * 0.4) * 15;
+            ctx.quadraticCurveTo(cpx, cpy, px, py);
+          }
+          prevX = px;
+          prevY = py;
+        }
+
+        // Pulsing opacity for field lines
+        const pulse = 0.5 + Math.sin(time * 2 + i * 0.7) * 0.3;
+        const alpha = 0.08 * pulse;
+        ctx.strokeStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`;
+        ctx.lineWidth = 1 + Math.sin(time + i) * 0.5;
+        ctx.stroke();
+      }
+
+      // Draw morphed central shape outline with bezier curves
+      ctx.beginPath();
+      for (let i = 0; i < shapePoints.length; i++) {
+        const curr = shapePoints[i];
+        const next = shapePoints[(i + 1) % shapePoints.length];
+        const prev = shapePoints[(i - 1 + shapePoints.length) % shapePoints.length];
+        if (i === 0) {
+          ctx.moveTo(curr.x, curr.y);
+        } else {
+          const cpx = (prev.x + curr.x) / 2 + (curr.x - prev.x) * 0.1;
+          const cpy = (prev.y + curr.y) / 2 + (curr.y - prev.y) * 0.1;
+          ctx.quadraticCurveTo(cpx, cpy, curr.x, curr.y);
+        }
+      }
+      ctx.closePath();
+      const shapeAlpha = 0.25 + Math.sin(time * 1.5) * 0.08;
+      ctx.strokeStyle = `rgba(14, 14, 14, ${shapeAlpha})`;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Draw inner morph shape (smaller, offset rotation)
+      ctx.beginPath();
+      for (let i = 0; i < SHAPE_POINTS; i++) {
+        const t = i / SHAPE_POINTS;
+        const p1 = currentShape(t);
+        const p2 = nextShape(t);
+        const mx2 = p1.x + (p2.x - p1.x) * ease;
+        const my2 = p1.y + (p2.y - p1.y) * ease;
+        const noiseVal = noise2D(t * 4 + time * 0.7 + 10, time * 0.5 + 20) * 0.12;
+        const px = cx + (mx2 + noiseVal) * baseRadius * 0.55;
+        const py = cy + (my2 + noiseVal) * baseRadius * 0.55;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = `rgba(255, 77, 21, ${0.12 + Math.sin(time * 2) * 0.04})`;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+
+      // Draw bezier connections between shape points (sparse, pulsing)
+      for (let i = 0; i < shapePoints.length; i += 8) {
+        const a = shapePoints[i];
+        const b = shapePoints[(i + Math.floor(SHAPE_POINTS / 3)) % SHAPE_POINTS];
+        const midX = (a.x + b.x) / 2 + noise2D(i + time, time * 0.3) * 30;
+        const midY = (a.y + b.y) / 2 + noise2D(i + time + 100, time * 0.3) * 30;
+        const alpha = 0.04 + Math.sin(time * 1.5 + i * 0.5) * 0.03;
+        ctx.strokeStyle = `rgba(33, 54, 240, ${alpha})`;
+        ctx.lineWidth = 0.6;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.quadraticCurveTo(midX, midY, b.x, b.y);
+        ctx.stroke();
+      }
+
+      // Noise-displaced orbital dots
+      for (let i = 0; i < 24; i++) {
+        const angle = (i / 24) * Math.PI * 2 + time * 0.2;
+        const dist = baseRadius * (1.3 + noise2D(i, time * 0.5) * 0.4);
+        const dx = cx + Math.cos(angle) * dist;
+        const dy = cy + Math.sin(angle) * dist;
+        const colorIdx = i % 3;
+        const c = brandColors[colorIdx];
+        const dotAlpha = 0.2 + noise2D(i * 3, time) * 0.15;
+        const dotR = 1.5 + noise2D(i * 2, time * 0.8) * 1;
+        ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${dotAlpha})`;
+        ctx.beginPath();
+        ctx.arc(dx, dy, dotR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Mouse interaction: attraction ring
+      if (hmx > 0) {
+        const mouseDist = Math.sqrt((hmx - cx) * (hmx - cx) + (hmy - cy) * (hmy - cy));
+        if (mouseDist < baseRadius * 3) {
+          const alpha = (1 - mouseDist / (baseRadius * 3)) * 0.15;
+          ctx.strokeStyle = `rgba(255, 77, 21, ${alpha})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(hmx, hmy, 30 + Math.sin(time * 3) * 5, 0, Math.PI * 2);
           ctx.stroke();
         }
       }
-
-      // Floating dotted circles
-      ctx.setLineDash([2, 4]);
-      ctx.strokeStyle = 'rgba(255, 77, 21, 0.04)';
-      for (let i = 0; i < 4; i++) {
-        const cx = w * (0.2 + i * 0.2) + Math.sin(time * 0.1 + i * 3) * 50;
-        const cy = h * (0.3 + (i % 2) * 0.4) + Math.cos(time * 0.08 + i * 2) * 40;
-        const r = 50 + i * 20;
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-      ctx.setLineDash([]);
 
       requestAnimationFrame(draw);
     };
