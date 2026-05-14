@@ -597,9 +597,18 @@
   document.addEventListener('click', () => { initAudio(); }, { once: true });
   document.addEventListener('touchstart', () => { initAudio(); }, { once: true });
 
+  // Throttled whoosh to prevent excessive audio on rapid hover
+  let lastWhooshTime = 0;
+  function playWhooshThrottled() {
+    const now = performance.now();
+    if (now - lastWhooshTime < 300) return;
+    lastWhooshTime = now;
+    playWhoosh();
+  }
+
   // Attach sounds to interactive elements
   document.querySelectorAll('[data-hover]').forEach((el) => {
-    el.addEventListener('mouseenter', () => { if (audioReady) playWhoosh(); });
+    el.addEventListener('mouseenter', () => { if (audioReady) playWhooshThrottled(); });
     el.addEventListener('click', () => { if (audioReady) playTick(); });
   });
 
