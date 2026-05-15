@@ -703,8 +703,8 @@
   });
 
   /* ============================================
-     HERO CANVAS - OSINT Investigation Graph
-     Force-directed graph with typed nodes and flowing edges
+     HERO CANVAS - Radial Investigation Mandala
+     Central hub with radial lines, outer nodes, flowing particles
      ============================================ */
   const heroCanvas = document.getElementById('heroCanvas');
   let noise2D; // shared simplex noise
@@ -750,22 +750,69 @@
     })();
 
     const brandColors = [{r:255,g:77,b:21},{r:33,g:54,b:240},{r:183,g:255,b:46}];
-    const nodeTypes = ['person','wallet','transaction','domain','ip','email','phone','organization'];
-    const nodeLabels = ['Agent','0x742d..','TX-4f1a','scopnum.ai','185.x.x.12','analyst@','tel+7','ScopnumLtd',
-      'Target','0xabc1..','TX-9e2c','darknet.io','92.x.x.44','info@','tel+1','ShellCorp',
-      'Witness','0xdef3..','TX-7b8d','mixer.io','10.x.x.1','admin@','tel+44','FundCo'];
-    const graphNodes = [];
-    const graphEdges = [];
-    let graphTime = 0, lastNodeSpawn = 0;
-    const MAX_NODES = 20, SPAWN_INTERVAL = 1.4;
 
-    function drawShape(ctx2, x, y, r, type) {
+    // Mandala structure
+    const HUB_RADIUS = 60;
+    const NODE_RADIUS = 170;
+    const DOT_RADIUS = 250;
+    const NODE_COUNT = 6;
+    const DOT_COUNT = 36;
+    const PARTICLE_COUNT = 48;
+
+    // Outer nodes with different shapes
+    const outerNodes = [];
+    for (let i = 0; i < NODE_COUNT; i++) {
+      outerNodes.push({
+        angle: (i / NODE_COUNT) * Math.PI * 2 - Math.PI / 2,
+        shape: i,
+        color: brandColors[i % 3],
+        offsetX: 0,
+        offsetY: 0
+      });
+    }
+
+    // Data source dots on outer ring
+    const sourceDots = [];
+    for (let i = 0; i < DOT_COUNT; i++) {
+      sourceDots.push({
+        angle: (i / DOT_COUNT) * Math.PI * 2,
+        phase: Math.random() * Math.PI * 2,
+        offsetX: 0,
+        offsetY: 0
+      });
+    }
+
+    // Flowing particles along radial lines
+    const particles = [];
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      particles.push({
+        line: i % NODE_COUNT,
+        t: Math.random(),
+        speed: 0.3 + Math.random() * 0.4,
+        size: 1 + Math.random() * 2,
+        color: brandColors[i % 3]
+      });
+    }
+
+    let mandalaTime = 0;
+
+    function drawNodeShape(ctx2, x, y, r, shape) {
       ctx2.beginPath();
-      if (type === 'person') { ctx2.arc(x, y, r, 0, Math.PI * 2); }
-      else if (type === 'wallet') { for (let i = 0; i < 6; i++) { const a = (i/6)*Math.PI*2 - Math.PI/2; if (i===0) ctx2.moveTo(x+Math.cos(a)*r, y+Math.sin(a)*r); else ctx2.lineTo(x+Math.cos(a)*r, y+Math.sin(a)*r); } ctx2.closePath(); }
-      else if (type === 'transaction') { ctx2.moveTo(x,y-r); ctx2.lineTo(x+r,y); ctx2.lineTo(x,y+r); ctx2.lineTo(x-r,y); ctx2.closePath(); }
-      else if (type === 'domain') { ctx2.rect(x-r*0.8,y-r*0.8,r*1.6,r*1.6); }
-      else { ctx2.arc(x, y, r, 0, Math.PI * 2); }
+      if (shape === 0) {
+        ctx2.arc(x, y, r, 0, Math.PI * 2);
+      } else if (shape === 1) {
+        for (let k = 0; k < 6; k++) { var a = (k / 6) * Math.PI * 2 - Math.PI / 2; if (k === 0) ctx2.moveTo(x + Math.cos(a) * r, y + Math.sin(a) * r); else ctx2.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); }
+        ctx2.closePath();
+      } else if (shape === 2) {
+        ctx2.rect(x - r * 0.75, y - r * 0.75, r * 1.5, r * 1.5);
+      } else if (shape === 3) {
+        ctx2.moveTo(x, y - r); ctx2.lineTo(x + r, y); ctx2.lineTo(x, y + r); ctx2.lineTo(x - r, y); ctx2.closePath();
+      } else if (shape === 4) {
+        ctx2.moveTo(x, y - r); ctx2.lineTo(x + r * 0.87, y + r * 0.5); ctx2.lineTo(x - r * 0.87, y + r * 0.5); ctx2.closePath();
+      } else {
+        for (let k = 0; k < 5; k++) { var a2 = (k / 5) * Math.PI * 2 - Math.PI / 2; if (k === 0) ctx2.moveTo(x + Math.cos(a2) * r, y + Math.sin(a2) * r); else ctx2.lineTo(x + Math.cos(a2) * r, y + Math.sin(a2) * r); }
+        ctx2.closePath();
+      }
     }
 
     const resize = () => {
@@ -785,77 +832,146 @@
       const now = performance.now();
       const dt = Math.min((now - lastFrameTime) * 0.001, 0.05);
       lastFrameTime = now;
-      graphTime += dt;
-
-      if (graphNodes.length < MAX_NODES && graphTime - lastNodeSpawn > SPAWN_INTERVAL) {
-        const angle = Math.random() * Math.PI * 2;
-        const dist = 60 + Math.random() * 100;
-        const ci = graphNodes.length % 3;
-        graphNodes.push({ x: w/2 + Math.cos(angle)*dist, y: h/2 + Math.sin(angle)*dist, vx:0, vy:0, type: nodeTypes[graphNodes.length%8], label: nodeLabels[graphNodes.length%nodeLabels.length], color: brandColors[ci], r: 4+Math.random()*4, opacity:0 });
-        if (graphNodes.length > 1) { const tgt = Math.floor(Math.random()*(graphNodes.length-1)); graphEdges.push({from:graphNodes.length-1,to:tgt,dash:0}); if (Math.random()>0.5 && graphNodes.length>2) { const t2 = Math.floor(Math.random()*(graphNodes.length-1)); if (t2!==tgt) graphEdges.push({from:graphNodes.length-1,to:t2,dash:0}); } }
-        lastNodeSpawn = graphTime;
-      }
+      mandalaTime += dt;
 
       ctx.clearRect(0, 0, w, h);
-      const cx = w/2, cy = h/2;
+      const cx = w / 2, cy = h / 2;
 
-      // Physics
-      for (let i = 0; i < graphNodes.length; i++) {
-        const n = graphNodes[i];
-        if (n.opacity < 1) n.opacity = Math.min(1, n.opacity + dt*2);
-        for (let j = i+1; j < graphNodes.length; j++) {
-          const m = graphNodes[j];
-          let dx = n.x-m.x, dy = n.y-m.y;
-          const d = Math.sqrt(dx*dx+dy*dy)||1;
-          if (d < 120) { const f = (120-d)*0.003; n.vx += (dx/d)*f; n.vy += (dy/d)*f; m.vx -= (dx/d)*f; m.vy -= (dy/d)*f; }
+      // Scroll parallax: scale from 0.85 to 1.0
+      const scrollFrac = clamp(smoothY / (window.innerHeight || 1), 0, 1);
+      const mandalaScale = 0.85 + scrollFrac * 0.15;
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(mandalaScale, mandalaScale);
+      ctx.translate(-cx, -cy);
+
+      // Mouse repulsion helper
+      function repel(px, py, outObj) {
+        outObj.offsetX = 0;
+        outObj.offsetY = 0;
+        if (hmx > 0) {
+          var ddx = px - hmx, ddy = py - hmy;
+          var dist = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+          if (dist < 150) {
+            var force = (150 - dist) * 0.15;
+            outObj.offsetX = (ddx / dist) * force;
+            outObj.offsetY = (ddy / dist) * force;
+          }
         }
-        const dcx = cx-n.x, dcy = cy-n.y, dc = Math.sqrt(dcx*dcx+dcy*dcy)||1;
-        n.vx += (dcx/dc)*0.02; n.vy += (dcy/dc)*0.02;
-        if (hmx > 0) { const mdx=n.x-hmx, mdy=n.y-hmy, md=Math.sqrt(mdx*mdx+mdy*mdy)||1; if(md<150){const mf=(150-md)*0.005; n.vx+=(mdx/md)*mf; n.vy+=(mdy/md)*mf;} }
-        n.vx += noise2D(i*0.5+graphTime*0.3,0)*0.3;
-        n.vy += noise2D(0,i*0.5+graphTime*0.3)*0.3;
-        const ang = Math.atan2(n.y-cy,n.x-cx);
-        n.vx += -Math.sin(ang)*0.001*dc; n.vy += Math.cos(ang)*0.001*dc;
-        n.vx *= 0.92; n.vy *= 0.92;
-        n.x += n.vx; n.y += n.vy;
-        if(n.x<40) n.vx+=0.5; if(n.x>w-40) n.vx-=0.5; if(n.y<40) n.vy+=0.5; if(n.y>h-40) n.vy-=0.5;
-      }
-      for (let e = 0; e < graphEdges.length; e++) {
-        const edge = graphEdges[e]; const a = graphNodes[edge.from], b = graphNodes[edge.to];
-        if(!a||!b) continue;
-        const dx=b.x-a.x, dy=b.y-a.y, d=Math.sqrt(dx*dx+dy*dy)||1, f=(d-100)*0.001;
-        a.vx+=(dx/d)*f; a.vy+=(dy/d)*f; b.vx-=(dx/d)*f; b.vy-=(dy/d)*f;
       }
 
-      // Draw edges
-      for (let e = 0; e < graphEdges.length; e++) {
-        const edge = graphEdges[e]; const a = graphNodes[edge.from], b = graphNodes[edge.to];
-        if(!a||!b) continue;
-        edge.dash -= 0.5;
-        ctx.save(); ctx.setLineDash([4,8]); ctx.lineDashOffset = edge.dash;
-        ctx.strokeStyle = 'rgba('+a.color.r+','+a.color.g+','+a.color.b+','+(Math.min(a.opacity,b.opacity)*0.3)+')';
-        ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); ctx.restore();
+      // Central hub ring - pulsing glow
+      var hubPulse = 0.6 + Math.sin(mandalaTime * 2) * 0.2;
+      var hubGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, HUB_RADIUS * 1.5);
+      hubGrad.addColorStop(0, 'rgba(255,77,21,' + (hubPulse * 0.12) + ')');
+      hubGrad.addColorStop(1, 'rgba(255,77,21,0)');
+      ctx.fillStyle = hubGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, HUB_RADIUS * 1.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(255,77,21,' + (0.3 + hubPulse * 0.2) + ')';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(cx, cy, HUB_RADIUS, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(255,77,21,' + (0.08 + hubPulse * 0.04) + ')';
+      ctx.fill();
+
+      // Draw radial lines and outer nodes
+      for (var ni = 0; ni < NODE_COUNT; ni++) {
+        var node = outerNodes[ni];
+        var nx = cx + Math.cos(node.angle) * NODE_RADIUS;
+        var ny = cy + Math.sin(node.angle) * NODE_RADIUS;
+        repel(nx, ny, node);
+        var fnx = nx + node.offsetX;
+        var fny = ny + node.offsetY;
+
+        // Radial line
+        ctx.strokeStyle = 'rgba(' + node.color.r + ',' + node.color.g + ',' + node.color.b + ',0.2)';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(fnx, fny);
+        ctx.stroke();
+
+        // Node glow
+        var nodeGrad = ctx.createRadialGradient(fnx, fny, 0, fnx, fny, 20);
+        nodeGrad.addColorStop(0, 'rgba(' + node.color.r + ',' + node.color.g + ',' + node.color.b + ',0.15)');
+        nodeGrad.addColorStop(1, 'rgba(' + node.color.r + ',' + node.color.g + ',' + node.color.b + ',0)');
+        ctx.fillStyle = nodeGrad;
+        ctx.beginPath();
+        ctx.arc(fnx, fny, 20, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Node shape
+        ctx.strokeStyle = 'rgba(' + node.color.r + ',' + node.color.g + ',' + node.color.b + ',0.7)';
+        ctx.lineWidth = 1.2;
+        drawNodeShape(ctx, fnx, fny, 10, node.shape);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(' + node.color.r + ',' + node.color.g + ',' + node.color.b + ',0.15)';
+        drawNodeShape(ctx, fnx, fny, 10, node.shape);
+        ctx.fill();
       }
 
-      // Draw nodes
-      for (let i = 0; i < graphNodes.length; i++) {
-        const n = graphNodes[i];
-        const grad = ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r*4);
-        grad.addColorStop(0,'rgba('+n.color.r+','+n.color.g+','+n.color.b+','+(n.opacity*0.15)+')');
-        grad.addColorStop(1,'rgba('+n.color.r+','+n.color.g+','+n.color.b+',0)');
-        ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(n.x,n.y,n.r*4,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle = 'rgba('+n.color.r+','+n.color.g+','+n.color.b+','+(n.opacity*0.7)+')';
-        drawShape(ctx,n.x,n.y,n.r,n.type); ctx.fill();
-        ctx.strokeStyle = 'rgba('+n.color.r+','+n.color.g+','+n.color.b+','+n.opacity+')'; ctx.lineWidth=1;
-        drawShape(ctx,n.x,n.y,n.r,n.type); ctx.stroke();
-        const la = n.opacity*(0.4+Math.sin(graphTime*1.5+i)*0.2);
-        if(la>0.2){ctx.font='9px "IBM Plex Mono",monospace';ctx.fillStyle='rgba(14,14,14,'+la+')';ctx.textAlign='center';ctx.fillText(n.label,n.x,n.y+n.r+14);}
+      // Outer ring of source dots with thin arcs
+      ctx.strokeStyle = 'rgba(14,14,14,0.06)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.arc(cx, cy, DOT_RADIUS, 0, Math.PI * 2);
+      ctx.stroke();
+
+      for (var di = 0; di < DOT_COUNT; di++) {
+        var dot = sourceDots[di];
+        var wobble = noise2D ? noise2D(di * 0.3 + mandalaTime * 0.2, mandalaTime * 0.1) * 8 : 0;
+        var dr = DOT_RADIUS + wobble;
+        var da = dot.angle + Math.sin(mandalaTime * 0.5 + dot.phase) * 0.02;
+        var dx = cx + Math.cos(da) * dr;
+        var dy = cy + Math.sin(da) * dr;
+        repel(dx, dy, dot);
+        var fdx = dx + dot.offsetX;
+        var fdy = dy + dot.offsetY;
+
+        // Thin arc to next dot
+        if (di < DOT_COUNT - 1) {
+          var nextDot = sourceDots[di + 1];
+          var nextA = nextDot.angle + Math.sin(mandalaTime * 0.5 + nextDot.phase) * 0.02;
+          ctx.strokeStyle = 'rgba(14,14,14,0.04)';
+          ctx.lineWidth = 0.4;
+          ctx.beginPath();
+          ctx.arc(cx, cy, dr, da, nextA);
+          ctx.stroke();
+        }
+
+        // Dot
+        var dotPulse = 0.3 + Math.sin(mandalaTime * 1.5 + dot.phase) * 0.2;
+        var ci2 = di % 3;
+        ctx.fillStyle = 'rgba(' + brandColors[ci2].r + ',' + brandColors[ci2].g + ',' + brandColors[ci2].b + ',' + dotPulse + ')';
+        ctx.beginPath();
+        ctx.arc(fdx, fdy, 2, 0, Math.PI * 2);
+        ctx.fill();
       }
 
-      // Scanline
-      ctx.fillStyle = 'rgba(255,77,21,0.012)';
-      ctx.fillRect(0,(graphTime*60)%h,w,2);
+      // Flowing particles along radial lines toward center
+      for (var pi = 0; pi < PARTICLE_COUNT; pi++) {
+        var p = particles[pi];
+        p.t += p.speed * dt;
+        if (p.t > 1) { p.t -= 1; }
 
+        var lineNode = outerNodes[p.line];
+        var startX = cx + Math.cos(lineNode.angle) * NODE_RADIUS;
+        var startY = cy + Math.sin(lineNode.angle) * NODE_RADIUS;
+        var px = startX + (cx - startX) * p.t;
+        var py = startY + (cy - startY) * p.t;
+
+        var alpha = Math.sin(p.t * Math.PI) * 0.6;
+        ctx.fillStyle = 'rgba(' + p.color.r + ',' + p.color.g + ',' + p.color.b + ',' + alpha + ')';
+        ctx.beginPath();
+        ctx.arc(px, py, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
       requestAnimationFrame(draw);
     };
     draw();
@@ -1492,21 +1608,6 @@
     }, { threshold: 0 }).observe(el);
   }
 
-  // About: flowing connection lines
-  initSectionBg('aboutBgCanvas', function(ctx2, sw, sh, t) {
-    ctx2.strokeStyle = 'rgba(14,14,14,0.06)'; ctx2.lineWidth = 0.8;
-    for (let i = 0; i < 8; i++) {
-      ctx2.beginPath();
-      const y0 = sh * 0.2 + i * sh * 0.08;
-      ctx2.moveTo(0, y0);
-      for (let x = 0; x <= sw; x += 40) {
-        const n = noise2D ? noise2D(x * 0.005 + t * 0.2, i * 2 + t * 0.1) : Math.sin(x * 0.01 + t + i);
-        ctx2.lineTo(x, y0 + n * 30);
-      }
-      ctx2.stroke();
-    }
-  });
-
   // Bento: pulsing dot grid
   initSectionBg('bentoBgCanvas', function(ctx2, sw, sh, t) {
     const spacing = 40;
@@ -1584,16 +1685,6 @@
   /* ============================================
      LIVE DATA SIMULATION
      ============================================ */
-  // Hero spec counter fluctuation
-  var heroSpecVal = document.querySelector('.hero__spec-val strong');
-  var heroSpecIntervalId = null;
-  if (heroSpecVal) {
-    heroSpecIntervalId = setInterval(function() {
-      var val = 99.95 + Math.random() * 0.04;
-      heroSpecVal.textContent = val.toFixed(2);
-    }, 3000);
-  }
-
   // Footer live status rotation
   var footerLive = document.querySelector('.footer__live');
   var footerLiveIntervalId = null;
@@ -1609,15 +1700,8 @@
   // Pause/resume intervals when page is not visible
   document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
-      if (heroSpecIntervalId !== null) { clearInterval(heroSpecIntervalId); heroSpecIntervalId = null; }
       if (footerLiveIntervalId !== null) { clearInterval(footerLiveIntervalId); footerLiveIntervalId = null; }
     } else {
-      if (heroSpecVal && heroSpecIntervalId === null) {
-        heroSpecIntervalId = setInterval(function() {
-          var val = 99.95 + Math.random() * 0.04;
-          heroSpecVal.textContent = val.toFixed(2);
-        }, 3000);
-      }
       if (footerLive && footerLiveIntervalId === null) {
         footerLiveIntervalId = setInterval(function() {
           statusIdx = (statusIdx + 1) % statuses.length;
