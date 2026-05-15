@@ -549,72 +549,176 @@
           <div class="pin__frame" id="pinFrame">
             <div class="pin__frame-item is-active" data-frame="0">
               <svg viewBox="0 0 400 400" class="pin__svg">
-                <g stroke="currentColor" fill="none" stroke-width=".8">
-                  <circle cx="200" cy="200" r="180" stroke-dasharray="6 4"/>
-                  <circle cx="200" cy="200" r="155" opacity=".6"/>
-                  <circle cx="200" cy="200" r="130" stroke-dasharray="3 6" opacity=".5"/>
-                  <circle cx="200" cy="200" r="105" opacity=".4"/>
-                  <circle cx="200" cy="200" r="80" stroke-dasharray="2 3" opacity=".4"/>
-                  <circle cx="200" cy="200" r="55" opacity=".3"/>
-                  <circle cx="200" cy="200" r="30"/>
-                  <circle cx="200" cy="200" r="12" fill="currentColor" opacity=".3"/>
-                  <circle cx="200" cy="200" r="5" fill="currentColor"/>
-                </g>
-                <!-- Orbital dots -->
-                <circle cx="200" cy="20" r="4" fill="currentColor" opacity=".6"/>
-                <circle cx="355" cy="200" r="3" fill="currentColor" opacity=".5"/>
-                <circle cx="200" cy="380" r="4" fill="currentColor" opacity=".6"/>
-                <circle cx="45" cy="200" r="3" fill="currentColor" opacity=".5"/>
-                <!-- Cross-hair guides -->
-                <line x1="200" y1="20" x2="200" y2="380" stroke="currentColor" stroke-width=".3" opacity=".2" stroke-dasharray="4 8"/>
-                <line x1="20" y1="200" x2="380" y2="200" stroke="currentColor" stroke-width=".3" opacity=".2" stroke-dasharray="4 8"/>
-                <!-- Radial spokes -->
-                <line x1="200" y1="200" x2="340" y2="80" stroke="currentColor" stroke-width=".3" opacity=".15"/>
-                <line x1="200" y1="200" x2="340" y2="320" stroke="currentColor" stroke-width=".3" opacity=".15"/>
-                <line x1="200" y1="200" x2="60" y2="80" stroke="currentColor" stroke-width=".3" opacity=".15"/>
-                <line x1="200" y1="200" x2="60" y2="320" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <!-- Central node with pulsing ring -->
+                <circle cx="200" cy="200" r="35" fill="none" stroke="currentColor" stroke-width=".5" opacity=".3" stroke-dasharray="4 3"/>
+                <circle cx="200" cy="200" r="25" fill="currentColor" opacity=".15"/>
+                <circle cx="200" cy="200" r="25" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="200" cy="200" r="8" fill="currentColor"/>
+                <!-- Radial lines group 1: src-open (green) -->
+                <line x1="200" y1="200" x2="200" y2="30" class="src-open svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
+                <circle cx="200" cy="30" r="6" class="src-open" fill="none" stroke-width="1.5"/>
+                <line x1="200" y1="200" x2="347" y2="115" class="src-open svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
+                <circle cx="347" cy="115" r="6" class="src-open" fill="none" stroke-width="1.5"/>
+                <line x1="200" y1="200" x2="347" y2="285" class="src-open svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
+                <circle cx="347" cy="285" r="6" class="src-open" fill="none" stroke-width="1.5"/>
+                <line x1="200" y1="200" x2="200" y2="370" class="src-open svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
+                <circle cx="200" cy="370" r="6" class="src-open" fill="none" stroke-width="1.5"/>
+                <!-- Radial lines group 2: src-dark (red) -->
+                <line x1="200" y1="200" x2="285" y2="53" class="src-dark svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
+                <circle cx="285" cy="53" r="6" class="src-dark" fill="none" stroke-width="1.5"/>
+                <line x1="200" y1="200" x2="370" y2="200" class="src-dark svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
+                <circle cx="370" cy="200" r="6" class="src-dark" fill="none" stroke-width="1.5"/>
+                <line x1="200" y1="200" x2="285" y2="347" class="src-dark svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
+                <circle cx="285" cy="347" r="6" class="src-dark" fill="none" stroke-width="1.5"/>
+                <line x1="200" y1="200" x2="115" y2="347" class="src-dark svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
+                <circle cx="115" cy="347" r="6" class="src-dark" fill="none" stroke-width="1.5"/>
+                <!-- Radial lines group 3: src-cti (blue) -->
+                <line x1="200" y1="200" x2="53" y2="285" class="src-cti svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
+                <circle cx="53" cy="285" r="6" class="src-cti" fill="none" stroke-width="1.5"/>
+                <line x1="200" y1="200" x2="30" y2="200" class="src-cti svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
+                <circle cx="30" cy="200" r="6" class="src-cti" fill="none" stroke-width="1.5"/>
+                <line x1="200" y1="200" x2="53" y2="115" class="src-cti svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
+                <circle cx="53" cy="115" r="6" class="src-cti" fill="none" stroke-width="1.5"/>
+                <line x1="200" y1="200" x2="115" y2="53" class="src-cti svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
+                <circle cx="115" cy="53" r="6" class="src-cti" fill="none" stroke-width="1.5"/>
+                <!-- Hot-index bar chart at bottom -->
+                <rect class="pin-bar" x="155" y="360" width="10" height="25" fill="var(--accent-3)" rx="2"/>
+                <rect class="pin-bar" x="170" y="355" width="10" height="30" fill="var(--accent)" rx="2"/>
+                <rect class="pin-bar" x="185" y="350" width="10" height="35" fill="var(--accent-2)" rx="2"/>
+                <rect class="pin-bar" x="200" y="345" width="10" height="40" fill="var(--accent)" rx="2"/>
+                <rect class="pin-bar" x="215" y="352" width="10" height="33" fill="var(--accent-3)" rx="2"/>
               </svg>
             </div>
             <div class="pin__frame-item" data-frame="1">
               <svg viewBox="0 0 400 400" class="pin__svg">
-                <g stroke="currentColor" fill="none" stroke-width=".8">
-                  <rect x="30" y="30" width="340" height="340" rx="4"/>
-                  <rect x="55" y="55" width="290" height="290" rx="3" transform="rotate(6 200 200)"/>
-                  <rect x="80" y="80" width="240" height="240" rx="2" transform="rotate(12 200 200)"/>
-                  <rect x="105" y="105" width="190" height="190" rx="2" transform="rotate(18 200 200)"/>
-                  <rect x="130" y="130" width="140" height="140" rx="1" transform="rotate(24 200 200)" fill="currentColor" opacity=".06"/>
-                  <rect x="155" y="155" width="90" height="90" transform="rotate(30 200 200)" fill="currentColor" opacity=".08"/>
-                  <rect x="175" y="175" width="50" height="50" transform="rotate(36 200 200)" fill="currentColor" opacity=".12"/>
-                </g>
-                <circle cx="200" cy="200" r="6" fill="currentColor"/>
-                <!-- Corner accent dots -->
-                <circle cx="30" cy="30" r="3" fill="currentColor" opacity=".5"/>
-                <circle cx="370" cy="30" r="3" fill="currentColor" opacity=".5"/>
-                <circle cx="370" cy="370" r="3" fill="currentColor" opacity=".5"/>
-                <circle cx="30" cy="370" r="3" fill="currentColor" opacity=".5"/>
-                <!-- Grid lines -->
-                <line x1="200" y1="30" x2="200" y2="370" stroke="currentColor" stroke-width=".25" opacity=".15"/>
-                <line x1="30" y1="200" x2="370" y2="200" stroke="currentColor" stroke-width=".25" opacity=".15"/>
+                <!-- K5 complete graph: 5 nodes in pentagon -->
+                <!-- All 10 edges (thin, low opacity) -->
+                <line x1="200" y1="70" x2="324" y2="168" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="200" y1="70" x2="277" y2="310" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="200" y1="70" x2="123" y2="310" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="200" y1="70" x2="76" y2="168" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="324" y1="168" x2="277" y2="310" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="324" y1="168" x2="123" y2="310" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="324" y1="168" x2="76" y2="168" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="277" y1="310" x2="123" y2="310" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="277" y1="310" x2="76" y2="168" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="123" y1="310" x2="76" y2="168" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <!-- Cascade path A->C->V->S->M (highlighted) -->
+                <line x1="200" y1="70" x2="324" y2="168" class="svg-cascade-path" stroke="var(--accent)" stroke-width="2.5"/>
+                <line x1="324" y1="168" x2="277" y2="310" class="svg-cascade-path" stroke="var(--accent)" stroke-width="2.5"/>
+                <line x1="277" y1="310" x2="123" y2="310" class="svg-cascade-path" stroke="var(--accent)" stroke-width="2.5"/>
+                <line x1="123" y1="310" x2="76" y2="168" class="svg-cascade-path" stroke="var(--accent)" stroke-width="2.5"/>
+                <!-- Pentagon nodes -->
+                <circle cx="200" cy="70" r="10" fill="currentColor" opacity=".8"/>
+                <circle cx="324" cy="168" r="10" fill="currentColor" opacity=".8"/>
+                <circle cx="277" cy="310" r="10" fill="currentColor" opacity=".8"/>
+                <circle cx="123" cy="310" r="10" fill="currentColor" opacity=".8"/>
+                <circle cx="76" cy="168" r="10" fill="currentColor" opacity=".8"/>
+                <!-- Node labels -->
+                <text x="200" y="55" text-anchor="middle" fill="currentColor" font-size="14" font-family="var(--font-mono)">A</text>
+                <text x="340" y="168" text-anchor="start" fill="currentColor" font-size="14" font-family="var(--font-mono)">C</text>
+                <text x="285" y="330" text-anchor="start" fill="currentColor" font-size="14" font-family="var(--font-mono)">V</text>
+                <text x="108" y="330" text-anchor="end" fill="currentColor" font-size="14" font-family="var(--font-mono)">S</text>
+                <text x="60" y="168" text-anchor="end" fill="currentColor" font-size="14" font-family="var(--font-mono)">M</text>
+                <!-- Central verdict node -->
+                <circle cx="200" cy="200" r="15" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".6"/>
+                <circle cx="200" cy="200" r="6" fill="var(--accent)" opacity=".8"/>
               </svg>
             </div>
             <div class="pin__frame-item" data-frame="2">
               <svg viewBox="0 0 400 400" class="pin__svg">
-                <g stroke="currentColor" fill="none" stroke-width="1">
-                  <path d="M20 200 Q 110 50 200 200 T 380 200"/>
-                  <path d="M20 240 Q 110 90 200 240 T 380 240" opacity=".7"/>
-                  <path d="M20 280 Q 110 130 200 280 T 380 280" opacity=".5"/>
-                  <path d="M20 160 Q 110 10 200 160 T 380 160" opacity=".7"/>
-                  <path d="M20 120 Q 110 -30 200 120 T 380 120" opacity=".5"/>
-                </g>
+                <!-- Investigation graph: 10 nodes, 18 edges -->
+                <!-- Edges (thin connections) -->
+                <line x1="80" y1="80" x2="180" y2="120" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+                <line x1="180" y1="120" x2="260" y2="80" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+                <line x1="260" y1="80" x2="340" y2="140" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+                <line x1="340" y1="140" x2="320" y2="240" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+                <line x1="320" y1="240" x2="280" y2="320" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+                <line x1="280" y1="320" x2="180" y2="340" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+                <line x1="180" y1="340" x2="100" y2="300" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+                <line x1="100" y1="300" x2="60" y2="220" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+                <line x1="60" y1="220" x2="80" y2="80" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+                <line x1="180" y1="120" x2="200" y2="200" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+                <line x1="200" y1="200" x2="320" y2="240" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+                <line x1="200" y1="200" x2="180" y2="340" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+                <line x1="200" y1="200" x2="100" y2="300" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+                <line x1="260" y1="80" x2="200" y2="200" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+                <line x1="340" y1="140" x2="260" y2="80" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="80" y1="80" x2="60" y2="220" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="280" y1="320" x2="320" y2="240" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="100" y1="300" x2="180" y2="340" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <!-- BFS highlighted path edges -->
+                <line x1="80" y1="80" x2="180" y2="120" stroke="var(--accent)" stroke-width="2.5" opacity=".7"/>
+                <line x1="180" y1="120" x2="200" y2="200" stroke="var(--accent)" stroke-width="2.5" opacity=".7"/>
+                <line x1="200" y1="200" x2="320" y2="240" stroke="var(--accent)" stroke-width="2.5" opacity=".7"/>
+                <line x1="320" y1="240" x2="280" y2="320" stroke="var(--accent)" stroke-width="2.5" opacity=".7"/>
+                <!-- Non-BFS nodes (float animation, various shapes) -->
+                <!-- Green (safe) nodes -->
+                <circle class="svg-float-node" cx="260" cy="80" r="8" fill="var(--accent-3)" opacity=".6"/>
+                <rect class="svg-float-node" x="95" y="295" width="12" height="12" fill="var(--accent-3)" opacity=".6" rx="2"/>
+                <!-- Amber (watch) nodes -->
+                <circle class="svg-float-node" cx="340" cy="140" r="8" fill="#f5a623" opacity=".6"/>
+                <rect class="svg-float-node" x="174" y="334" width="12" height="12" fill="#f5a623" opacity=".6" rx="2"/>
+                <polygon class="svg-float-node" points="60,212 68,228 52,228" fill="#f5a623" opacity=".6"/>
+                <!-- Red (threat) nodes - not on BFS path -->
+                <!-- Neutral nodes -->
+                <!-- BFS path nodes (sequential reveal) -->
+                <circle class="svg-bfs-node" cx="80" cy="80" r="10" fill="var(--accent)" opacity=".9"/>
+                <circle class="svg-bfs-node" cx="180" cy="120" r="10" fill="var(--accent)" opacity=".9"/>
+                <circle class="svg-bfs-node" cx="200" cy="200" r="10" fill="var(--accent)" opacity=".9"/>
+                <circle class="svg-bfs-node" cx="320" cy="240" r="10" fill="var(--accent)" opacity=".9"/>
+                <circle class="svg-bfs-node" cx="280" cy="320" r="10" fill="var(--accent)" opacity=".9"/>
+                <!-- Mini context menu near node at 320,240 -->
+                <rect x="335" y="225" width="40" height="30" fill="currentColor" opacity=".08" stroke="currentColor" stroke-width=".5" rx="3"/>
+                <line x1="341" y1="233" x2="369" y2="233" stroke="currentColor" stroke-width=".5" opacity=".4"/>
+                <line x1="341" y1="240" x2="369" y2="240" stroke="currentColor" stroke-width=".5" opacity=".4"/>
+                <line x1="341" y1="247" x2="369" y2="247" stroke="currentColor" stroke-width=".5" opacity=".4"/>
               </svg>
             </div>
             <div class="pin__frame-item" data-frame="3">
               <svg viewBox="0 0 400 400" class="pin__svg">
-                <g stroke="currentColor" fill="none" stroke-width="1">
-                  <polygon points="200,30 370,200 200,370 30,200"/>
-                  <polygon points="200,90 310,200 200,310 90,200"/>
-                  <polygon points="200,140 260,200 200,260 140,200" fill="currentColor" opacity=".2"/>
-                  <circle cx="200" cy="200" r="8" fill="currentColor"/>
+                <!-- Data points (left side, scattered) -->
+                <circle class="svg-data-point" cx="50" cy="100" r="7" fill="var(--accent)" opacity=".5"/>
+                <circle class="svg-data-point" cx="80" cy="170" r="5" fill="var(--accent-2)" opacity=".4"/>
+                <polygon class="svg-data-point" points="40,230 48,245 32,245" fill="var(--accent-3)" opacity=".5"/>
+                <circle class="svg-data-point" cx="100" cy="280" r="6" fill="var(--accent)" opacity=".45"/>
+                <polygon class="svg-data-point" points="70,320 78,335 62,335" fill="var(--accent-2)" opacity=".4"/>
+                <circle class="svg-data-point" cx="120" cy="130" r="4" fill="currentColor" opacity=".4"/>
+                <polygon class="svg-data-point" points="90,80 98,95 82,95" fill="var(--accent-3)" opacity=".45"/>
+                <circle class="svg-data-point" cx="60" cy="360" r="5" fill="currentColor" opacity=".35"/>
+                <!-- Arrows/paths from data points toward document -->
+                <path d="M65 100 Q 150 100 220 120" stroke="currentColor" stroke-width=".5" opacity=".2" fill="none" stroke-dasharray="3 3"/>
+                <path d="M95 170 Q 160 170 220 175" stroke="currentColor" stroke-width=".5" opacity=".2" fill="none" stroke-dasharray="3 3"/>
+                <path d="M55 237 Q 150 240 220 230" stroke="currentColor" stroke-width=".5" opacity=".2" fill="none" stroke-dasharray="3 3"/>
+                <path d="M115 280 Q 170 285 220 285" stroke="currentColor" stroke-width=".5" opacity=".2" fill="none" stroke-dasharray="3 3"/>
+                <!-- Document rectangle (right side) -->
+                <rect x="220" y="75" width="150" height="250" fill="currentColor" opacity=".04" stroke="currentColor" stroke-width="1" rx="4"/>
+                <!-- Section dividers -->
+                <line x1="230" y1="137" x2="360" y2="137" stroke="currentColor" stroke-width=".4" opacity=".3"/>
+                <line x1="230" y1="200" x2="360" y2="200" stroke="currentColor" stroke-width=".4" opacity=".3"/>
+                <line x1="230" y1="262" x2="360" y2="262" stroke="currentColor" stroke-width=".4" opacity=".3"/>
+                <!-- Section labels -->
+                <text class="svg-doc-section" x="235" y="115" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7">Summary</text>
+                <text class="svg-doc-section" x="235" y="175" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7">Findings</text>
+                <text class="svg-doc-section" x="235" y="238" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7">Timeline</text>
+                <text class="svg-doc-section" x="235" y="295" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7">Risk</text>
+                <!-- Placeholder lines in each section -->
+                <rect class="svg-doc-section" x="235" y="120" width="80" height="4" fill="currentColor" opacity=".1" rx="2"/>
+                <rect class="svg-doc-section" x="235" y="180" width="100" height="4" fill="currentColor" opacity=".1" rx="2"/>
+                <rect class="svg-doc-section" x="235" y="243" width="70" height="4" fill="currentColor" opacity=".1" rx="2"/>
+                <rect class="svg-doc-section" x="235" y="300" width="90" height="4" fill="currentColor" opacity=".1" rx="2"/>
+                <!-- Checkmark circles near completed sections -->
+                <g class="svg-checkmark">
+                  <circle cx="365" cy="110" r="8" fill="var(--accent-3)" opacity=".8"/>
+                  <polyline points="361,110 364,113 369,107" fill="none" stroke="#fff" stroke-width="1.5"/>
+                </g>
+                <g class="svg-checkmark">
+                  <circle cx="365" cy="170" r="8" fill="var(--accent-3)" opacity=".8"/>
+                  <polyline points="361,170 364,173 369,167" fill="none" stroke="#fff" stroke-width="1.5"/>
+                </g>
+                <g class="svg-checkmark">
+                  <circle cx="365" cy="232" r="8" fill="var(--accent-3)" opacity=".8"/>
+                  <polyline points="361,232 364,235 369,229" fill="none" stroke="#fff" stroke-width="1.5"/>
                 </g>
               </svg>
             </div>

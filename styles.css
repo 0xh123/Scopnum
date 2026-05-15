@@ -1725,19 +1725,7 @@ html.no-smooth body { overflow-y: auto; }
   width: 100%; height: 100%;
   color: var(--ink);
 }
-.pin__frame-item[data-frame="0"] .pin__svg { animation: spin 25s linear infinite; }
-.pin__frame-item[data-frame="1"] .pin__svg { animation: spin 30s linear infinite reverse; }
-.pin__frame-item[data-frame="2"] .pin__svg { animation: wavesShift 5s ease-in-out infinite; }
-.pin__frame-item[data-frame="3"] .pin__svg { animation: pulse-scale 4s ease-in-out infinite; }
 
-@keyframes wavesShift {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
-}
-@keyframes pulse-scale {
-  0%, 100% { transform: scale(1) rotate(0); }
-  50% { transform: scale(1.05) rotate(15deg); }
-}
 
 .pin__labels {
   position: absolute;
@@ -2663,6 +2651,114 @@ html.no-smooth body { overflow-y: auto; }
   height: 100vh;
   height: calc(var(--vh, 1vh) * 100);
   height: 100dvh;
+}
+
+/* =============================================
+   PIN FRAME SVG ANIMATIONS
+   ============================================= */
+
+/* Source color groups */
+.src-open { stroke: var(--accent-3); }
+.src-dark { stroke: var(--accent); }
+.src-cti { stroke: var(--accent-2); }
+
+/* SVG edge flowing dash */
+.svg-edge {
+  stroke-dasharray: 4 4;
+  animation: edgeFlow 2s linear infinite;
+}
+
+@keyframes edgeFlow {
+  to { stroke-dashoffset: -16; }
+}
+
+/* Bar chart grow on active */
+.pin-bar {
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.8s var(--ease-out);
+}
+.pin__frame-item.is-active .pin-bar {
+  transform: scaleY(1);
+}
+
+/* Cascade path (K5 graph) */
+.svg-cascade-path {
+  stroke-dasharray: 12 6;
+  animation: cascadeHighlight 3s linear infinite;
+  opacity: 0.2;
+}
+.pin__frame-item.is-active .svg-cascade-path {
+  opacity: 0.8;
+}
+
+/* BFS nodes sequential reveal */
+.svg-bfs-node {
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+}
+.pin__frame-item.is-active .svg-bfs-node {
+  opacity: 1;
+  transform: scale(1);
+}
+.pin__frame-item.is-active .svg-bfs-node:nth-child(1) { transition-delay: 0s; }
+.pin__frame-item.is-active .svg-bfs-node:nth-child(2) { transition-delay: 0.5s; }
+.pin__frame-item.is-active .svg-bfs-node:nth-child(3) { transition-delay: 1s; }
+.pin__frame-item.is-active .svg-bfs-node:nth-child(4) { transition-delay: 1.5s; }
+.pin__frame-item.is-active .svg-bfs-node:nth-child(5) { transition-delay: 2s; }
+
+/* Float animation for non-BFS nodes */
+.svg-float-node {
+  animation: floatNode 4s ease-in-out infinite;
+}
+
+/* Data points drift toward document */
+.svg-data-point {
+  opacity: 0.5;
+  transition: transform 1s var(--ease-out), opacity 0.8s;
+}
+.pin__frame-item.is-active .svg-data-point {
+  opacity: 0.8;
+  transform: translateX(20px);
+}
+
+/* Document sections sequential reveal */
+.svg-doc-section {
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-out);
+}
+.pin__frame-item.is-active .svg-doc-section {
+  opacity: 1;
+}
+.pin__frame-item.is-active .svg-doc-section:nth-of-type(1) { transition-delay: 0.3s; }
+.pin__frame-item.is-active .svg-doc-section:nth-of-type(2) { transition-delay: 0.6s; }
+.pin__frame-item.is-active .svg-doc-section:nth-of-type(3) { transition-delay: 0.9s; }
+.pin__frame-item.is-active .svg-doc-section:nth-of-type(4) { transition-delay: 1.2s; }
+
+/* Checkmark pop-in */
+.svg-checkmark {
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.4s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pin__frame-item.is-active .svg-checkmark {
+  opacity: 1;
+  transform: scale(1);
+}
+.pin__frame-item.is-active .svg-checkmark:nth-of-type(1) { transition-delay: 1s; }
+.pin__frame-item.is-active .svg-checkmark:nth-of-type(2) { transition-delay: 1.4s; }
+.pin__frame-item.is-active .svg-checkmark:nth-of-type(3) { transition-delay: 1.8s; }
+
+@keyframes cascadeHighlight {
+  0%, 100% { stroke-dashoffset: 0; opacity: 0.8; }
+  50% { stroke-dashoffset: -36; opacity: 0.4; }
+}
+
+@keyframes floatNode {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(2px, -3px); }
+  75% { transform: translate(-2px, 3px); }
 }
 
 /* =============================================
