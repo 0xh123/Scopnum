@@ -231,11 +231,11 @@
       const speed = parseFloat(el.dataset.parallax) || 0.2;
       const rect = el.getBoundingClientRect();
       const center = rect.top + rect.height / 2;
-      const velFactor = 1 + Math.min(Math.abs(scrollVelocity) * 0.05, 0.8);
-      const offset = (center - vh / 2) * speed * 1.5 * velFactor;
+      const velFactor = 1 + Math.min(Math.abs(scrollVelocity) * 0.01, 0.2);
+      const offset = (center - vh / 2) * speed * velFactor;
       // Multi-axis: horizontal drift + micro-rotation
-      const hDrift = offset * 0.1;
-      const microRot = offset * 0.01;
+      const hDrift = offset * 0.05;
+      const microRot = offset * 0.005;
       // Scale if data-parallax-scale is present
       const scaleAttr = el.dataset.parallaxScale;
       let scaleStr = '';
@@ -703,8 +703,8 @@
   });
 
   /* ============================================
-     HERO CANVAS - OSINT Investigation Graph
-     Force-directed graph with typed nodes and flowing edges
+     HERO CANVAS - Radial Investigation Mandala
+     Central hub with radial lines, outer nodes, flowing particles
      ============================================ */
   const heroCanvas = document.getElementById('heroCanvas');
   let noise2D; // shared simplex noise
@@ -750,22 +750,69 @@
     })();
 
     const brandColors = [{r:255,g:77,b:21},{r:33,g:54,b:240},{r:183,g:255,b:46}];
-    const nodeTypes = ['person','wallet','transaction','domain','ip','email','phone','organization'];
-    const nodeLabels = ['Agent','0x742d..','TX-4f1a','scopnum.ai','185.x.x.12','analyst@','tel+7','ScopnumLtd',
-      'Target','0xabc1..','TX-9e2c','darknet.io','92.x.x.44','info@','tel+1','ShellCorp',
-      'Witness','0xdef3..','TX-7b8d','mixer.io','10.x.x.1','admin@','tel+44','FundCo'];
-    const graphNodes = [];
-    const graphEdges = [];
-    let graphTime = 0, lastNodeSpawn = 0;
-    const MAX_NODES = 20, SPAWN_INTERVAL = 1.4;
 
-    function drawShape(ctx2, x, y, r, type) {
+    // Mandala structure
+    const HUB_RADIUS = 60;
+    const NODE_RADIUS = 170;
+    const DOT_RADIUS = 250;
+    const NODE_COUNT = 6;
+    const DOT_COUNT = 36;
+    const PARTICLE_COUNT = 48;
+
+    // Outer nodes with different shapes
+    const outerNodes = [];
+    for (let i = 0; i < NODE_COUNT; i++) {
+      outerNodes.push({
+        angle: (i / NODE_COUNT) * Math.PI * 2 - Math.PI / 2,
+        shape: i,
+        color: brandColors[i % 3],
+        offsetX: 0,
+        offsetY: 0
+      });
+    }
+
+    // Data source dots on outer ring
+    const sourceDots = [];
+    for (let i = 0; i < DOT_COUNT; i++) {
+      sourceDots.push({
+        angle: (i / DOT_COUNT) * Math.PI * 2,
+        phase: Math.random() * Math.PI * 2,
+        offsetX: 0,
+        offsetY: 0
+      });
+    }
+
+    // Flowing particles along radial lines
+    const particles = [];
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      particles.push({
+        line: i % NODE_COUNT,
+        t: Math.random(),
+        speed: 0.3 + Math.random() * 0.4,
+        size: 1 + Math.random() * 2,
+        color: brandColors[i % 3]
+      });
+    }
+
+    let mandalaTime = 0;
+
+    function drawNodeShape(ctx2, x, y, r, shape) {
       ctx2.beginPath();
-      if (type === 'person') { ctx2.arc(x, y, r, 0, Math.PI * 2); }
-      else if (type === 'wallet') { for (let i = 0; i < 6; i++) { const a = (i/6)*Math.PI*2 - Math.PI/2; if (i===0) ctx2.moveTo(x+Math.cos(a)*r, y+Math.sin(a)*r); else ctx2.lineTo(x+Math.cos(a)*r, y+Math.sin(a)*r); } ctx2.closePath(); }
-      else if (type === 'transaction') { ctx2.moveTo(x,y-r); ctx2.lineTo(x+r,y); ctx2.lineTo(x,y+r); ctx2.lineTo(x-r,y); ctx2.closePath(); }
-      else if (type === 'domain') { ctx2.rect(x-r*0.8,y-r*0.8,r*1.6,r*1.6); }
-      else { ctx2.arc(x, y, r, 0, Math.PI * 2); }
+      if (shape === 0) {
+        ctx2.arc(x, y, r, 0, Math.PI * 2);
+      } else if (shape === 1) {
+        for (let k = 0; k < 6; k++) { var a = (k / 6) * Math.PI * 2 - Math.PI / 2; if (k === 0) ctx2.moveTo(x + Math.cos(a) * r, y + Math.sin(a) * r); else ctx2.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); }
+        ctx2.closePath();
+      } else if (shape === 2) {
+        ctx2.rect(x - r * 0.75, y - r * 0.75, r * 1.5, r * 1.5);
+      } else if (shape === 3) {
+        ctx2.moveTo(x, y - r); ctx2.lineTo(x + r, y); ctx2.lineTo(x, y + r); ctx2.lineTo(x - r, y); ctx2.closePath();
+      } else if (shape === 4) {
+        ctx2.moveTo(x, y - r); ctx2.lineTo(x + r * 0.87, y + r * 0.5); ctx2.lineTo(x - r * 0.87, y + r * 0.5); ctx2.closePath();
+      } else {
+        for (let k = 0; k < 5; k++) { var a2 = (k / 5) * Math.PI * 2 - Math.PI / 2; if (k === 0) ctx2.moveTo(x + Math.cos(a2) * r, y + Math.sin(a2) * r); else ctx2.lineTo(x + Math.cos(a2) * r, y + Math.sin(a2) * r); }
+        ctx2.closePath();
+      }
     }
 
     const resize = () => {
@@ -785,77 +832,146 @@
       const now = performance.now();
       const dt = Math.min((now - lastFrameTime) * 0.001, 0.05);
       lastFrameTime = now;
-      graphTime += dt;
-
-      if (graphNodes.length < MAX_NODES && graphTime - lastNodeSpawn > SPAWN_INTERVAL) {
-        const angle = Math.random() * Math.PI * 2;
-        const dist = 60 + Math.random() * 100;
-        const ci = graphNodes.length % 3;
-        graphNodes.push({ x: w/2 + Math.cos(angle)*dist, y: h/2 + Math.sin(angle)*dist, vx:0, vy:0, type: nodeTypes[graphNodes.length%8], label: nodeLabels[graphNodes.length%nodeLabels.length], color: brandColors[ci], r: 4+Math.random()*4, opacity:0 });
-        if (graphNodes.length > 1) { const tgt = Math.floor(Math.random()*(graphNodes.length-1)); graphEdges.push({from:graphNodes.length-1,to:tgt,dash:0}); if (Math.random()>0.5 && graphNodes.length>2) { const t2 = Math.floor(Math.random()*(graphNodes.length-1)); if (t2!==tgt) graphEdges.push({from:graphNodes.length-1,to:t2,dash:0}); } }
-        lastNodeSpawn = graphTime;
-      }
+      mandalaTime += dt;
 
       ctx.clearRect(0, 0, w, h);
-      const cx = w/2, cy = h/2;
+      const cx = w / 2, cy = h / 2;
 
-      // Physics
-      for (let i = 0; i < graphNodes.length; i++) {
-        const n = graphNodes[i];
-        if (n.opacity < 1) n.opacity = Math.min(1, n.opacity + dt*2);
-        for (let j = i+1; j < graphNodes.length; j++) {
-          const m = graphNodes[j];
-          let dx = n.x-m.x, dy = n.y-m.y;
-          const d = Math.sqrt(dx*dx+dy*dy)||1;
-          if (d < 120) { const f = (120-d)*0.003; n.vx += (dx/d)*f; n.vy += (dy/d)*f; m.vx -= (dx/d)*f; m.vy -= (dy/d)*f; }
+      // Scroll parallax: scale from 0.85 to 1.0
+      const scrollFrac = clamp(smoothY / (window.innerHeight || 1), 0, 1);
+      const mandalaScale = 0.85 + scrollFrac * 0.15;
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(mandalaScale, mandalaScale);
+      ctx.translate(-cx, -cy);
+
+      // Mouse repulsion helper
+      function repel(px, py, outObj) {
+        outObj.offsetX = 0;
+        outObj.offsetY = 0;
+        if (hmx > 0) {
+          var ddx = px - hmx, ddy = py - hmy;
+          var dist = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+          if (dist < 150) {
+            var force = (150 - dist) * 0.15;
+            outObj.offsetX = (ddx / dist) * force;
+            outObj.offsetY = (ddy / dist) * force;
+          }
         }
-        const dcx = cx-n.x, dcy = cy-n.y, dc = Math.sqrt(dcx*dcx+dcy*dcy)||1;
-        n.vx += (dcx/dc)*0.02; n.vy += (dcy/dc)*0.02;
-        if (hmx > 0) { const mdx=n.x-hmx, mdy=n.y-hmy, md=Math.sqrt(mdx*mdx+mdy*mdy)||1; if(md<150){const mf=(150-md)*0.005; n.vx+=(mdx/md)*mf; n.vy+=(mdy/md)*mf;} }
-        n.vx += noise2D(i*0.5+graphTime*0.3,0)*0.3;
-        n.vy += noise2D(0,i*0.5+graphTime*0.3)*0.3;
-        const ang = Math.atan2(n.y-cy,n.x-cx);
-        n.vx += -Math.sin(ang)*0.001*dc; n.vy += Math.cos(ang)*0.001*dc;
-        n.vx *= 0.92; n.vy *= 0.92;
-        n.x += n.vx; n.y += n.vy;
-        if(n.x<40) n.vx+=0.5; if(n.x>w-40) n.vx-=0.5; if(n.y<40) n.vy+=0.5; if(n.y>h-40) n.vy-=0.5;
-      }
-      for (let e = 0; e < graphEdges.length; e++) {
-        const edge = graphEdges[e]; const a = graphNodes[edge.from], b = graphNodes[edge.to];
-        if(!a||!b) continue;
-        const dx=b.x-a.x, dy=b.y-a.y, d=Math.sqrt(dx*dx+dy*dy)||1, f=(d-100)*0.001;
-        a.vx+=(dx/d)*f; a.vy+=(dy/d)*f; b.vx-=(dx/d)*f; b.vy-=(dy/d)*f;
       }
 
-      // Draw edges
-      for (let e = 0; e < graphEdges.length; e++) {
-        const edge = graphEdges[e]; const a = graphNodes[edge.from], b = graphNodes[edge.to];
-        if(!a||!b) continue;
-        edge.dash -= 0.5;
-        ctx.save(); ctx.setLineDash([4,8]); ctx.lineDashOffset = edge.dash;
-        ctx.strokeStyle = 'rgba('+a.color.r+','+a.color.g+','+a.color.b+','+(Math.min(a.opacity,b.opacity)*0.3)+')';
-        ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); ctx.restore();
+      // Central hub ring - pulsing glow
+      var hubPulse = 0.6 + Math.sin(mandalaTime * 2) * 0.2;
+      var hubGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, HUB_RADIUS * 1.5);
+      hubGrad.addColorStop(0, 'rgba(255,77,21,' + (hubPulse * 0.12) + ')');
+      hubGrad.addColorStop(1, 'rgba(255,77,21,0)');
+      ctx.fillStyle = hubGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, HUB_RADIUS * 1.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(255,77,21,' + (0.3 + hubPulse * 0.2) + ')';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(cx, cy, HUB_RADIUS, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(255,77,21,' + (0.08 + hubPulse * 0.04) + ')';
+      ctx.fill();
+
+      // Draw radial lines and outer nodes
+      for (var ni = 0; ni < NODE_COUNT; ni++) {
+        var node = outerNodes[ni];
+        var nx = cx + Math.cos(node.angle) * NODE_RADIUS;
+        var ny = cy + Math.sin(node.angle) * NODE_RADIUS;
+        repel(nx, ny, node);
+        var fnx = nx + node.offsetX;
+        var fny = ny + node.offsetY;
+
+        // Radial line
+        ctx.strokeStyle = 'rgba(' + node.color.r + ',' + node.color.g + ',' + node.color.b + ',0.2)';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(fnx, fny);
+        ctx.stroke();
+
+        // Node glow
+        var nodeGrad = ctx.createRadialGradient(fnx, fny, 0, fnx, fny, 20);
+        nodeGrad.addColorStop(0, 'rgba(' + node.color.r + ',' + node.color.g + ',' + node.color.b + ',0.15)');
+        nodeGrad.addColorStop(1, 'rgba(' + node.color.r + ',' + node.color.g + ',' + node.color.b + ',0)');
+        ctx.fillStyle = nodeGrad;
+        ctx.beginPath();
+        ctx.arc(fnx, fny, 20, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Node shape
+        ctx.strokeStyle = 'rgba(' + node.color.r + ',' + node.color.g + ',' + node.color.b + ',0.7)';
+        ctx.lineWidth = 1.2;
+        drawNodeShape(ctx, fnx, fny, 10, node.shape);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(' + node.color.r + ',' + node.color.g + ',' + node.color.b + ',0.15)';
+        drawNodeShape(ctx, fnx, fny, 10, node.shape);
+        ctx.fill();
       }
 
-      // Draw nodes
-      for (let i = 0; i < graphNodes.length; i++) {
-        const n = graphNodes[i];
-        const grad = ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r*4);
-        grad.addColorStop(0,'rgba('+n.color.r+','+n.color.g+','+n.color.b+','+(n.opacity*0.15)+')');
-        grad.addColorStop(1,'rgba('+n.color.r+','+n.color.g+','+n.color.b+',0)');
-        ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(n.x,n.y,n.r*4,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle = 'rgba('+n.color.r+','+n.color.g+','+n.color.b+','+(n.opacity*0.7)+')';
-        drawShape(ctx,n.x,n.y,n.r,n.type); ctx.fill();
-        ctx.strokeStyle = 'rgba('+n.color.r+','+n.color.g+','+n.color.b+','+n.opacity+')'; ctx.lineWidth=1;
-        drawShape(ctx,n.x,n.y,n.r,n.type); ctx.stroke();
-        const la = n.opacity*(0.4+Math.sin(graphTime*1.5+i)*0.2);
-        if(la>0.2){ctx.font='9px "IBM Plex Mono",monospace';ctx.fillStyle='rgba(14,14,14,'+la+')';ctx.textAlign='center';ctx.fillText(n.label,n.x,n.y+n.r+14);}
+      // Outer ring of source dots with thin arcs
+      ctx.strokeStyle = 'rgba(14,14,14,0.06)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.arc(cx, cy, DOT_RADIUS, 0, Math.PI * 2);
+      ctx.stroke();
+
+      for (var di = 0; di < DOT_COUNT; di++) {
+        var dot = sourceDots[di];
+        var wobble = noise2D ? noise2D(di * 0.3 + mandalaTime * 0.2, mandalaTime * 0.1) * 8 : 0;
+        var dr = DOT_RADIUS + wobble;
+        var da = dot.angle + Math.sin(mandalaTime * 0.5 + dot.phase) * 0.02;
+        var dx = cx + Math.cos(da) * dr;
+        var dy = cy + Math.sin(da) * dr;
+        repel(dx, dy, dot);
+        var fdx = dx + dot.offsetX;
+        var fdy = dy + dot.offsetY;
+
+        // Thin arc to next dot
+        if (di < DOT_COUNT - 1) {
+          var nextDot = sourceDots[di + 1];
+          var nextA = nextDot.angle + Math.sin(mandalaTime * 0.5 + nextDot.phase) * 0.02;
+          ctx.strokeStyle = 'rgba(14,14,14,0.04)';
+          ctx.lineWidth = 0.4;
+          ctx.beginPath();
+          ctx.arc(cx, cy, dr, da, nextA);
+          ctx.stroke();
+        }
+
+        // Dot
+        var dotPulse = 0.3 + Math.sin(mandalaTime * 1.5 + dot.phase) * 0.2;
+        var ci2 = di % 3;
+        ctx.fillStyle = 'rgba(' + brandColors[ci2].r + ',' + brandColors[ci2].g + ',' + brandColors[ci2].b + ',' + dotPulse + ')';
+        ctx.beginPath();
+        ctx.arc(fdx, fdy, 2, 0, Math.PI * 2);
+        ctx.fill();
       }
 
-      // Scanline
-      ctx.fillStyle = 'rgba(255,77,21,0.012)';
-      ctx.fillRect(0,(graphTime*60)%h,w,2);
+      // Flowing particles along radial lines toward center
+      for (var pi = 0; pi < PARTICLE_COUNT; pi++) {
+        var p = particles[pi];
+        p.t += p.speed * dt;
+        if (p.t > 1) { p.t -= 1; }
 
+        var lineNode = outerNodes[p.line];
+        var startX = cx + Math.cos(lineNode.angle) * NODE_RADIUS;
+        var startY = cy + Math.sin(lineNode.angle) * NODE_RADIUS;
+        var px = startX + (cx - startX) * p.t;
+        var py = startY + (cy - startY) * p.t;
+
+        var alpha = Math.sin(p.t * Math.PI) * 0.6;
+        ctx.fillStyle = 'rgba(' + p.color.r + ',' + p.color.g + ',' + p.color.b + ',' + alpha + ')';
+        ctx.beginPath();
+        ctx.arc(px, py, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
       requestAnimationFrame(draw);
     };
     draw();
@@ -864,12 +980,13 @@
   }
 
   /* ============================================
-     FOOTER GENERATIVE CANVAS (morphing concentric rings)
+     FOOTER GENERATIVE CANVAS (neural mesh)
      ============================================ */
   const footerCanvasEl = document.getElementById('footerCanvas');
   let footerCtx, footerW, footerH, footerTime = 0;
   let footerRunning = false;
   let footerLastTime = performance.now();
+  let footerNodes = [];
 
   if (footerCanvasEl && !prefersReduced && !isMobile) {
     footerCtx = footerCanvasEl.getContext('2d');
@@ -887,6 +1004,20 @@
     resizeFooterCanvas();
     window.addEventListener('resize', resizeFooterCanvas);
 
+    // Create neural mesh nodes
+    const meshNodeCount = 18;
+    for (let fn = 0; fn < meshNodeCount; fn++) {
+      footerNodes.push({
+        x: Math.random(),
+        y: Math.random(),
+        baseX: Math.random(),
+        baseY: Math.random(),
+        r: 2 + Math.random() * 3,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.3 + Math.random() * 0.4
+      });
+    }
+
     // Visibility gating: only tick when footer is in viewport
     new IntersectionObserver((entries) => {
       footerRunning = entries[0].isIntersecting;
@@ -901,37 +1032,76 @@
     footerLastTime = now;
     footerCtx.clearRect(0, 0, footerW, footerH);
 
-    const cx = footerW / 2;
-    const cy = footerH / 2;
-    const maxR = Math.max(footerW, footerH) * 0.45;
-    const rings = 8;
-    const colors = [
-      { r: 255, g: 77, b: 21 },
-      { r: 33, g: 54, b: 240 },
-      { r: 183, g: 255, b: 46 }
-    ];
+    const nodeCount = footerNodes.length;
+    if (nodeCount === 0) return;
 
-    for (var ri = 0; ri < rings; ri++) {
-      var baseRadius = (ri + 1) / rings * maxR;
-      var pulse = Math.sin(footerTime * 1.2 + ri * 0.7) * 0.08;
-      var radius = baseRadius * (1 + pulse);
-      var c = colors[ri % 3];
-      var alpha = 0.3 - ri * 0.025;
+    // Update node positions with pulsing and mouse repulsion
+    const footerRect = footerCanvasEl.getBoundingClientRect();
+    for (let i = 0; i < nodeCount; i++) {
+      const nd = footerNodes[i];
+      let px = nd.baseX * footerW + Math.sin(footerTime * nd.speed + nd.phase) * 30;
+      let py = nd.baseY * footerH + Math.cos(footerTime * nd.speed * 0.8 + nd.phase) * 20;
 
-      footerCtx.beginPath();
-      var segments = 64;
-      for (var s = 0; s <= segments; s++) {
-        var angle = (s / segments) * Math.PI * 2;
-        var morph = Math.sin(angle * 3 + footerTime + ri * 0.5) * baseRadius * 0.06;
-        var px = cx + Math.cos(angle) * (radius + morph);
-        var py = cy + Math.sin(angle) * (radius + morph);
-        if (s === 0) footerCtx.moveTo(px, py);
-        else footerCtx.lineTo(px, py);
+      // Mouse repulsion
+      const localMx = mx - footerRect.left;
+      const localMy = my - footerRect.top;
+      const mdx = px - localMx, mdy = py - localMy;
+      const mDist = Math.sqrt(mdx * mdx + mdy * mdy) || 1;
+      if (mDist < 120) {
+        const repulse = (120 - mDist) * 0.15;
+        px += (mdx / mDist) * repulse;
+        py += (mdy / mDist) * repulse;
       }
-      footerCtx.closePath();
-      footerCtx.strokeStyle = 'rgba(' + c.r + ', ' + c.g + ', ' + c.b + ', ' + alpha + ')';
-      footerCtx.lineWidth = 1.5 - ri * 0.1;
-      footerCtx.stroke();
+
+      nd.x = px;
+      nd.y = py;
+    }
+
+    // Draw connections between nearby nodes
+    let connectionDist = Math.min(footerW, footerH) * 0.35;
+    footerCtx.setLineDash([4, 6]);
+    footerCtx.lineWidth = 0.8;
+    for (let i2 = 0; i2 < nodeCount; i2++) {
+      for (let j = i2 + 1; j < nodeCount; j++) {
+        let a = footerNodes[i2], b = footerNodes[j];
+        let dx = a.x - b.x, dy = a.y - b.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < connectionDist) {
+          let alpha = (1 - dist / connectionDist) * 0.25;
+          footerCtx.lineDashOffset = -footerTime * 20 + i2 * 10;
+          footerCtx.strokeStyle = 'rgba(255,77,21,' + alpha + ')';
+          footerCtx.beginPath();
+          footerCtx.moveTo(a.x, a.y);
+          footerCtx.lineTo(b.x, b.y);
+          footerCtx.stroke();
+        }
+      }
+    }
+    footerCtx.setLineDash([]);
+
+    // Draw nodes with pulsing glow (reuse a single offscreen gradient pattern)
+    for (let i3 = 0; i3 < nodeCount; i3++) {
+      let node = footerNodes[i3];
+      let pulse = 0.5 + Math.sin(footerTime * 2 + node.phase) * 0.3;
+      let rr = node.r * (0.8 + pulse * 0.4);
+
+      // Glow - reuse gradient by translating context
+      footerCtx.save();
+      footerCtx.translate(node.x, node.y);
+      let grad = footerCtx.createRadialGradient(0, 0, 0, 0, 0, rr * 4);
+      grad.addColorStop(0, 'rgba(255,77,21,' + (pulse * 0.12) + ')');
+      grad.addColorStop(1, 'rgba(255,77,21,0)');
+      footerCtx.fillStyle = grad;
+      footerCtx.beginPath();
+      footerCtx.arc(0, 0, rr * 4, 0, Math.PI * 2);
+      footerCtx.fill();
+
+      // Core
+      footerCtx.fillStyle = 'rgba(255,77,21,' + (0.4 + pulse * 0.3) + ')';
+      footerCtx.beginPath();
+      footerCtx.arc(0, 0, rr, 0, Math.PI * 2);
+      footerCtx.fill();
+      footerCtx.restore();
     }
   }
 
@@ -990,262 +1160,293 @@
   })();
 
   /* ============================================
-     INTERACTIVE TERMINAL ANIMATION
+     INTERACTIVE TERMINAL ANIMATION (dual-panel playground)
      ============================================ */
-  const terminalBody = document.getElementById('terminalLines');
+  const termSection = document.querySelector('.terminal-section');
+  const termRunBtn = document.getElementById('terminalRunBtn');
+  const termPipeline = document.getElementById('terminalPipeline');
+  const termCanvasEl = document.getElementById('terminalCanvas');
+  const termResultCard = document.getElementById('terminalResultCard');
+  const termGauge = document.getElementById('terminalGauge');
+  const termGaugeVal = document.getElementById('terminalGaugeVal');
+  const termEntityCount = document.getElementById('terminalEntityCount');
+  const termClusterCount = document.getElementById('terminalClusterCount');
   let terminalRunning = false;
-  let currentRunId = 0;
+  let termIsPlaying = false;
+  let termRunId = 0;
+  let termAutoTimer = null;
+  let termCtx = null;
+  let termW = 0, termH = 0;
 
-  if (terminalBody) {
-    const termScript = [
-      { type: 'prompt', text: '$ investigate wallet 0x742d35Cc6634C0532925a3b844Bc9e7595f2bD' },
-      { type: 'pause', ms: 600 },
-      { type: 'stage', text: '[aggregator] scanning 60+ sources........... done' },
-      { type: 'stage', text: '[brain]      tribunal routing query.......... done' },
-      { type: 'stage', text: '[crypto]     tracing 3 hops on ETH........... done' },
-      { type: 'stage', text: '[snp]        47 cells activated.............. done' },
-      { type: 'stage', text: '[report]     generating STIX 2.1............. done' },
-      { type: 'pause', ms: 400 },
-      { type: 'result', text: '--- RESULT ---' },
-      { type: 'result', text: 'clusters: 4 | risk_score: 0.89 | hops: 3' },
-      { type: 'result', text: 'linked_entities: 12 | mixer_detected: true' },
-      { type: 'result', text: 'report: /out/STX-2025-0742d.json' },
-    ];
+  // Terminal mini graph state
+  let termNodes = [];
+  let termEdges = [];
+  let termGraphTime = 0;
+  let termGraphRunning = false;
+  let termLastFrame = performance.now();
 
-    function runTerminal() {
-      if (!terminalRunning) return;
-      const myId = ++currentRunId;
-      terminalBody.innerHTML = '';
-      let delay = 0;
-      termScript.forEach((item, idx) => {
-        if (item.type === 'pause') { delay += item.ms; return; }
-        delay += item.type === 'prompt' ? 80 : 300;
-        const d = delay;
-        setTimeout(() => {
-          if (myId !== currentRunId || !terminalRunning) return;
-          const line = document.createElement('span');
-          line.className = 'terminal__line terminal__line--' + item.type;
-          line.textContent = item.text;
-          terminalBody.appendChild(line);
-        }, d);
-        if (item.type === 'prompt') delay += item.text.length * 30;
+  if (termSection && termCanvasEl && !prefersReduced) {
+    termCtx = termCanvasEl.getContext('2d');
+
+    function resizeTermCanvas() {
+      var rect = termCanvasEl.parentElement.getBoundingClientRect();
+      termW = rect.width;
+      termH = rect.height;
+      var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      termCanvasEl.width = termW * dpr;
+      termCanvasEl.height = termH * dpr;
+      termCanvasEl.style.width = termW + 'px';
+      termCanvasEl.style.height = termH + 'px';
+      termCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resizeTermCanvas();
+    window.addEventListener('resize', resizeTermCanvas);
+
+    function resetTermState() {
+      termNodes = [];
+      termEdges = [];
+      termGraphTime = 0;
+      termGraphRunning = false;
+      termCanvasEl.style.opacity = '1';
+      if (termResultCard) { termResultCard.classList.remove('is-visible'); }
+      if (termGauge) termGauge.style.setProperty('--gauge-deg', '0deg');
+      if (termGaugeVal) termGaugeVal.textContent = '0.00';
+      if (termEntityCount) termEntityCount.textContent = '0';
+      if (termClusterCount) termClusterCount.textContent = '0';
+      var stages = termPipeline ? termPipeline.querySelectorAll('.terminal__stage') : [];
+      for (var s = 0; s < stages.length; s++) {
+        stages[s].classList.remove('is-active', 'is-done');
+      }
+      if (termRunBtn) termRunBtn.classList.remove('is-running');
+    }
+
+    function addTermNode() {
+      var cx = termW / 2;
+      var cy = termH / 2;
+      var angle = Math.random() * Math.PI * 2;
+      var dist = 30 + Math.random() * 60;
+      var colors = [
+        { r: 255, g: 77, b: 21 },
+        { r: 33, g: 54, b: 240 },
+        { r: 183, g: 255, b: 46 }
+      ];
+      var ci = termNodes.length % 3;
+      termNodes.push({
+        x: cx + Math.cos(angle) * dist,
+        y: cy + Math.sin(angle) * dist,
+        vx: 0, vy: 0,
+        r: 3 + Math.random() * 3,
+        color: colors[ci],
+        opacity: 0
       });
-      delay += 5000;
-      setTimeout(() => { if (myId !== currentRunId || !terminalRunning) return; runTerminal(); }, delay);
+      if (termNodes.length > 1) {
+        var tgt = Math.floor(Math.random() * (termNodes.length - 1));
+        termEdges.push({ from: termNodes.length - 1, to: tgt });
+        if (Math.random() > 0.5 && termNodes.length > 2) {
+          var t2 = Math.floor(Math.random() * (termNodes.length - 1));
+          if (t2 !== tgt) termEdges.push({ from: termNodes.length - 1, to: t2 });
+        }
+      }
     }
 
-    const termObs = new IntersectionObserver((entries) => {
+    function drawTermGraph() {
+      if (!termCtx || !termGraphRunning) return;
+      var now = performance.now();
+      var dt = Math.min((now - termLastFrame) * 0.001, 0.05);
+      termLastFrame = now;
+      termGraphTime += dt;
+      termCtx.clearRect(0, 0, termW, termH);
+
+      var cx = termW / 2;
+      var cy = termH / 2;
+
+      // Physics
+      for (var i = 0; i < termNodes.length; i++) {
+        var n = termNodes[i];
+        if (n.opacity < 1) n.opacity = Math.min(1, n.opacity + dt * 2.5);
+        // Repulsion
+        for (var j = i + 1; j < termNodes.length; j++) {
+          var m = termNodes[j];
+          var ddx = n.x - m.x, ddy = n.y - m.y;
+          var d = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+          if (d < 80) {
+            var f = (80 - d) * 0.004;
+            n.vx += (ddx / d) * f; n.vy += (ddy / d) * f;
+            m.vx -= (ddx / d) * f; m.vy -= (ddy / d) * f;
+          }
+        }
+        // Center attraction
+        var dcx = cx - n.x, dcy = cy - n.y;
+        var dc = Math.sqrt(dcx * dcx + dcy * dcy) || 1;
+        n.vx += (dcx / dc) * 0.03;
+        n.vy += (dcy / dc) * 0.03;
+        // Noise drift
+        if (noise2D) {
+          n.vx += noise2D(i * 0.5 + termGraphTime * 0.3, 0) * 0.2;
+          n.vy += noise2D(0, i * 0.5 + termGraphTime * 0.3) * 0.2;
+        }
+        n.vx *= 0.9; n.vy *= 0.9;
+        n.x += n.vx; n.y += n.vy;
+        // Bounds
+        if (n.x < 20) n.vx += 0.5;
+        if (n.x > termW - 20) n.vx -= 0.5;
+        if (n.y < 20) n.vy += 0.5;
+        if (n.y > termH - 20) n.vy -= 0.5;
+      }
+      // Edge spring
+      for (var e = 0; e < termEdges.length; e++) {
+        var edge = termEdges[e];
+        var a = termNodes[edge.from], b = termNodes[edge.to];
+        if (!a || !b) continue;
+        var edx = b.x - a.x, edy = b.y - a.y;
+        var ed = Math.sqrt(edx * edx + edy * edy) || 1;
+        var ef = (ed - 60) * 0.002;
+        a.vx += (edx / ed) * ef; a.vy += (edy / ed) * ef;
+        b.vx -= (edx / ed) * ef; b.vy -= (edy / ed) * ef;
+      }
+
+      // Draw edges
+      for (var e2 = 0; e2 < termEdges.length; e2++) {
+        var edge2 = termEdges[e2];
+        var ea = termNodes[edge2.from], eb = termNodes[edge2.to];
+        if (!ea || !eb) continue;
+        termCtx.strokeStyle = 'rgba(' + ea.color.r + ',' + ea.color.g + ',' + ea.color.b + ',' + (Math.min(ea.opacity, eb.opacity) * 0.3) + ')';
+        termCtx.lineWidth = 0.8;
+        termCtx.beginPath();
+        termCtx.moveTo(ea.x, ea.y);
+        termCtx.lineTo(eb.x, eb.y);
+        termCtx.stroke();
+      }
+
+      // Draw nodes
+      for (var i2 = 0; i2 < termNodes.length; i2++) {
+        var nd = termNodes[i2];
+        termCtx.fillStyle = 'rgba(' + nd.color.r + ',' + nd.color.g + ',' + nd.color.b + ',' + (nd.opacity * 0.7) + ')';
+        termCtx.beginPath();
+        termCtx.arc(nd.x, nd.y, nd.r, 0, Math.PI * 2);
+        termCtx.fill();
+        termCtx.strokeStyle = 'rgba(' + nd.color.r + ',' + nd.color.g + ',' + nd.color.b + ',' + nd.opacity + ')';
+        termCtx.lineWidth = 1;
+        termCtx.stroke();
+      }
+
+      if (termGraphRunning) requestAnimationFrame(drawTermGraph);
+    }
+
+    function animateResults() {
+      // Hide canvas, show result card
+      termCanvasEl.style.opacity = '0';
+      if (termResultCard) termResultCard.classList.add('is-visible');
+
+      // Animate gauge from 0 to 0.89
+      var targetRisk = 0.89;
+      var targetEntities = 12;
+      var targetClusters = 4;
+      var startTime = performance.now();
+      var duration = 1200;
+
+      function animStep() {
+        var elapsed = performance.now() - startTime;
+        var progress = Math.min(elapsed / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+
+        var currentRisk = eased * targetRisk;
+        var deg = currentRisk / 1 * 360;
+        if (termGauge) termGauge.style.setProperty('--gauge-deg', deg + 'deg');
+        if (termGaugeVal) termGaugeVal.textContent = currentRisk.toFixed(2);
+        if (termEntityCount) termEntityCount.textContent = Math.round(eased * targetEntities);
+        if (termClusterCount) termClusterCount.textContent = Math.round(eased * targetClusters);
+
+        if (progress < 1) requestAnimationFrame(animStep);
+      }
+      requestAnimationFrame(animStep);
+    }
+
+    function runTerminalSequence() {
+      if (termIsPlaying || !terminalRunning) return;
+      termIsPlaying = true;
+      var myId = ++termRunId;
+      resetTermState();
+      if (termRunBtn) termRunBtn.classList.add('is-running');
+      termGraphRunning = true;
+      termLastFrame = performance.now();
+      drawTermGraph();
+
+      var stages = termPipeline ? termPipeline.querySelectorAll('.terminal__stage') : [];
+      var stageDelay = 800;
+      var nodesPerStage = 2;
+
+      for (var si = 0; si < stages.length; si++) {
+        (function(idx) {
+          setTimeout(function() {
+            if (myId !== termRunId || !terminalRunning) return;
+            // Mark previous done, current active
+            if (idx > 0 && stages[idx - 1]) stages[idx - 1].classList.remove('is-active');
+            if (idx > 0 && stages[idx - 1]) stages[idx - 1].classList.add('is-done');
+            stages[idx].classList.add('is-active');
+            // Add nodes to graph
+            for (var n = 0; n < nodesPerStage; n++) {
+              addTermNode();
+            }
+          }, idx * stageDelay);
+        })(si);
+      }
+
+      // After all stages
+      var totalStageTime = stages.length * stageDelay;
+      setTimeout(function() {
+        if (myId !== termRunId || !terminalRunning) return;
+        if (stages.length > 0) {
+          stages[stages.length - 1].classList.remove('is-active');
+          stages[stages.length - 1].classList.add('is-done');
+        }
+        // Add a couple more nodes
+        addTermNode();
+        addTermNode();
+      }, totalStageTime);
+
+      // Show results after a brief pause
+      setTimeout(function() {
+        if (myId !== termRunId || !terminalRunning) return;
+        termGraphRunning = false;
+        animateResults();
+      }, totalStageTime + 600);
+
+      // Loop after 6s showing results
+      setTimeout(function() {
+        if (myId !== termRunId || !terminalRunning) return;
+        termIsPlaying = false;
+        runTerminalSequence();
+      }, totalStageTime + 600 + 6000);
+    }
+
+    // IntersectionObserver triggers auto-run after 3s
+    const termObs = new IntersectionObserver(function(entries) {
       terminalRunning = entries[0].isIntersecting;
-      if (terminalRunning) runTerminal();
-    }, { threshold: 0.2 });
-    termObs.observe(terminalBody.closest('.terminal-section'));
+      if (terminalRunning) {
+        if (!termIsPlaying) {
+          termAutoTimer = setTimeout(function() {
+            if (terminalRunning && !termIsPlaying) runTerminalSequence();
+          }, 3000);
+        }
+      } else {
+        clearTimeout(termAutoTimer);
+        termGraphRunning = false;
+        termIsPlaying = false;
+        termRunId++;
+      }
+    }, { threshold: 0.3 });
+    termObs.observe(termSection);
+
+    // Click "Run" triggers immediately
+    if (termRunBtn) {
+      termRunBtn.addEventListener('click', function() {
+        if (termIsPlaying) return;
+        clearTimeout(termAutoTimer);
+        runTerminalSequence();
+      });
+    }
   }
-
-  /* ============================================
-     PRODUCT CARD MINI CANVAS VISUALIZATIONS
-     ============================================ */
-  function initMiniCanvas(id, drawFn) {
-    const el = document.getElementById(id);
-    if (!el || prefersReduced) return null;
-    const ctx2 = el.getContext('2d');
-    let cw, ch, cdpr, cRunning = false, cTime = 0, cLast = performance.now();
-
-    function resize() {
-      cdpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      cw = el.parentElement.offsetWidth;
-      ch = el.parentElement.offsetHeight;
-      el.width = cw * cdpr; el.height = ch * cdpr;
-      el.style.width = cw + 'px'; el.style.height = ch + 'px';
-      ctx2.setTransform(cdpr, 0, 0, cdpr, 0, 0);
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    function tick() {
-      if (!cRunning) return;
-      const now = performance.now();
-      cTime += (now - cLast) * 0.001;
-      cLast = now;
-      ctx2.clearRect(0, 0, cw, ch);
-      drawFn(ctx2, cw, ch, cTime);
-      requestAnimationFrame(tick);
-    }
-
-    new IntersectionObserver((entries) => {
-      cRunning = entries[0].isIntersecting;
-      if (cRunning) { cLast = performance.now(); tick(); }
-    }, { threshold: 0 }).observe(el);
-
-    return { ctx: ctx2, el: el };
-  }
-
-  // OSINT mini graph
-  initMiniCanvas('osintCanvas', function(ctx2, cw, ch, t) {
-    const nodes = [];
-    for (let i = 0; i < 10; i++) {
-      const a = (i / 10) * Math.PI * 2 + t * 0.3;
-      const r = 30 + Math.sin(t + i) * 10;
-      nodes.push({ x: cw/2 + Math.cos(a) * r, y: ch/2 + Math.sin(a) * r });
-    }
-    ctx2.strokeStyle = 'rgba(255,77,21,0.3)'; ctx2.lineWidth = 0.6;
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        if ((i + j) % 3 === 0) { ctx2.beginPath(); ctx2.moveTo(nodes[i].x, nodes[i].y); ctx2.lineTo(nodes[j].x, nodes[j].y); ctx2.stroke(); }
-      }
-    }
-    for (let i = 0; i < nodes.length; i++) {
-      const pulse = 0.5 + Math.sin(t * 2 + i) * 0.3;
-      ctx2.fillStyle = 'rgba(255,77,21,' + pulse + ')';
-      ctx2.beginPath(); ctx2.arc(nodes[i].x, nodes[i].y, 3, 0, Math.PI * 2); ctx2.fill();
-    }
-  });
-
-  // Crypto blockchain flow
-  initMiniCanvas('cryptoCanvas', function(ctx2, cw, ch, t) {
-    const blockCount = 6;
-    const spacing = cw / (blockCount + 1);
-    for (let i = 0; i < blockCount; i++) {
-      const x = spacing * (i + 1) + Math.sin(t * 0.5 + i) * 5;
-      const y = ch / 2 + Math.cos(t * 0.7 + i * 0.8) * 15;
-      const s = 12;
-      ctx2.strokeStyle = 'rgba(33,54,240,0.5)'; ctx2.lineWidth = 1;
-      ctx2.strokeRect(x - s, y - s, s * 2, s * 2);
-      if (i < blockCount - 1) {
-        const nx = spacing * (i + 2) + Math.sin(t * 0.5 + i + 1) * 5;
-        const ny = ch / 2 + Math.cos(t * 0.7 + (i + 1) * 0.8) * 15;
-        ctx2.beginPath(); ctx2.moveTo(x + s, y); ctx2.lineTo(nx - s, ny);
-        ctx2.setLineDash([3, 4]); ctx2.lineDashOffset = -t * 20; ctx2.stroke(); ctx2.setLineDash([]);
-      }
-    }
-  });
-
-  // Globe wireframe
-  initMiniCanvas('globeCanvas', function(ctx2, cw, ch, t) {
-    const cx2 = cw / 2, cy2 = ch / 2, r = Math.min(cw, ch) * 0.35;
-    ctx2.strokeStyle = 'rgba(14,14,14,0.2)'; ctx2.lineWidth = 0.6;
-    ctx2.beginPath(); ctx2.arc(cx2, cy2, r, 0, Math.PI * 2); ctx2.stroke();
-    for (let i = 1; i <= 3; i++) {
-      const rx = r * (i / 4);
-      ctx2.beginPath(); ctx2.ellipse(cx2, cy2, rx, r, 0, 0, Math.PI * 2); ctx2.stroke();
-    }
-    for (let i = 0; i < 4; i++) {
-      const lat = (i / 4 - 0.5) * Math.PI;
-      const ry = Math.cos(lat) * r;
-      const yOff = Math.sin(lat) * r;
-      ctx2.beginPath(); ctx2.ellipse(cx2, cy2 + yOff, r, Math.abs(ry) * 0.3, t * 0.2 + i, 0, Math.PI * 2); ctx2.stroke();
-    }
-    const dots = [[0.3, 0.7], [0.7, 0.4], [0.5, 0.8], [0.8, 0.6]];
-    ctx2.fillStyle = 'rgba(183,255,46,0.8)';
-    dots.forEach((d) => {
-      const dx = cx2 + (d[0] - 0.5) * r * 1.5 * Math.cos(t * 0.4);
-      const dy = cy2 + (d[1] - 0.5) * r * 1.5;
-      ctx2.beginPath(); ctx2.arc(dx, dy, 3, 0, Math.PI * 2); ctx2.fill();
-    });
-  });
-
-  // SNP neural mesh
-  initMiniCanvas('snpCanvas', function(ctx2, cw, ch, t) {
-    const cols = 5, rows = 4;
-    const sx = cw / (cols + 1), sy = ch / (rows + 1);
-    const pts = [];
-    for (let r2 = 0; r2 < rows; r2++) {
-      for (let c = 0; c < cols; c++) {
-        pts.push({ x: sx * (c + 1), y: sy * (r2 + 1), active: Math.sin(t * 3 + r2 * cols + c) > 0.5 });
-      }
-    }
-    ctx2.strokeStyle = 'rgba(33,54,240,0.15)'; ctx2.lineWidth = 0.5;
-    for (let i = 0; i < pts.length; i++) {
-      for (let j = i + 1; j < pts.length; j++) {
-        const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
-        if (Math.sqrt(dx * dx + dy * dy) < sx * 1.8) { ctx2.beginPath(); ctx2.moveTo(pts[i].x, pts[i].y); ctx2.lineTo(pts[j].x, pts[j].y); ctx2.stroke(); }
-      }
-    }
-    pts.forEach((p) => {
-      ctx2.fillStyle = p.active ? 'rgba(255,77,21,0.7)' : 'rgba(33,54,240,0.3)';
-      ctx2.beginPath(); ctx2.arc(p.x, p.y, p.active ? 4 : 2.5, 0, Math.PI * 2); ctx2.fill();
-    });
-  });
-
-  /* ============================================
-     PER-SECTION CANVAS BACKGROUNDS
-     ============================================ */
-  function initSectionBg(id, drawFn) {
-    const el = document.getElementById(id);
-    if (!el || prefersReduced || isMobile) return;
-    const ctx2 = el.getContext('2d');
-    let sw, sh, sdpr, sRunning = false, sTime = 0, sLast = performance.now();
-
-    function resize() {
-      sdpr = Math.min(window.devicePixelRatio || 1, 1);
-      sw = el.parentElement.offsetWidth; sh = el.parentElement.offsetHeight;
-      el.width = sw * sdpr; el.height = sh * sdpr;
-      el.style.width = sw + 'px'; el.style.height = sh + 'px';
-      ctx2.setTransform(sdpr, 0, 0, sdpr, 0, 0);
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    function tick() {
-      if (!sRunning) return;
-      const now = performance.now();
-      sTime += (now - sLast) * 0.001;
-      sLast = now;
-      ctx2.clearRect(0, 0, sw, sh);
-      drawFn(ctx2, sw, sh, sTime);
-      requestAnimationFrame(tick);
-    }
-
-    new IntersectionObserver((entries) => {
-      sRunning = entries[0].isIntersecting;
-      if (sRunning) { sLast = performance.now(); tick(); }
-    }, { threshold: 0 }).observe(el);
-  }
-
-  // About: flowing connection lines
-  initSectionBg('aboutBgCanvas', function(ctx2, sw, sh, t) {
-    ctx2.strokeStyle = 'rgba(14,14,14,0.06)'; ctx2.lineWidth = 0.8;
-    for (let i = 0; i < 8; i++) {
-      ctx2.beginPath();
-      const y0 = sh * 0.2 + i * sh * 0.08;
-      ctx2.moveTo(0, y0);
-      for (let x = 0; x <= sw; x += 40) {
-        const n = noise2D ? noise2D(x * 0.005 + t * 0.2, i * 2 + t * 0.1) : Math.sin(x * 0.01 + t + i);
-        ctx2.lineTo(x, y0 + n * 30);
-      }
-      ctx2.stroke();
-    }
-  });
-
-  // Bento: pulsing dot grid
-  initSectionBg('bentoBgCanvas', function(ctx2, sw, sh, t) {
-    const spacing = 40;
-    const cols = Math.ceil(sw / spacing);
-    const rows = Math.ceil(sh / spacing);
-    for (let r2 = 0; r2 < rows; r2++) {
-      for (let c = 0; c < cols; c++) {
-        const x = c * spacing + spacing / 2;
-        const y = r2 * spacing + spacing / 2;
-        const pulse = 0.3 + Math.sin(t * 1.5 + c * 0.3 + r2 * 0.5) * 0.2;
-        ctx2.fillStyle = 'rgba(14,14,14,' + (pulse * 0.08) + ')';
-        ctx2.beginPath();
-        ctx2.arc(x, y, 1.5 + pulse, 0, Math.PI * 2);
-        ctx2.fill();
-      }
-    }
-  });
-
-  // Stats: counting particles
-  initSectionBg('statsBgCanvas', function(ctx2, sw, sh, t) {
-    for (let i = 0; i < 30; i++) {
-      const x = (i * 73 + t * 20) % sw;
-      const y = sh - ((i * 47 + t * 15) % sh);
-      const alpha = 0.1 + Math.sin(t + i) * 0.06;
-      ctx2.fillStyle = 'rgba(255,77,21,' + alpha + ')';
-      ctx2.beginPath();
-      ctx2.arc(x, y, 2, 0, Math.PI * 2);
-      ctx2.fill();
-    }
-  });
 
   /* ============================================
      MICRO-INTERACTIONS
@@ -1293,16 +1494,6 @@
   /* ============================================
      LIVE DATA SIMULATION
      ============================================ */
-  // Hero spec counter fluctuation
-  var heroSpecVal = document.querySelector('.hero__spec-val strong');
-  var heroSpecIntervalId = null;
-  if (heroSpecVal) {
-    heroSpecIntervalId = setInterval(function() {
-      var val = 99.95 + Math.random() * 0.04;
-      heroSpecVal.textContent = val.toFixed(2);
-    }, 3000);
-  }
-
   // Footer live status rotation
   var footerLive = document.querySelector('.footer__live');
   var footerLiveIntervalId = null;
@@ -1318,15 +1509,8 @@
   // Pause/resume intervals when page is not visible
   document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
-      if (heroSpecIntervalId !== null) { clearInterval(heroSpecIntervalId); heroSpecIntervalId = null; }
       if (footerLiveIntervalId !== null) { clearInterval(footerLiveIntervalId); footerLiveIntervalId = null; }
     } else {
-      if (heroSpecVal && heroSpecIntervalId === null) {
-        heroSpecIntervalId = setInterval(function() {
-          var val = 99.95 + Math.random() * 0.04;
-          heroSpecVal.textContent = val.toFixed(2);
-        }, 3000);
-      }
       if (footerLive && footerLiveIntervalId === null) {
         footerLiveIntervalId = setInterval(function() {
           statusIdx = (statusIdx + 1) % statuses.length;
@@ -1339,35 +1523,162 @@
   /* ============================================
      ENHANCED PARALLAX - horizontal geo-deco drift + manifesto title scale
      ============================================ */
-  var geoDecos = document.querySelectorAll('.geo-deco__shape');
-  var manifestoTitle = document.querySelector('.manifesto__title');
-  var footerHuge = document.querySelector('.footer__huge');
+  const geoDecos = document.querySelectorAll('.geo-deco__shape');
+  const manifestoTitle = document.querySelector('.manifesto__title');
+  const footerHuge = document.querySelector('.footer__huge');
+
+  // Cache geo-deco rects to avoid per-frame layout thrashing
+  let geoDecoRects = [];
+  function updateGeoDecoRects() {
+    geoDecoRects = [];
+    geoDecos.forEach(function(el) {
+      const rect = el.getBoundingClientRect();
+      geoDecoRects.push({
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height
+      });
+    });
+  }
+  if (geoDecos.length) {
+    updateGeoDecoRects();
+    window.addEventListener('scroll', updateGeoDecoRects, { passive: true });
+    window.addEventListener('resize', updateGeoDecoRects);
+  }
 
   function enhancedParallaxTick() {
     if (prefersReduced || isMobile) return;
-    // Horizontal drift on geo-deco shapes
+    // Interactive geo-deco shapes with scroll + mouse reaction
     geoDecos.forEach(function(el, i) {
-      var dir = i % 2 === 0 ? 1 : -1;
-      el.style.transform = 'translateX(' + (smoothY * 0.03 * dir) + 'px)';
+      if (isMobile) return;
+      const dir = i % 2 === 0 ? 1 : -1;
+      const speed = 0.02 + (i % 3) * 0.01;
+
+      // Scroll-based drift
+      const driftX = smoothY * speed * dir;
+      const driftY = smoothY * speed * 0.5 * (i % 2 === 0 ? -1 : 1);
+
+      // Scroll velocity rotation
+      const rotSpeed = 0.02 + (i % 4) * 0.008;
+      const rotation = smoothY * rotSpeed * dir + scrollVelocity * 2 * dir;
+
+      // Mouse proximity reaction (magnetic) - use cached rects
+      let mousePushX = 0, mousePushY = 0;
+      const cachedRect = geoDecoRects[i];
+      if (cachedRect && hasHover) {
+        const elCx = cachedRect.left + cachedRect.width / 2;
+        const elCy = cachedRect.top + cachedRect.height / 2;
+        const mdx = mx - elCx;
+        const mdy = my - elCy;
+        const dist = Math.sqrt(mdx * mdx + mdy * mdy);
+
+        if (dist < 300) {
+          const mouseInfluence = (300 - dist) / 300;
+          // Repulsion effect - push away from mouse
+          mousePushX = -(mdx / dist) * mouseInfluence * 20;
+          mousePushY = -(mdy / dist) * mouseInfluence * 20;
+        }
+      }
+
+      el.style.transform = 'translate(' + (driftX + mousePushX) + 'px, ' + (driftY + mousePushY) + 'px) rotate(' + rotation + 'deg)';
     });
     // Scale on scroll for manifesto title
     if (manifestoTitle) {
-      var rect = manifestoTitle.getBoundingClientRect();
-      var vh = window.innerHeight;
+      const rect = manifestoTitle.getBoundingClientRect();
+      const vh = window.innerHeight;
       if (rect.top < vh && rect.bottom > 0) {
-        var progress = 1 - (rect.top / vh);
-        var scale = 1 + clamp(progress * 0.05, 0, 0.05);
+        const progress = 1 - (rect.top / vh);
+        const scale = 1 + clamp(progress * 0.05, 0, 0.05);
         manifestoTitle.style.transform = 'scale(' + scale.toFixed(4) + ')';
       }
     }
     // Stronger parallax on footer huge
     if (footerHuge) {
-      var r2 = footerHuge.getBoundingClientRect();
-      var vh2 = window.innerHeight;
+      const r2 = footerHuge.getBoundingClientRect();
+      const vh2 = window.innerHeight;
       if (r2.top < vh2 && r2.bottom > 0) {
-        var offset = (r2.top - vh2 / 2) * 0.35;
+        const offset = (r2.top - vh2 / 2) * 0.35;
         footerHuge.style.transform = 'translateY(' + (-offset) + 'px)';
       }
+    }
+  }
+
+  /* ============================================
+     AMBIENT PARTICLE CANVAS
+     ============================================ */
+  const ambientCanvas = document.getElementById('ambientCanvas');
+  let ambientCtx, ambientW, ambientH;
+  const ambientParticles = [];
+  const AMBIENT_COUNT = 50;
+
+  if (ambientCanvas && !prefersReduced && !isMobile) {
+    ambientCtx = ambientCanvas.getContext('2d');
+
+    function resizeAmbient() {
+      ambientW = window.innerWidth;
+      ambientH = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      ambientCanvas.width = ambientW * dpr;
+      ambientCanvas.height = ambientH * dpr;
+      ambientCanvas.style.width = ambientW + 'px';
+      ambientCanvas.style.height = ambientH + 'px';
+      ambientCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resizeAmbient();
+    window.addEventListener('resize', resizeAmbient);
+
+    // Initialize particles with random positions, sizes, speeds
+    for (let i = 0; i < AMBIENT_COUNT; i++) {
+      ambientParticles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        r: 0.5 + Math.random() * 1.5,
+        opacity: 0.03 + Math.random() * 0.03,
+        speed: 0.2 + Math.random() * 0.4,
+        noiseOffsetX: Math.random() * 1000,
+        noiseOffsetY: Math.random() * 1000,
+        isAccent: Math.random() < 0.3
+      });
+    }
+  }
+
+  let ambientFrame = 0;
+  function ambientTick() {
+    if (!ambientCtx || !noise2D) return;
+    if (document.hidden) return;
+    ambientFrame++;
+    if (ambientFrame % 2 !== 0) return;
+    ambientCtx.clearRect(0, 0, ambientW, ambientH);
+
+    const time = performance.now() * 0.0003;
+    const scrollBoost = 1 + Math.min(Math.abs(scrollVelocity) * 0.1, 2);
+
+    for (let i = 0; i < ambientParticles.length; i++) {
+      const p = ambientParticles[i];
+
+      // Noise-driven organic movement
+      const nx = noise2D(p.noiseOffsetX + time * p.speed, i * 0.5) * p.speed * scrollBoost;
+      const ny = noise2D(i * 0.5, p.noiseOffsetY + time * p.speed) * p.speed * scrollBoost;
+
+      p.x += nx;
+      p.y += ny;
+
+      // Wrap around screen edges
+      if (p.x < -10) p.x = ambientW + 10;
+      if (p.x > ambientW + 10) p.x = -10;
+      if (p.y < -10) p.y = ambientH + 10;
+      if (p.y > ambientH + 10) p.y = -10;
+
+      // Draw particle
+      if (p.isAccent) {
+        ambientCtx.fillStyle = 'rgba(255, 77, 21, ' + p.opacity + ')';
+      } else {
+        ambientCtx.fillStyle = 'rgba(14, 14, 14, ' + p.opacity + ')';
+      }
+      ambientCtx.beginPath();
+      ambientCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ambientCtx.fill();
     }
   }
 
@@ -1387,6 +1698,7 @@
     pinTick();
     cineTick();
     footerCanvasTick();
+    ambientTick();
     sectionThemeTick();
     enhancedParallaxTick();
     requestAnimationFrame(masterLoop);
