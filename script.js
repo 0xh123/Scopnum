@@ -331,12 +331,9 @@
       const cardCenter = cr.left + cr.width / 2;
       const dist = Math.abs(cardCenter - cx) / (window.innerWidth / 2);
       const scale = 1 - dist * 0.08;
-      const blur = dist * 2;
       const sign = cardCenter < cx ? 1 : -1;
       const rotateY = sign * dist * 3;
       card.style.transform = `perspective(1200px) scale(${clamp(scale, 0.88, 1)}) rotateY(${rotateY}deg)`;
-      card.style.filter = blur > 0.5 ? `blur(${blur.toFixed(1)}px)` : 'none';
-      card.style.opacity = 1 - dist * 0.3;
     });
   }
 

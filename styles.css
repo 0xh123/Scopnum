@@ -1271,7 +1271,7 @@ html.no-smooth body { overflow-y: auto; }
 .h-scroll__track {
   display: flex;
   gap: 32px;
-  padding: 20px 5vw 40px 5vw;
+  padding: 20px 32px 40px;
   height: 100%;
   align-items: center;
   will-change: transform;
@@ -2905,8 +2905,8 @@ html.no-smooth body { overflow-y: auto; }
 
 /* --- Step 7: Horizontal scroll edge fade masks --- */
 .h-scroll__track {
-  -webkit-mask-image: linear-gradient(90deg, transparent, black 3%, black 97%, transparent);
-  mask-image: linear-gradient(90deg, transparent, black 3%, black 97%, transparent);
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 
 /* --- Step 8: Bento cell hover glow border --- */
@@ -3019,6 +3019,206 @@ html.no-smooth body { overflow-y: auto; }
 
 /* Card SVG base styles */
 .card-svg { width: 100%; height: 100%; }
+
+/* =============================================
+   CARD 1: OSINT AGENT ANIMATIONS
+   ============================================= */
+
+.osint-field circle { animation: fieldDrift 20s ease-in-out infinite; }
+.osint-field circle:nth-child(even) { animation-delay: -10s; animation-direction: reverse; }
+
+@keyframes fieldDrift {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(3px, -2px); }
+  50% { transform: translate(-2px, 4px); }
+  75% { transform: translate(4px, 1px); }
+}
+
+.osint-hub-outer { animation: hubRotate 12s linear infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes hubRotate { to { transform: rotate(360deg); } }
+
+.osint-hub-glow { animation: hubPulse 3s ease-in-out infinite; transform-box: fill-box; }
+@keyframes hubPulse {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.15); }
+}
+
+.osint-edge { stroke-dasharray: 8 4; animation: edgeFlowGrad 3s linear infinite; }
+@keyframes edgeFlowGrad { to { stroke-dashoffset: -24; } }
+
+.osint-highlight-path { stroke-dasharray: 12 6; animation: pathCascade 5s ease-in-out infinite; }
+@keyframes pathCascade {
+  0%, 100% { opacity: 0.3; stroke-dashoffset: 0; }
+  50% { opacity: 1; stroke-dashoffset: -36; }
+}
+
+.osint-alert-ring { animation: alertPulse 2s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes alertPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+.osint-scanline { animation: scanLineMove 8s linear infinite; }
+@keyframes scanLineMove {
+  0% { transform: translateY(-280px); }
+  100% { transform: translateY(280px); }
+}
+
+@keyframes nodeBreathStagger {
+  0%, 100% { transform: scale(0.95); opacity: 0.6; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+.osint-nodes circle:nth-child(3n) { animation: nodeBreathStagger 4s ease-in-out infinite; transform-box: fill-box; }
+.osint-nodes circle:nth-child(3n+1) { animation: nodeBreathStagger 5s ease-in-out infinite 0.5s; transform-box: fill-box; }
+
+@keyframes ringRotateSlow {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes statusBlink {
+  0%, 70%, 100% { opacity: 0.5; }
+  75% { opacity: 1; }
+}
+
+@keyframes fitnessGrow {
+  0% { transform: scaleY(0.3); }
+  100% { transform: scaleY(1); }
+}
+
+@keyframes progressArc {
+  0% { stroke-dashoffset: 60; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes dataFlicker {
+  0%, 95%, 100% { opacity: 0.4; }
+  96% { opacity: 0.1; }
+  97% { opacity: 0.6; }
+  98% { opacity: 0.2; }
+}
+
+@keyframes alertRadar {
+  0% { opacity: 0.6; transform: scale(1); }
+  100% { opacity: 0; transform: scale(3); }
+}
+
+@keyframes orbiterMotion {
+  0% { transform: rotate(0deg) translateX(22px) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(22px) rotate(-360deg); }
+}
+
+/* =============================================
+   CARD 2: CRYPTO SERVICE ANIMATIONS
+   ============================================= */
+
+.crypto-taint-flow { animation: taintTravel 6s linear infinite; }
+@keyframes taintTravel { 0% { transform: translateX(-50px); } 100% { transform: translateX(280px); } }
+
+.crypto-chain .crypto-block { transition: stroke 0.3s ease; }
+
+@keyframes chainLinkFlow {
+  to { stroke-dashoffset: -12; }
+}
+
+.crypto-chain .osint-edge { stroke-dasharray: 4 3; animation: chainLinkFlow 2s linear infinite; }
+
+@keyframes bridgeParticle {
+  0% { opacity: 0; transform: translateY(0); }
+  50% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(40px); }
+}
+
+@keyframes mixerSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes clusterPulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.2); }
+}
+
+.crypto-analytics circle { animation: clusterPulse 3s ease-in-out infinite; transform-box: fill-box; }
+.crypto-analytics circle:nth-child(even) { animation-delay: -1.5s; }
+
+@keyframes sparklineGrow {
+  0% { stroke-dashoffset: 500; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.crypto-analytics polyline { stroke-dasharray: 500; animation: sparklineGrow 4s ease-out forwards; }
+
+@keyframes blockHeaderShimmer {
+  0%, 100% { opacity: 0.08; }
+  50% { opacity: 0.15; }
+}
+
+.crypto-chain rect[fill-opacity] { animation: blockHeaderShimmer 4s ease-in-out infinite; }
+
+@keyframes riskGaugeGrow {
+  0% { stroke-dashoffset: 20; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes timelineTick {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.6; }
+}
+
+.crypto-grid line[y1="85"] { animation: timelineTick 3s ease-in-out infinite; }
+.crypto-grid line[y1="85"]:nth-child(2) { animation-delay: 0.6s; }
+.crypto-grid line[y1="85"]:nth-child(3) { animation-delay: 1.2s; }
+.crypto-grid line[y1="85"]:nth-child(4) { animation-delay: 1.8s; }
+.crypto-grid line[y1="85"]:nth-child(5) { animation-delay: 2.4s; }
+
+@keyframes hexGridBreath {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.07; }
+}
+
+.crypto-grid polygon { animation: hexGridBreath 6s ease-in-out infinite; }
+.crypto-grid polygon:nth-child(even) { animation-delay: -3s; }
+
+@keyframes cryptoBlockPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+@keyframes cryptoFlowArrow {
+  0% { transform: translateX(-5px); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateX(5px); opacity: 0; }
+}
+
+@keyframes cryptoRiskFlash {
+  0%, 90%, 100% { stroke-opacity: 0.6; }
+  95% { stroke-opacity: 1; }
+}
+
+@keyframes cryptoMixerRotate {
+  to { transform: rotate(360deg); }
+}
+
+.crypto-taint path { animation: cryptoRiskFlash 3s ease-in-out infinite; }
+.crypto-chain .crypto-block { animation: cryptoBlockPulse 4s ease-in-out infinite; }
+
+/* =============================================
+   CARD HOVER STATES (OSINT + CRYPTO)
+   ============================================= */
+
+.card:hover .osint-edge { animation-duration: 1.5s; }
+.card:hover .osint-hub-outer { animation-duration: 6s; }
+.card:hover .osint-alert-ring { animation-duration: 1s; }
+.card:hover .osint-highlight-path { animation-duration: 2.5s; opacity: 1; }
+.card:hover .osint-scanline { animation-duration: 4s; }
+.card:hover .osint-hub-glow { animation-duration: 1.5s; }
+.card:hover .osint-field circle { animation-duration: 10s; }
+
+.card:hover .crypto-taint-flow { animation-duration: 3s; }
+.card:hover .crypto-chain .crypto-block { stroke-width: 1.5; }
+.card:hover .crypto-chain .osint-edge { animation-duration: 1s; }
+.card:hover .crypto-analytics circle { animation-duration: 1.5s; }
+.card:hover .crypto-grid polygon { animation-duration: 3s; }
 
 /* Tablet perspective reduction */
 @media (max-width: 1024px) {
