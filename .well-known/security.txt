@@ -1,0 +1,4 @@
+Contact: mailto:security@scopnum.ai
+Preferred-Languages: ru, en
+Canonical: https://scopnum.ai/.well-known/security.txt
+Expires: 2026-12-31T23:59:59.000Z
