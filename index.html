@@ -1777,179 +1777,874 @@
           <div class="pin__frame" id="pinFrame">
             <div class="pin__frame-item is-active" data-frame="0">
               <svg viewBox="0 0 400 400" class="pin__svg">
-                <!-- Central node with pulsing ring -->
-                <circle cx="200" cy="200" r="35" fill="none" stroke="currentColor" stroke-width=".5" opacity=".3" stroke-dasharray="4 3"/>
-                <circle cx="200" cy="200" r="25" fill="currentColor" opacity=".15"/>
-                <circle cx="200" cy="200" r="25" fill="none" stroke="currentColor" stroke-width="1.5"/>
-                <circle cx="200" cy="200" r="8" fill="currentColor"/>
-                <!-- Radial lines group 1: src-open (green) -->
-                <line x1="200" y1="200" x2="200" y2="30" class="src-open svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
-                <circle cx="200" cy="30" r="6" class="src-open" fill="none" stroke-width="1.5"/>
-                <line x1="200" y1="200" x2="347" y2="115" class="src-open svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
-                <circle cx="347" cy="115" r="6" class="src-open" fill="none" stroke-width="1.5"/>
-                <line x1="200" y1="200" x2="347" y2="285" class="src-open svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
-                <circle cx="347" cy="285" r="6" class="src-open" fill="none" stroke-width="1.5"/>
-                <line x1="200" y1="200" x2="200" y2="370" class="src-open svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
-                <circle cx="200" cy="370" r="6" class="src-open" fill="none" stroke-width="1.5"/>
-                <!-- Radial lines group 2: src-dark (red) -->
-                <line x1="200" y1="200" x2="285" y2="53" class="src-dark svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
-                <circle cx="285" cy="53" r="6" class="src-dark" fill="none" stroke-width="1.5"/>
-                <line x1="200" y1="200" x2="370" y2="200" class="src-dark svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
-                <circle cx="370" cy="200" r="6" class="src-dark" fill="none" stroke-width="1.5"/>
-                <line x1="200" y1="200" x2="285" y2="347" class="src-dark svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
-                <circle cx="285" cy="347" r="6" class="src-dark" fill="none" stroke-width="1.5"/>
-                <line x1="200" y1="200" x2="115" y2="347" class="src-dark svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
-                <circle cx="115" cy="347" r="6" class="src-dark" fill="none" stroke-width="1.5"/>
-                <!-- Radial lines group 3: src-cti (blue) -->
-                <line x1="200" y1="200" x2="53" y2="285" class="src-cti svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
-                <circle cx="53" cy="285" r="6" class="src-cti" fill="none" stroke-width="1.5"/>
-                <line x1="200" y1="200" x2="30" y2="200" class="src-cti svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
-                <circle cx="30" cy="200" r="6" class="src-cti" fill="none" stroke-width="1.5"/>
-                <line x1="200" y1="200" x2="53" y2="115" class="src-cti svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
-                <circle cx="53" cy="115" r="6" class="src-cti" fill="none" stroke-width="1.5"/>
-                <line x1="200" y1="200" x2="115" y2="53" class="src-cti svg-edge" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
-                <circle cx="115" cy="53" r="6" class="src-cti" fill="none" stroke-width="1.5"/>
-                <!-- Hot-index bar chart at bottom -->
-                <rect class="pin-bar" x="155" y="360" width="10" height="25" fill="var(--accent-3)" rx="2"/>
-                <rect class="pin-bar" x="170" y="355" width="10" height="30" fill="var(--accent)" rx="2"/>
-                <rect class="pin-bar" x="185" y="350" width="10" height="35" fill="var(--accent-2)" rx="2"/>
-                <rect class="pin-bar" x="200" y="345" width="10" height="40" fill="var(--accent)" rx="2"/>
-                <rect class="pin-bar" x="215" y="352" width="10" height="33" fill="var(--accent-3)" rx="2"/>
+                <defs>
+                  <radialGradient id="collectCoreGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".6"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="collectMidFill" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="currentColor" stop-opacity=".25"/><stop offset="100%" stop-color="currentColor" stop-opacity=".02"/></radialGradient>
+                  <linearGradient id="collectEdgeGreen" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="var(--accent-3)" stop-opacity=".6"/><stop offset="100%" stop-color="var(--accent-3)" stop-opacity=".1"/></linearGradient>
+                  <linearGradient id="collectEdgeRed" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".6"/><stop offset="100%" stop-color="var(--accent)" stop-opacity=".1"/></linearGradient>
+                  <linearGradient id="collectEdgeBlue" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="var(--accent-2)" stop-opacity=".6"/><stop offset="100%" stop-color="var(--accent-2)" stop-opacity=".1"/></linearGradient>
+                  <radialGradient id="collectWaveGrad"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".15"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></radialGradient>
+                  <filter id="collectBlur"><feGaussianBlur stdDeviation="3"/></filter>
+                  <path id="collectOrbitPath" d="M250,200 A50,50 0 1,1 249.99,200" fill="none"/>
+                </defs>
+                <!-- Corner HUD brackets -->
+                <polyline points="10,25 10,10 25,10" fill="none" stroke="currentColor" stroke-width=".8" opacity=".3"/>
+                <polyline points="375,10 390,10 390,25" fill="none" stroke="currentColor" stroke-width=".8" opacity=".3"/>
+                <polyline points="390,375 390,390 375,390" fill="none" stroke="currentColor" stroke-width=".8" opacity=".3"/>
+                <polyline points="25,390 10,390 10,375" fill="none" stroke="currentColor" stroke-width=".8" opacity=".3"/>
+                <!-- HUD text -->
+                <text x="15" y="22" fill="currentColor" font-size="7" font-family="'IBM Plex Mono', monospace" opacity=".5">SOURCES: 30</text>
+                <text x="345" y="22" fill="currentColor" font-size="7" font-family="'IBM Plex Mono', monospace" opacity=".5">INDEXING</text>
+                <circle cx="385" cy="19" r="2" fill="var(--accent-3)" class="pin-collect-glow"/>
+                <!-- Central Aggregator -->
+                <circle cx="200" cy="200" r="45" fill="url(#collectWaveGrad)" filter="url(#collectBlur)" class="pin-collect-glow"/>
+                <circle cx="200" cy="200" r="40" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3" class="pin-collect-outer" opacity=".4"/>
+                <circle cx="200" cy="200" r="35" fill="url(#collectMidFill)"/>
+                <circle cx="200" cy="200" r="35" fill="none" stroke="currentColor" stroke-width=".5" opacity=".25"/>
+                <circle cx="200" cy="200" r="20" fill="url(#collectCoreGlow)" filter="url(#collectBlur)"/>
+                <circle cx="200" cy="200" r="20" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".7"/>
+                <circle cx="200" cy="200" r="8" fill="var(--accent)" opacity=".9"/>
+                <!-- Orbiting data points -->
+                <circle r="2" fill="var(--accent-3)" opacity=".8"><animateMotion dur="5s" repeatCount="indefinite"><mpath href="#collectOrbitPath"/></animateMotion></circle>
+                <circle r="2" fill="var(--accent)" opacity=".8"><animateMotion dur="5s" begin="-1.25s" repeatCount="indefinite"><mpath href="#collectOrbitPath"/></animateMotion></circle>
+                <circle r="2" fill="var(--accent-2)" opacity=".8"><animateMotion dur="5s" begin="-2.5s" repeatCount="indefinite"><mpath href="#collectOrbitPath"/></animateMotion></circle>
+                <circle r="2" fill="currentColor" opacity=".6"><animateMotion dur="5s" begin="-3.75s" repeatCount="indefinite"><mpath href="#collectOrbitPath"/></animateMotion></circle>
+                <!-- Radar sweep line -->
+                <line x1="200" y1="200" x2="200" y2="120" stroke="var(--accent-3)" stroke-width="1" opacity=".3" class="pin-collect-radar"/>
+                <!-- Ring 1: OPEN sources (r=100, 12 sources, green) -->
+                <path d="M200,100 Q160,140 200,200" class="pin-collect-flow" stroke="var(--accent-3)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M250,109 Q240,150 200,200" class="pin-collect-flow" stroke="var(--accent-3)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M287,150 Q250,170 200,200" class="pin-collect-flow" stroke="var(--accent-3)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M300,200 Q260,200 200,200" class="pin-collect-flow" stroke="var(--accent-3)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M287,250 Q250,230 200,200" class="pin-collect-flow" stroke="var(--accent-3)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M250,291 Q240,250 200,200" class="pin-collect-flow" stroke="var(--accent-3)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M200,300 Q200,260 200,200" class="pin-collect-flow" stroke="var(--accent-3)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M150,291 Q160,250 200,200" class="pin-collect-flow" stroke="var(--accent-3)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M113,250 Q150,230 200,200" class="pin-collect-flow" stroke="var(--accent-3)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M100,200 Q140,200 200,200" class="pin-collect-flow" stroke="var(--accent-3)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M113,150 Q150,170 200,200" class="pin-collect-flow" stroke="var(--accent-3)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M150,109 Q160,150 200,200" class="pin-collect-flow" stroke="var(--accent-3)" stroke-width=".6" fill="none" opacity=".3"/>
+                <!-- Ring 1 source dots -->
+                <circle cx="200" cy="100" r="5" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".7"/><circle cx="200" cy="100" r="1.5" fill="var(--accent-3)" opacity=".5"/>
+                <circle cx="250" cy="109" r="5" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".7"/><circle cx="250" cy="109" r="1.5" fill="var(--accent-3)" opacity=".5"/>
+                <circle cx="287" cy="150" r="5" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".7"/><circle cx="287" cy="150" r="1.5" fill="var(--accent-3)" opacity=".5"/>
+                <circle cx="300" cy="200" r="5" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".7"/><circle cx="300" cy="200" r="1.5" fill="var(--accent-3)" opacity=".5"/>
+                <circle cx="287" cy="250" r="5" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".7"/><circle cx="287" cy="250" r="1.5" fill="var(--accent-3)" opacity=".5"/>
+                <circle cx="250" cy="291" r="5" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".7"/><circle cx="250" cy="291" r="1.5" fill="var(--accent-3)" opacity=".5"/>
+                <circle cx="200" cy="300" r="5" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".7"/><circle cx="200" cy="300" r="1.5" fill="var(--accent-3)" opacity=".5"/>
+                <circle cx="150" cy="291" r="5" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".7"/><circle cx="150" cy="291" r="1.5" fill="var(--accent-3)" opacity=".5"/>
+                <circle cx="113" cy="250" r="5" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".7"/><circle cx="113" cy="250" r="1.5" fill="var(--accent-3)" opacity=".5"/>
+                <circle cx="100" cy="200" r="5" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".7"/><circle cx="100" cy="200" r="1.5" fill="var(--accent-3)" opacity=".5"/>
+                <circle cx="113" cy="150" r="5" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".7"/><circle cx="113" cy="150" r="1.5" fill="var(--accent-3)" opacity=".5"/>
+                <circle cx="150" cy="109" r="5" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".7"/><circle cx="150" cy="109" r="1.5" fill="var(--accent-3)" opacity=".5"/>
+                <!-- Ring 2: DARK sources (r=140, 10 sources, red) -->
+                <path d="M200,60 Q180,120 200,200" class="pin-collect-flow" stroke="var(--accent)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M270,72 Q250,130 200,200" class="pin-collect-flow" stroke="var(--accent)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M327,120 Q270,155 200,200" class="pin-collect-flow" stroke="var(--accent)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M340,200 Q280,200 200,200" class="pin-collect-flow" stroke="var(--accent)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M327,280 Q270,245 200,200" class="pin-collect-flow" stroke="var(--accent)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M270,328 Q250,270 200,200" class="pin-collect-flow" stroke="var(--accent)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M200,340 Q200,280 200,200" class="pin-collect-flow" stroke="var(--accent)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M130,328 Q150,270 200,200" class="pin-collect-flow" stroke="var(--accent)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M73,280 Q130,245 200,200" class="pin-collect-flow" stroke="var(--accent)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M73,120 Q130,155 200,200" class="pin-collect-flow" stroke="var(--accent)" stroke-width=".6" fill="none" opacity=".3"/>
+                <!-- Ring 2 source dots -->
+                <circle cx="200" cy="60" r="5" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".7"/><circle cx="200" cy="60" r="1.5" fill="var(--accent)" opacity=".4"/>
+                <circle cx="270" cy="72" r="5" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".7"/><circle cx="270" cy="72" r="1.5" fill="var(--accent)" opacity=".4"/>
+                <circle cx="327" cy="120" r="5" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".7"/><circle cx="327" cy="120" r="1.5" fill="var(--accent)" opacity=".4"/>
+                <circle cx="340" cy="200" r="5" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".7"/><circle cx="340" cy="200" r="1.5" fill="var(--accent)" opacity=".4"/>
+                <circle cx="327" cy="280" r="5" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".7"/><circle cx="327" cy="280" r="1.5" fill="var(--accent)" opacity=".4"/>
+                <circle cx="270" cy="328" r="5" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".7"/><circle cx="270" cy="328" r="1.5" fill="var(--accent)" opacity=".4"/>
+                <circle cx="200" cy="340" r="5" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".7"/><circle cx="200" cy="340" r="1.5" fill="var(--accent)" opacity=".4"/>
+                <circle cx="130" cy="328" r="5" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".7"/><circle cx="130" cy="328" r="1.5" fill="var(--accent)" opacity=".4"/>
+                <circle cx="73" cy="280" r="5" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".7"/><circle cx="73" cy="280" r="1.5" fill="var(--accent)" opacity=".4"/>
+                <circle cx="73" cy="120" r="5" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".7"/><circle cx="73" cy="120" r="1.5" fill="var(--accent)" opacity=".4"/>
+                <!-- Ring 3: CTI sources (r=175, 8 sources, blue) -->
+                <path d="M200,25 Q190,100 200,200" class="pin-collect-flow" stroke="var(--accent-2)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M324,56 Q270,120 200,200" class="pin-collect-flow" stroke="var(--accent-2)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M375,200 Q300,200 200,200" class="pin-collect-flow" stroke="var(--accent-2)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M324,344 Q270,280 200,200" class="pin-collect-flow" stroke="var(--accent-2)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M200,375 Q200,300 200,200" class="pin-collect-flow" stroke="var(--accent-2)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M76,344 Q130,280 200,200" class="pin-collect-flow" stroke="var(--accent-2)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M25,200 Q100,200 200,200" class="pin-collect-flow" stroke="var(--accent-2)" stroke-width=".6" fill="none" opacity=".3"/>
+                <path d="M76,56 Q130,120 200,200" class="pin-collect-flow" stroke="var(--accent-2)" stroke-width=".6" fill="none" opacity=".3"/>
+                <!-- Ring 3 source dots -->
+                <circle cx="200" cy="25" r="5" fill="none" stroke="var(--accent-2)" stroke-width="1.2" opacity=".7"/><circle cx="200" cy="25" r="1.5" fill="var(--accent-2)" opacity=".4"/>
+                <circle cx="324" cy="56" r="5" fill="none" stroke="var(--accent-2)" stroke-width="1.2" opacity=".7"/><circle cx="324" cy="56" r="1.5" fill="var(--accent-2)" opacity=".4"/>
+                <circle cx="375" cy="200" r="5" fill="none" stroke="var(--accent-2)" stroke-width="1.2" opacity=".7"/><circle cx="375" cy="200" r="1.5" fill="var(--accent-2)" opacity=".4"/>
+                <circle cx="324" cy="344" r="5" fill="none" stroke="var(--accent-2)" stroke-width="1.2" opacity=".7"/><circle cx="324" cy="344" r="1.5" fill="var(--accent-2)" opacity=".4"/>
+                <circle cx="200" cy="375" r="5" fill="none" stroke="var(--accent-2)" stroke-width="1.2" opacity=".7"/><circle cx="200" cy="375" r="1.5" fill="var(--accent-2)" opacity=".4"/>
+                <circle cx="76" cy="344" r="5" fill="none" stroke="var(--accent-2)" stroke-width="1.2" opacity=".7"/><circle cx="76" cy="344" r="1.5" fill="var(--accent-2)" opacity=".4"/>
+                <circle cx="25" cy="200" r="5" fill="none" stroke="var(--accent-2)" stroke-width="1.2" opacity=".7"/><circle cx="25" cy="200" r="1.5" fill="var(--accent-2)" opacity=".4"/>
+                <circle cx="76" cy="56" r="5" fill="none" stroke="var(--accent-2)" stroke-width="1.2" opacity=".7"/><circle cx="76" cy="56" r="1.5" fill="var(--accent-2)" opacity=".4"/>
+                <!-- Data flow particles -->
+                <circle r="1.5" fill="var(--accent-3)" opacity=".9"><animateMotion dur="3s" repeatCount="indefinite" path="M200,100 Q180,140 200,200"/></circle>
+                <circle r="1.5" fill="var(--accent-3)" opacity=".9"><animateMotion dur="4s" begin="-1s" repeatCount="indefinite" path="M287,150 Q250,170 200,200"/></circle>
+                <circle r="1.5" fill="var(--accent)" opacity=".9"><animateMotion dur="3.5s" begin="-0.5s" repeatCount="indefinite" path="M340,200 Q280,200 200,200"/></circle>
+                <circle r="1.5" fill="var(--accent)" opacity=".9"><animateMotion dur="5s" begin="-2s" repeatCount="indefinite" path="M270,328 Q250,270 200,200"/></circle>
+                <circle r="1.5" fill="var(--accent-2)" opacity=".9"><animateMotion dur="4.5s" begin="-1.5s" repeatCount="indefinite" path="M375,200 Q300,200 200,200"/></circle>
+                <circle r="1.5" fill="var(--accent-2)" opacity=".9"><animateMotion dur="6s" begin="-3s" repeatCount="indefinite" path="M76,56 Q130,120 200,200"/></circle>
+                <!-- Indexing bar chart -->
+                <g class="pin-collect-bars">
+                  <rect class="pin-collect-bar" x="160" y="355" width="8" height="28" fill="var(--accent-3)" rx="1.5" opacity=".8"/>
+                  <rect class="pin-collect-bar" x="172" y="350" width="8" height="33" fill="var(--accent)" rx="1.5" opacity=".8"/>
+                  <rect class="pin-collect-bar" x="184" y="345" width="8" height="38" fill="var(--accent-2)" rx="1.5" opacity=".8"/>
+                  <rect class="pin-collect-bar" x="196" y="348" width="8" height="35" fill="var(--accent-3)" rx="1.5" opacity=".8"/>
+                  <rect class="pin-collect-bar" x="208" y="352" width="8" height="31" fill="var(--accent)" rx="1.5" opacity=".8"/>
+                </g>
+                <!-- Bar labels -->
+                <text x="162" y="392" fill="currentColor" font-size="6" font-family="'IBM Plex Mono', monospace" opacity=".4">T</text>
+                <text x="174" y="392" fill="currentColor" font-size="6" font-family="'IBM Plex Mono', monospace" opacity=".4">D</text>
+                <text x="186" y="392" fill="currentColor" font-size="6" font-family="'IBM Plex Mono', monospace" opacity=".4">G</text>
+                <text x="198" y="392" fill="currentColor" font-size="6" font-family="'IBM Plex Mono', monospace" opacity=".4">C</text>
+                <text x="210" y="392" fill="currentColor" font-size="6" font-family="'IBM Plex Mono', monospace" opacity=".4">F</text>
+                <!-- Concentric ring guides -->
+                <circle cx="200" cy="200" r="100" fill="none" stroke="currentColor" stroke-width=".3" opacity=".08" stroke-dasharray="2 4"/>
+                <circle cx="200" cy="200" r="140" fill="none" stroke="currentColor" stroke-width=".3" opacity=".06" stroke-dasharray="2 4"/>
+                <circle cx="200" cy="200" r="175" fill="none" stroke="currentColor" stroke-width=".3" opacity=".04" stroke-dasharray="2 4"/>
+                <!-- Additional detail: micro dots between rings -->
+                <circle cx="225" cy="105" r="1" fill="var(--accent-3)" opacity=".3"/>
+                <circle cx="175" cy="105" r="1" fill="var(--accent-3)" opacity=".25"/>
+                <circle cx="275" cy="130" r="1" fill="var(--accent-3)" opacity=".3"/>
+                <circle cx="125" cy="130" r="1" fill="var(--accent-3)" opacity=".25"/>
+                <circle cx="290" cy="175" r="1" fill="var(--accent-3)" opacity=".2"/>
+                <circle cx="110" cy="175" r="1" fill="var(--accent-3)" opacity=".2"/>
+                <circle cx="295" cy="225" r="1" fill="var(--accent-3)" opacity=".25"/>
+                <circle cx="105" cy="225" r="1" fill="var(--accent-3)" opacity=".25"/>
+                <circle cx="225" cy="295" r="1" fill="var(--accent-3)" opacity=".3"/>
+                <circle cx="175" cy="295" r="1" fill="var(--accent-3)" opacity=".25"/>
+                <!-- Micro dots ring 2 gap -->
+                <circle cx="235" cy="65" r="1" fill="var(--accent)" opacity=".25"/>
+                <circle cx="165" cy="65" r="1" fill="var(--accent)" opacity=".2"/>
+                <circle cx="310" cy="105" r="1" fill="var(--accent)" opacity=".25"/>
+                <circle cx="90" cy="105" r="1" fill="var(--accent)" opacity=".2"/>
+                <circle cx="335" cy="165" r="1" fill="var(--accent)" opacity=".2"/>
+                <circle cx="65" cy="165" r="1" fill="var(--accent)" opacity=".2"/>
+                <circle cx="335" cy="235" r="1" fill="var(--accent)" opacity=".2"/>
+                <circle cx="65" cy="235" r="1" fill="var(--accent)" opacity=".2"/>
+                <circle cx="310" cy="295" r="1" fill="var(--accent)" opacity=".2"/>
+                <circle cx="90" cy="295" r="1" fill="var(--accent)" opacity=".2"/>
+                <!-- Micro dots ring 3 gap -->
+                <circle cx="250" cy="30" r="1" fill="var(--accent-2)" opacity=".2"/>
+                <circle cx="150" cy="30" r="1" fill="var(--accent-2)" opacity=".2"/>
+                <circle cx="350" cy="80" r="1" fill="var(--accent-2)" opacity=".15"/>
+                <circle cx="50" cy="80" r="1" fill="var(--accent-2)" opacity=".15"/>
+                <circle cx="370" cy="150" r="1" fill="var(--accent-2)" opacity=".15"/>
+                <circle cx="30" cy="150" r="1" fill="var(--accent-2)" opacity=".15"/>
+                <circle cx="370" cy="250" r="1" fill="var(--accent-2)" opacity=".15"/>
+                <circle cx="30" cy="250" r="1" fill="var(--accent-2)" opacity=".15"/>
+                <circle cx="350" cy="320" r="1" fill="var(--accent-2)" opacity=".15"/>
+                <circle cx="50" cy="320" r="1" fill="var(--accent-2)" opacity=".15"/>
+                <circle cx="250" cy="370" r="1" fill="var(--accent-2)" opacity=".15"/>
+                <circle cx="150" cy="370" r="1" fill="var(--accent-2)" opacity=".15"/>
+                <!-- Additional flow path detail lines -->
+                <line x1="200" y1="160" x2="200" y2="170" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="220" y1="165" x2="215" y2="175" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="180" y1="165" x2="185" y2="175" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="235" y1="180" x2="225" y2="185" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="165" y1="180" x2="175" y2="185" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="240" y1="200" x2="230" y2="200" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="160" y1="200" x2="170" y2="200" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="235" y1="220" x2="225" y2="215" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="165" y1="220" x2="175" y2="215" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <!-- Data volume metrics bottom-right -->
+                <text x="330" y="380" fill="currentColor" font-size="6" font-family="'IBM Plex Mono', monospace" opacity=".35">VOL: 2.4TB</text>
+                <text x="330" y="390" fill="currentColor" font-size="6" font-family="'IBM Plex Mono', monospace" opacity=".35">RATE: 847/s</text>
               </svg>
             </div>
             <div class="pin__frame-item" data-frame="1">
               <svg viewBox="0 0 400 400" class="pin__svg">
-                <!-- K5 complete graph: 5 nodes in pentagon -->
-                <!-- All 10 edges (thin, low opacity) -->
-                <line x1="200" y1="70" x2="324" y2="168" stroke="currentColor" stroke-width=".6" opacity=".15"/>
-                <line x1="200" y1="70" x2="277" y2="310" stroke="currentColor" stroke-width=".6" opacity=".15"/>
-                <line x1="200" y1="70" x2="123" y2="310" stroke="currentColor" stroke-width=".6" opacity=".15"/>
-                <line x1="200" y1="70" x2="76" y2="168" stroke="currentColor" stroke-width=".6" opacity=".15"/>
-                <line x1="324" y1="168" x2="277" y2="310" stroke="currentColor" stroke-width=".6" opacity=".15"/>
-                <line x1="324" y1="168" x2="123" y2="310" stroke="currentColor" stroke-width=".6" opacity=".15"/>
-                <line x1="324" y1="168" x2="76" y2="168" stroke="currentColor" stroke-width=".6" opacity=".15"/>
-                <line x1="277" y1="310" x2="123" y2="310" stroke="currentColor" stroke-width=".6" opacity=".15"/>
-                <line x1="277" y1="310" x2="76" y2="168" stroke="currentColor" stroke-width=".6" opacity=".15"/>
-                <line x1="123" y1="310" x2="76" y2="168" stroke="currentColor" stroke-width=".6" opacity=".15"/>
-                <!-- Cascade path A->C->V->S->M (highlighted) -->
-                <line x1="200" y1="70" x2="324" y2="168" class="svg-cascade-path" stroke="var(--accent)" stroke-width="2.5"/>
-                <line x1="324" y1="168" x2="277" y2="310" class="svg-cascade-path" stroke="var(--accent)" stroke-width="2.5"/>
-                <line x1="277" y1="310" x2="123" y2="310" class="svg-cascade-path" stroke="var(--accent)" stroke-width="2.5"/>
-                <line x1="123" y1="310" x2="76" y2="168" class="svg-cascade-path" stroke="var(--accent)" stroke-width="2.5"/>
-                <!-- Pentagon nodes -->
-                <circle cx="200" cy="70" r="10" fill="currentColor" opacity=".8"/>
-                <circle cx="324" cy="168" r="10" fill="currentColor" opacity=".8"/>
-                <circle cx="277" cy="310" r="10" fill="currentColor" opacity=".8"/>
-                <circle cx="123" cy="310" r="10" fill="currentColor" opacity=".8"/>
-                <circle cx="76" cy="168" r="10" fill="currentColor" opacity=".8"/>
-                <!-- Node labels -->
-                <text x="200" y="55" text-anchor="middle" fill="currentColor" font-size="14" font-family="var(--font-mono)">A</text>
-                <text x="340" y="168" text-anchor="start" fill="currentColor" font-size="14" font-family="var(--font-mono)">C</text>
-                <text x="285" y="330" text-anchor="start" fill="currentColor" font-size="14" font-family="var(--font-mono)">V</text>
-                <text x="108" y="330" text-anchor="end" fill="currentColor" font-size="14" font-family="var(--font-mono)">S</text>
-                <text x="60" y="168" text-anchor="end" fill="currentColor" font-size="14" font-family="var(--font-mono)">M</text>
-                <!-- Central verdict node -->
-                <circle cx="200" cy="200" r="15" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".6"/>
-                <circle cx="200" cy="200" r="6" fill="var(--accent)" opacity=".8"/>
+                <defs>
+                  <radialGradient id="analysisGlowA"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".4"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="analysisGlowC"><stop offset="0%" stop-color="var(--accent-2)" stop-opacity=".4"/><stop offset="100%" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="analysisGlowV"><stop offset="0%" stop-color="var(--accent-3)" stop-opacity=".4"/><stop offset="100%" stop-color="var(--accent-3)" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="analysisGlowS"><stop offset="0%" stop-color="#f5a623" stop-opacity=".4"/><stop offset="100%" stop-color="#f5a623" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="analysisGlowM"><stop offset="0%" stop-color="var(--accent-2)" stop-opacity=".3"/><stop offset="100%" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient>
+                  <filter id="analysisBlur"><feGaussianBlur stdDeviation="3"/></filter>
+                </defs>
+                <!-- K5 Graph Background - all 10 edges -->
+                <line x1="200" y1="70" x2="324" y2="168" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="200" y1="70" x2="277" y2="310" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="200" y1="70" x2="123" y2="310" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="200" y1="70" x2="76" y2="168" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="324" y1="168" x2="277" y2="310" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="324" y1="168" x2="123" y2="310" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="324" y1="168" x2="76" y2="168" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="277" y1="310" x2="123" y2="310" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="277" y1="310" x2="76" y2="168" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="123" y1="310" x2="76" y2="168" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <!-- Cascade Path A->C->V->S->M -->
+                <line x1="200" y1="70" x2="324" y2="168" class="pin-analysis-cascade" stroke="var(--accent)" stroke-width="2.5" style="animation-delay:0s"/>
+                <line x1="324" y1="168" x2="277" y2="310" class="pin-analysis-cascade" stroke="var(--accent)" stroke-width="2.5" style="animation-delay:0.8s"/>
+                <line x1="277" y1="310" x2="123" y2="310" class="pin-analysis-cascade" stroke="var(--accent)" stroke-width="2.5" style="animation-delay:1.6s"/>
+                <line x1="123" y1="310" x2="76" y2="168" class="pin-analysis-cascade" stroke="var(--accent)" stroke-width="2.5" style="animation-delay:2.4s"/>
+                <!-- Agent beams to center -->
+                <line x1="200" y1="70" x2="200" y2="200" class="pin-analysis-beam" stroke="var(--accent)" stroke-width=".8"/>
+                <line x1="324" y1="168" x2="200" y2="200" class="pin-analysis-beam" stroke="var(--accent-2)" stroke-width=".8"/>
+                <line x1="277" y1="310" x2="200" y2="200" class="pin-analysis-beam" stroke="var(--accent-3)" stroke-width=".8"/>
+                <line x1="123" y1="310" x2="200" y2="200" class="pin-analysis-beam" stroke="#f5a623" stroke-width=".8"/>
+                <line x1="76" y1="168" x2="200" y2="200" class="pin-analysis-beam" stroke="var(--accent-2)" stroke-width=".8"/>
+                <!-- Agent A (ANALYST) at 200,70 -->
+                <circle cx="200" cy="70" r="28" fill="url(#analysisGlowA)" filter="url(#analysisBlur)" opacity=".5"/>
+                <circle cx="200" cy="70" r="22" fill="none" stroke="var(--accent)" stroke-width=".8" stroke-dasharray="3 2" opacity=".5" class="pin-collect-outer"/>
+                <path d="M200,52 A18,18 0 1,1 183,74" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>
+                <circle cx="200" cy="70" r="14" fill="currentColor" opacity=".08"/>
+                <circle cx="200" cy="70" r="14" fill="none" stroke="currentColor" stroke-width=".5" opacity=".3"/>
+                <circle cx="200" cy="70" r="6" fill="var(--accent)" opacity=".8"/>
+                <text x="200" y="42" text-anchor="middle" fill="currentColor" font-size="8" font-family="'IBM Plex Mono', monospace" opacity=".6">ANALYST</text>
+                <text x="200" y="100" text-anchor="middle" fill="var(--accent)" font-size="7" font-family="'IBM Plex Mono', monospace" opacity=".5">0.92</text>
+                <!-- Agent C (CRITIC) at 324,168 -->
+                <circle cx="324" cy="168" r="28" fill="url(#analysisGlowC)" filter="url(#analysisBlur)" opacity=".5"/>
+                <circle cx="324" cy="168" r="22" fill="none" stroke="var(--accent-2)" stroke-width=".8" stroke-dasharray="3 2" opacity=".5" class="pin-collect-outer"/>
+                <path d="M324,150 A18,18 0 1,1 310,180" fill="none" stroke="var(--accent-2)" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>
+                <circle cx="324" cy="168" r="14" fill="currentColor" opacity=".08"/>
+                <circle cx="324" cy="168" r="14" fill="none" stroke="currentColor" stroke-width=".5" opacity=".3"/>
+                <circle cx="324" cy="168" r="6" fill="var(--accent-2)" opacity=".8"/>
+                <text x="355" y="162" text-anchor="start" fill="currentColor" font-size="8" font-family="'IBM Plex Mono', monospace" opacity=".6">CRITIC</text>
+                <text x="355" y="174" text-anchor="start" fill="var(--accent-2)" font-size="7" font-family="'IBM Plex Mono', monospace" opacity=".5">0.87</text>
+                <!-- Agent V (VERIFIER) at 277,310 -->
+                <circle cx="277" cy="310" r="28" fill="url(#analysisGlowV)" filter="url(#analysisBlur)" opacity=".5"/>
+                <circle cx="277" cy="310" r="22" fill="none" stroke="var(--accent-3)" stroke-width=".8" stroke-dasharray="3 2" opacity=".5" class="pin-collect-outer"/>
+                <path d="M277,292 A18,18 0 1,1 261,318" fill="none" stroke="var(--accent-3)" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>
+                <circle cx="277" cy="310" r="14" fill="currentColor" opacity=".08"/>
+                <circle cx="277" cy="310" r="14" fill="none" stroke="currentColor" stroke-width=".5" opacity=".3"/>
+                <circle cx="277" cy="310" r="6" fill="var(--accent-3)" opacity=".8"/>
+                <text x="277" y="340" text-anchor="middle" fill="currentColor" font-size="8" font-family="'IBM Plex Mono', monospace" opacity=".6">VERIFIER</text>
+                <text x="277" y="351" text-anchor="middle" fill="var(--accent-3)" font-size="7" font-family="'IBM Plex Mono', monospace" opacity=".5">0.94</text>
+                <!-- Agent S (SYNTHESIZER) at 123,310 -->
+                <circle cx="123" cy="310" r="28" fill="url(#analysisGlowS)" filter="url(#analysisBlur)" opacity=".5"/>
+                <circle cx="123" cy="310" r="22" fill="none" stroke="#f5a623" stroke-width=".8" stroke-dasharray="3 2" opacity=".5" class="pin-collect-outer"/>
+                <path d="M123,292 A18,18 0 1,1 107,318" fill="none" stroke="#f5a623" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>
+                <circle cx="123" cy="310" r="14" fill="currentColor" opacity=".08"/>
+                <circle cx="123" cy="310" r="14" fill="none" stroke="currentColor" stroke-width=".5" opacity=".3"/>
+                <circle cx="123" cy="310" r="6" fill="#f5a623" opacity=".8"/>
+                <text x="123" y="340" text-anchor="middle" fill="currentColor" font-size="8" font-family="'IBM Plex Mono', monospace" opacity=".6">SYNTHESIZER</text>
+                <text x="123" y="351" text-anchor="middle" fill="#f5a623" font-size="7" font-family="'IBM Plex Mono', monospace" opacity=".5">0.91</text>
+                <!-- Agent M (METAJUDGE) at 76,168 -->
+                <circle cx="76" cy="168" r="28" fill="url(#analysisGlowM)" filter="url(#analysisBlur)" opacity=".5"/>
+                <circle cx="76" cy="168" r="22" fill="none" stroke="var(--accent-2)" stroke-width=".8" stroke-dasharray="3 2" opacity=".5" class="pin-collect-outer"/>
+                <path d="M76,150 A18,18 0 1,1 60,178" fill="none" stroke="var(--accent-2)" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>
+                <circle cx="76" cy="168" r="14" fill="currentColor" opacity=".08"/>
+                <circle cx="76" cy="168" r="14" fill="none" stroke="currentColor" stroke-width=".5" opacity=".3"/>
+                <circle cx="76" cy="168" r="6" fill="var(--accent-2)" opacity=".8"/>
+                <text x="40" y="162" text-anchor="end" fill="currentColor" font-size="8" font-family="'IBM Plex Mono', monospace" opacity=".6">METAJUDGE</text>
+                <text x="40" y="174" text-anchor="end" fill="var(--accent-2)" font-size="7" font-family="'IBM Plex Mono', monospace" opacity=".5">0.96</text>
+                <!-- Central Verdict Node -->
+                <circle cx="200" cy="200" r="25" fill="url(#analysisGlowA)" filter="url(#analysisBlur)" class="pin-analysis-verdict-glow"/>
+                <circle cx="200" cy="200" r="18" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".7"/>
+                <circle cx="200" cy="200" r="12" fill="none" stroke="var(--accent)" stroke-width=".5" opacity=".3"/>
+                <circle cx="200" cy="200" r="8" fill="var(--accent)" opacity=".8" class="pin-analysis-verdict-glow"/>
+                <text x="200" y="228" text-anchor="middle" fill="currentColor" font-size="7" font-family="'IBM Plex Mono', monospace" opacity=".5">VERDICT</text>
+                <!-- Decision flow particles along cascade path -->
+                <circle r="2" fill="var(--accent)" opacity=".8"><animateMotion dur="3s" repeatCount="indefinite" path="M200,70 L324,168"/></circle>
+                <circle r="2" fill="var(--accent)" opacity=".7"><animateMotion dur="3s" begin="-1s" repeatCount="indefinite" path="M324,168 L277,310"/></circle>
+                <circle r="2" fill="var(--accent)" opacity=".6"><animateMotion dur="3s" begin="-2s" repeatCount="indefinite" path="M277,310 L123,310"/></circle>
+                <!-- Additional detail elements -->
+                <circle cx="200" cy="200" r="30" fill="none" stroke="currentColor" stroke-width=".3" opacity=".1" stroke-dasharray="1 3"/>
+                <circle cx="200" cy="200" r="60" fill="none" stroke="currentColor" stroke-width=".2" opacity=".06" stroke-dasharray="2 4"/>
+                <!-- Corner frame marks -->
+                <polyline points="10,25 10,10 25,10" fill="none" stroke="currentColor" stroke-width=".8" opacity=".25"/>
+                <polyline points="375,10 390,10 390,25" fill="none" stroke="currentColor" stroke-width=".8" opacity=".25"/>
+                <polyline points="390,375 390,390 375,390" fill="none" stroke="currentColor" stroke-width=".8" opacity=".25"/>
+                <polyline points="25,390 10,390 10,375" fill="none" stroke="currentColor" stroke-width=".8" opacity=".25"/>
+                <!-- HUD text -->
+                <text x="15" y="22" fill="currentColor" font-size="7" font-family="'IBM Plex Mono', monospace" opacity=".4">TRIBUNAL v2.1</text>
+                <text x="385" y="22" text-anchor="end" fill="currentColor" font-size="7" font-family="'IBM Plex Mono', monospace" opacity=".4">CASCADE ACTIVE</text>
+                <text x="200" y="390" text-anchor="middle" fill="currentColor" font-size="6" font-family="'IBM Plex Mono', monospace" opacity=".35">CONSENSUS: MULTI-AGENT DELIBERATION</text>
+                <!-- Additional K5 graph detail: secondary thin connections from agents -->
+                <line x1="200" y1="70" x2="200" y2="95" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="324" y1="168" x2="310" y2="175" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="277" y1="310" x2="270" y2="295" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="123" y1="310" x2="130" y2="295" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="76" y1="168" x2="90" y2="175" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <!-- Confidence arcs decorative ticks -->
+                <circle cx="200" cy="52" r="1" fill="var(--accent)" opacity=".4"/>
+                <circle cx="218" cy="54" r="1" fill="var(--accent)" opacity=".3"/>
+                <circle cx="183" cy="56" r="1" fill="var(--accent)" opacity=".3"/>
+                <circle cx="342" cy="160" r="1" fill="var(--accent-2)" opacity=".4"/>
+                <circle cx="338" cy="148" r="1" fill="var(--accent-2)" opacity=".3"/>
+                <circle cx="340" cy="175" r="1" fill="var(--accent-2)" opacity=".3"/>
+                <circle cx="277" cy="292" r="1" fill="var(--accent-3)" opacity=".4"/>
+                <circle cx="263" cy="294" r="1" fill="var(--accent-3)" opacity=".3"/>
+                <circle cx="292" cy="298" r="1" fill="var(--accent-3)" opacity=".3"/>
+                <circle cx="123" cy="292" r="1" fill="#f5a623" opacity=".4"/>
+                <circle cx="109" cy="296" r="1" fill="#f5a623" opacity=".3"/>
+                <circle cx="137" cy="296" r="1" fill="#f5a623" opacity=".3"/>
+                <circle cx="58" cy="160" r="1" fill="var(--accent-2)" opacity=".4"/>
+                <circle cx="62" cy="148" r="1" fill="var(--accent-2)" opacity=".3"/>
+                <circle cx="60" cy="175" r="1" fill="var(--accent-2)" opacity=".3"/>
+                <!-- Data processing indicators near each agent -->
+                <rect x="175" y="85" width="12" height="2" fill="var(--accent)" rx="1" opacity=".25"/>
+                <rect x="178" y="89" width="8" height="2" fill="var(--accent)" rx="1" opacity=".2"/>
+                <rect x="340" y="145" width="12" height="2" fill="var(--accent-2)" rx="1" opacity=".25"/>
+                <rect x="343" y="149" width="8" height="2" fill="var(--accent-2)" rx="1" opacity=".2"/>
+                <rect x="290" y="318" width="12" height="2" fill="var(--accent-3)" rx="1" opacity=".25"/>
+                <rect x="293" y="322" width="8" height="2" fill="var(--accent-3)" rx="1" opacity=".2"/>
+                <rect x="88" y="318" width="12" height="2" fill="#f5a623" rx="1" opacity=".25"/>
+                <rect x="91" y="322" width="8" height="2" fill="#f5a623" rx="1" opacity=".2"/>
+                <rect x="42" y="145" width="12" height="2" fill="var(--accent-2)" rx="1" opacity=".25"/>
+                <rect x="45" y="149" width="8" height="2" fill="var(--accent-2)" rx="1" opacity=".2"/>
+                <!-- Decorative radial lines from center -->
+                <line x1="200" y1="185" x2="200" y2="175" stroke="var(--accent)" stroke-width=".4" opacity=".2"/>
+                <line x1="215" y1="188" x2="220" y2="180" stroke="var(--accent)" stroke-width=".4" opacity=".2"/>
+                <line x1="185" y1="188" x2="180" y2="180" stroke="var(--accent)" stroke-width=".4" opacity=".2"/>
+                <line x1="212" y1="210" x2="218" y2="218" stroke="var(--accent)" stroke-width=".4" opacity=".2"/>
+                <line x1="188" y1="210" x2="182" y2="218" stroke="var(--accent)" stroke-width=".4" opacity=".2"/>
+                <!-- Micro grid background dots -->
+                <circle cx="40" cy="40" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="80" cy="40" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="120" cy="40" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="160" cy="40" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="240" cy="40" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="280" cy="40" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="320" cy="40" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="360" cy="40" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="40" cy="360" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="80" cy="360" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="120" cy="360" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="160" cy="360" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="240" cy="360" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="280" cy="360" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="320" cy="360" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="360" cy="360" r=".5" fill="currentColor" opacity=".1"/>
+                <circle cx="40" cy="80" r=".5" fill="currentColor" opacity=".08"/>
+                <circle cx="40" cy="120" r=".5" fill="currentColor" opacity=".08"/>
+                <circle cx="40" cy="200" r=".5" fill="currentColor" opacity=".08"/>
+                <circle cx="40" cy="240" r=".5" fill="currentColor" opacity=".08"/>
+                <circle cx="40" cy="280" r=".5" fill="currentColor" opacity=".08"/>
+                <circle cx="40" cy="320" r=".5" fill="currentColor" opacity=".08"/>
+                <circle cx="360" cy="80" r=".5" fill="currentColor" opacity=".08"/>
+                <circle cx="360" cy="120" r=".5" fill="currentColor" opacity=".08"/>
+                <circle cx="360" cy="200" r=".5" fill="currentColor" opacity=".08"/>
+                <circle cx="360" cy="240" r=".5" fill="currentColor" opacity=".08"/>
+                <circle cx="360" cy="280" r=".5" fill="currentColor" opacity=".08"/>
+                <circle cx="360" cy="320" r=".5" fill="currentColor" opacity=".08"/>
+                <!-- Additional edge pulses -->
+                <circle cx="262" cy="119" r="1.5" fill="var(--accent)" opacity=".3"/>
+                <circle cx="300" cy="239" r="1.5" fill="var(--accent)" opacity=".25"/>
+                <circle cx="200" cy="310" r="1.5" fill="var(--accent)" opacity=".25"/>
+                <circle cx="100" cy="239" r="1.5" fill="var(--accent)" opacity=".25"/>
+                <circle cx="138" cy="119" r="1.5" fill="var(--accent)" opacity=".2"/>
+                <!-- Timing indicators -->
+                <rect x="15" y="370" width="30" height="3" fill="currentColor" opacity=".08" rx="1.5"/>
+                <rect x="15" y="370" width="20" height="3" fill="var(--accent)" opacity=".2" rx="1.5"/>
+                <text x="15" y="380" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".3">t=4.2s</text>
+                <!-- Additional connecting detail lines between agents and center -->
+                <path d="M200,88 Q200,140 200,182" fill="none" stroke="currentColor" stroke-width=".3" opacity=".08" stroke-dasharray="2 2"/>
+                <path d="M306,175 Q260,185 218,195" fill="none" stroke="currentColor" stroke-width=".3" opacity=".08" stroke-dasharray="2 2"/>
+                <path d="M265,300 Q240,260 212,212" fill="none" stroke="currentColor" stroke-width=".3" opacity=".08" stroke-dasharray="2 2"/>
+                <path d="M135,300 Q160,260 188,212" fill="none" stroke="currentColor" stroke-width=".3" opacity=".08" stroke-dasharray="2 2"/>
+                <path d="M94,175 Q140,185 182,195" fill="none" stroke="currentColor" stroke-width=".3" opacity=".08" stroke-dasharray="2 2"/>
+                <!-- Additional scatter dots for density -->
+                <circle cx="150" cy="130" r=".6" fill="currentColor" opacity=".1"/>
+                <circle cx="170" cy="140" r=".6" fill="currentColor" opacity=".1"/>
+                <circle cx="230" cy="140" r=".6" fill="currentColor" opacity=".1"/>
+                <circle cx="250" cy="130" r=".6" fill="currentColor" opacity=".1"/>
+                <circle cx="170" cy="250" r=".6" fill="currentColor" opacity=".1"/>
+                <circle cx="230" cy="250" r=".6" fill="currentColor" opacity=".1"/>
+                <circle cx="150" cy="260" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="250" cy="260" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="140" cy="200" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="260" cy="200" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="160" cy="180" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="240" cy="180" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="160" cy="220" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="240" cy="220" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="180" cy="155" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="220" cy="155" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="180" cy="245" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="220" cy="245" r=".6" fill="currentColor" opacity=".08"/>
+                <!-- Edge glow indicators -->
+                <circle cx="262" cy="119" r="3" fill="none" stroke="var(--accent)" stroke-width=".3" opacity=".15"/>
+                <circle cx="300" cy="239" r="3" fill="none" stroke="var(--accent)" stroke-width=".3" opacity=".12"/>
+                <circle cx="200" cy="310" r="3" fill="none" stroke="var(--accent)" stroke-width=".3" opacity=".12"/>
+                <circle cx="100" cy="239" r="3" fill="none" stroke="var(--accent)" stroke-width=".3" opacity=".12"/>
+                <circle cx="138" cy="119" r="3" fill="none" stroke="var(--accent)" stroke-width=".3" opacity=".12"/>
+                <!-- Process status dots -->
+                <circle cx="370" cy="375" r="2" fill="var(--accent-3)" opacity=".4"/>
+                <circle cx="370" cy="382" r="2" fill="var(--accent-3)" opacity=".3"/>
+                <circle cx="370" cy="389" r="2" fill="currentColor" opacity=".15"/>
+                <text x="360" y="378" text-anchor="end" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".3">OK</text>
+                <text x="360" y="385" text-anchor="end" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".3">OK</text>
+                <text x="360" y="392" text-anchor="end" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".25">...</text>
               </svg>
             </div>
             <div class="pin__frame-item" data-frame="2">
               <svg viewBox="0 0 400 400" class="pin__svg">
-                <!-- Investigation graph: 10 nodes, 18 edges -->
-                <!-- Edges (thin connections) -->
-                <line x1="80" y1="80" x2="180" y2="120" stroke="currentColor" stroke-width=".6" opacity=".2"/>
-                <line x1="180" y1="120" x2="260" y2="80" stroke="currentColor" stroke-width=".6" opacity=".2"/>
-                <line x1="260" y1="80" x2="340" y2="140" stroke="currentColor" stroke-width=".6" opacity=".2"/>
-                <line x1="340" y1="140" x2="320" y2="240" stroke="currentColor" stroke-width=".6" opacity=".2"/>
-                <line x1="320" y1="240" x2="280" y2="320" stroke="currentColor" stroke-width=".6" opacity=".2"/>
-                <line x1="280" y1="320" x2="180" y2="340" stroke="currentColor" stroke-width=".6" opacity=".2"/>
-                <line x1="180" y1="340" x2="100" y2="300" stroke="currentColor" stroke-width=".6" opacity=".2"/>
-                <line x1="100" y1="300" x2="60" y2="220" stroke="currentColor" stroke-width=".6" opacity=".2"/>
-                <line x1="60" y1="220" x2="80" y2="80" stroke="currentColor" stroke-width=".6" opacity=".2"/>
-                <line x1="180" y1="120" x2="200" y2="200" stroke="currentColor" stroke-width=".6" opacity=".2"/>
-                <line x1="200" y1="200" x2="320" y2="240" stroke="currentColor" stroke-width=".6" opacity=".2"/>
-                <line x1="200" y1="200" x2="180" y2="340" stroke="currentColor" stroke-width=".6" opacity=".2"/>
-                <line x1="200" y1="200" x2="100" y2="300" stroke="currentColor" stroke-width=".6" opacity=".2"/>
-                <line x1="260" y1="80" x2="200" y2="200" stroke="currentColor" stroke-width=".6" opacity=".2"/>
-                <line x1="340" y1="140" x2="260" y2="80" stroke="currentColor" stroke-width=".6" opacity=".15"/>
-                <line x1="80" y1="80" x2="60" y2="220" stroke="currentColor" stroke-width=".6" opacity=".15"/>
-                <line x1="280" y1="320" x2="320" y2="240" stroke="currentColor" stroke-width=".6" opacity=".15"/>
-                <line x1="100" y1="300" x2="180" y2="340" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <defs>
+                  <radialGradient id="investHeat1" cx="30%" cy="30%" r="40%"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".08"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="investHeat2" cx="70%" cy="60%" r="35%"><stop offset="0%" stop-color="var(--accent-2)" stop-opacity=".06"/><stop offset="100%" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="investHeat3" cx="50%" cy="80%" r="30%"><stop offset="0%" stop-color="#f5a623" stop-opacity=".06"/><stop offset="100%" stop-color="#f5a623" stop-opacity="0"/></radialGradient>
+                  <filter id="investBlur"><feGaussianBlur stdDeviation="2"/></filter>
+                </defs>
+                <!-- Background Heatmap zones -->
+                <circle cx="120" cy="120" r="120" fill="url(#investHeat1)"/>
+                <circle cx="300" cy="240" r="110" fill="url(#investHeat2)"/>
+                <circle cx="180" cy="320" r="100" fill="url(#investHeat3)"/>
+                <!-- Graph Edges (25+ connections) -->
+                <line x1="80" y1="80" x2="160" y2="110" stroke="currentColor" stroke-width=".6" opacity=".18"/>
+                <line x1="160" y1="110" x2="240" y2="75" stroke="currentColor" stroke-width=".6" opacity=".18"/>
+                <line x1="240" y1="75" x2="320" y2="120" stroke="currentColor" stroke-width=".6" opacity=".18"/>
+                <line x1="320" y1="120" x2="340" y2="200" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="340" y1="200" x2="310" y2="280" stroke="currentColor" stroke-width=".6" opacity=".18"/>
+                <line x1="310" y1="280" x2="260" y2="330" stroke="currentColor" stroke-width=".6" opacity=".18"/>
+                <line x1="260" y1="330" x2="170" y2="340" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="170" y1="340" x2="100" y2="300" stroke="currentColor" stroke-width=".6" opacity=".18"/>
+                <line x1="100" y1="300" x2="60" y2="230" stroke="currentColor" stroke-width=".6" opacity=".18"/>
+                <line x1="60" y1="230" x2="80" y2="80" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="160" y1="110" x2="200" y2="190" stroke="currentColor" stroke-width=".6" opacity=".18"/>
+                <line x1="200" y1="190" x2="310" y2="280" stroke="currentColor" stroke-width=".6" opacity=".18"/>
+                <line x1="200" y1="190" x2="170" y2="340" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="200" y1="190" x2="100" y2="300" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="240" y1="75" x2="200" y2="190" stroke="currentColor" stroke-width=".6" opacity=".18"/>
+                <line x1="320" y1="120" x2="200" y2="190" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="80" y1="80" x2="60" y2="230" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="310" y1="280" x2="340" y2="200" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="100" y1="300" x2="170" y2="340" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="240" y1="75" x2="340" y2="200" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="60" y1="230" x2="100" y2="300" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="160" y1="110" x2="320" y2="120" stroke="currentColor" stroke-width=".6" opacity=".1"/>
+                <line x1="80" y1="80" x2="200" y2="190" stroke="currentColor" stroke-width=".6" opacity=".15"/>
+                <line x1="260" y1="330" x2="310" y2="280" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="170" y1="340" x2="260" y2="330" stroke="currentColor" stroke-width=".6" opacity=".12"/>
+                <line x1="340" y1="200" x2="260" y2="330" stroke="currentColor" stroke-width=".6" opacity=".1"/>
                 <!-- BFS highlighted path edges -->
-                <line x1="80" y1="80" x2="180" y2="120" stroke="var(--accent)" stroke-width="2.5" opacity=".7"/>
-                <line x1="180" y1="120" x2="200" y2="200" stroke="var(--accent)" stroke-width="2.5" opacity=".7"/>
-                <line x1="200" y1="200" x2="320" y2="240" stroke="var(--accent)" stroke-width="2.5" opacity=".7"/>
-                <line x1="320" y1="240" x2="280" y2="320" stroke="var(--accent)" stroke-width="2.5" opacity=".7"/>
-                <!-- Non-BFS nodes (float animation, various shapes) -->
-                <!-- Green (safe) nodes -->
-                <circle class="svg-float-node" cx="260" cy="80" r="8" fill="var(--accent-3)" opacity=".6"/>
-                <rect class="svg-float-node" x="95" y="295" width="12" height="12" fill="var(--accent-3)" opacity=".6" rx="2"/>
-                <!-- Amber (watch) nodes -->
-                <circle class="svg-float-node" cx="340" cy="140" r="8" fill="#f5a623" opacity=".6"/>
-                <rect class="svg-float-node" x="174" y="334" width="12" height="12" fill="#f5a623" opacity=".6" rx="2"/>
-                <polygon class="svg-float-node" points="60,212 68,228 52,228" fill="#f5a623" opacity=".6"/>
-                <!-- Red (threat) nodes - not on BFS path -->
-                <!-- Neutral nodes -->
+                <line x1="80" y1="80" x2="160" y2="110" stroke="var(--accent)" stroke-width="2.5" opacity=".7"/>
+                <line x1="160" y1="110" x2="200" y2="190" stroke="var(--accent)" stroke-width="2.5" opacity=".7"/>
+                <line x1="200" y1="190" x2="310" y2="280" stroke="var(--accent)" stroke-width="2.5" opacity=".7"/>
+                <line x1="310" y1="280" x2="260" y2="330" stroke="var(--accent)" stroke-width="2.5" opacity=".7"/>
+                <!-- Person nodes (circles) - green/safe -->
+                <circle class="svg-float-node" cx="240" cy="75" r="9" fill="none" stroke="var(--accent-3)" stroke-width="1.5" opacity=".7"/>
+                <circle cx="240" cy="75" r="4" fill="var(--accent-3)" opacity=".4"/>
+                <circle class="svg-float-node" cx="100" cy="300" r="8" fill="none" stroke="var(--accent-3)" stroke-width="1.5" opacity=".7"/>
+                <circle cx="100" cy="300" r="3.5" fill="var(--accent-3)" opacity=".4"/>
+                <circle class="svg-float-node" cx="170" cy="340" r="8" fill="none" stroke="var(--accent-3)" stroke-width="1.5" opacity=".6"/>
+                <circle cx="170" cy="340" r="3.5" fill="var(--accent-3)" opacity=".3"/>
+                <!-- Person nodes - amber/watch -->
+                <circle class="svg-float-node" cx="320" cy="120" r="9" fill="none" stroke="#f5a623" stroke-width="1.5" opacity=".7"/>
+                <circle cx="320" cy="120" r="4" fill="#f5a623" opacity=".4"/>
+                <circle class="svg-float-node" cx="340" cy="200" r="8" fill="none" stroke="#f5a623" stroke-width="1.5" opacity=".6"/>
+                <circle cx="340" cy="200" r="3.5" fill="#f5a623" opacity=".35"/>
+                <circle class="svg-float-node" cx="60" cy="230" r="8" fill="none" stroke="#f5a623" stroke-width="1.5" opacity=".65"/>
+                <circle cx="60" cy="230" r="3.5" fill="#f5a623" opacity=".35"/>
+                <!-- Person nodes - red/threat -->
+                <circle class="svg-float-node" cx="350" cy="310" r="8" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".7"/>
+                <circle cx="350" cy="310" r="3.5" fill="var(--accent)" opacity=".4"/>
+                <!-- Wallet nodes (hexagons) - amber -->
+                <polygon class="svg-float-node" points="130,165 140,158 150,165 150,177 140,184 130,177" fill="none" stroke="#f5a623" stroke-width="1.2" opacity=".6"/>
+                <polygon class="svg-float-node" points="275,145 285,138 295,145 295,157 285,164 275,157" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".6"/>
+                <polygon class="svg-float-node" points="220,260 230,253 240,260 240,272 230,279 220,272" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".65"/>
+                <!-- Domain nodes (rounded rects) -->
+                <rect class="svg-float-node" x="50" y="135" width="18" height="12" fill="none" stroke="var(--accent-3)" stroke-width="1.2" rx="3" opacity=".6"/>
+                <rect class="svg-float-node" x="280" y="180" width="18" height="12" fill="none" stroke="#f5a623" stroke-width="1.2" rx="3" opacity=".6"/>
+                <rect class="svg-float-node" x="150" y="255" width="18" height="12" fill="none" stroke="var(--accent)" stroke-width="1.2" rx="3" opacity=".65"/>
+                <!-- Email nodes (diamonds) -->
+                <polygon class="svg-float-node" points="120,80 130,72 140,80 130,88" fill="none" stroke="var(--accent-2)" stroke-width="1.2" opacity=".6"/>
+                <polygon class="svg-float-node" points="345,255 355,247 365,255 355,263" fill="none" stroke="var(--accent-2)" stroke-width="1.2" opacity=".55"/>
+                <!-- Phone nodes (triangles) -->
+                <polygon class="svg-float-node" points="55,170 63,156 71,170" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+                <polygon class="svg-float-node" points="290,340 298,326 306,340" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
                 <!-- BFS path nodes (sequential reveal) -->
                 <g class="bfs-group">
                   <circle class="svg-bfs-node" cx="80" cy="80" r="10" fill="var(--accent)" opacity=".9"/>
-                  <circle class="svg-bfs-node" cx="180" cy="120" r="10" fill="var(--accent)" opacity=".9"/>
-                  <circle class="svg-bfs-node" cx="200" cy="200" r="10" fill="var(--accent)" opacity=".9"/>
-                  <circle class="svg-bfs-node" cx="320" cy="240" r="10" fill="var(--accent)" opacity=".9"/>
-                  <circle class="svg-bfs-node" cx="280" cy="320" r="10" fill="var(--accent)" opacity=".9"/>
+                  <circle class="svg-bfs-node" cx="160" cy="110" r="10" fill="var(--accent)" opacity=".9"/>
+                  <circle class="svg-bfs-node" cx="200" cy="190" r="10" fill="var(--accent)" opacity=".9"/>
+                  <circle class="svg-bfs-node" cx="310" cy="280" r="10" fill="var(--accent)" opacity=".9"/>
+                  <circle class="svg-bfs-node" cx="260" cy="330" r="10" fill="var(--accent)" opacity=".9"/>
                 </g>
-                <!-- Mini context menu near node at 320,240 -->
-                <rect x="335" y="225" width="40" height="30" fill="currentColor" opacity=".08" stroke="currentColor" stroke-width=".5" rx="3"/>
-                <line x1="341" y1="233" x2="369" y2="233" stroke="currentColor" stroke-width=".5" opacity=".4"/>
-                <line x1="341" y1="240" x2="369" y2="240" stroke="currentColor" stroke-width=".5" opacity=".4"/>
-                <line x1="341" y1="247" x2="369" y2="247" stroke="currentColor" stroke-width=".5" opacity=".4"/>
+                <!-- Live discovery nodes -->
+                <g class="pin-invest-discover">
+                  <circle cx="370" cy="80" r="8" fill="none" stroke="var(--accent-3)" stroke-width="1.5" opacity=".8"/>
+                  <circle cx="370" cy="80" r="3" fill="var(--accent-3)" opacity=".6"/>
+                  <circle cx="370" cy="80" r="14" fill="none" stroke="var(--accent-3)" stroke-width=".8" opacity=".3"/>
+                </g>
+                <g class="pin-invest-discover" style="transition-delay:3s">
+                  <circle cx="40" cy="350" r="7" fill="none" stroke="var(--accent-2)" stroke-width="1.5" opacity=".8"/>
+                  <circle cx="40" cy="350" r="3" fill="var(--accent-2)" opacity=".6"/>
+                  <circle cx="40" cy="350" r="12" fill="none" stroke="var(--accent-2)" stroke-width=".8" opacity=".3"/>
+                </g>
+                <g class="pin-invest-discover" style="transition-delay:3.5s">
+                  <circle cx="200" cy="40" r="7" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".8"/>
+                  <circle cx="200" cy="40" r="3" fill="var(--accent)" opacity=".6"/>
+                  <circle cx="200" cy="40" r="12" fill="none" stroke="var(--accent)" stroke-width=".8" opacity=".3"/>
+                </g>
+                <!-- Minimap (bottom-right) -->
+                <rect x="330" y="340" width="60" height="50" fill="currentColor" opacity=".03" stroke="currentColor" stroke-width=".6" opacity=".25" rx="2"/>
+                <rect x="345" y="352" width="14" height="10" fill="none" stroke="var(--accent)" stroke-width=".5" opacity=".4"/>
+                <circle cx="340" cy="350" r="1" fill="var(--accent-3)" opacity=".5"/>
+                <circle cx="355" cy="355" r="1" fill="var(--accent)" opacity=".5"/>
+                <circle cx="365" cy="360" r="1" fill="#f5a623" opacity=".5"/>
+                <circle cx="350" cy="365" r="1" fill="var(--accent-2)" opacity=".5"/>
+                <circle cx="375" cy="350" r="1" fill="currentColor" opacity=".4"/>
+                <circle cx="345" cy="375" r="1" fill="var(--accent-3)" opacity=".4"/>
+                <circle cx="360" cy="372" r="1" fill="var(--accent)" opacity=".4"/>
+                <circle cx="380" cy="368" r="1" fill="#f5a623" opacity=".4"/>
+                <circle cx="338" cy="362" r="1" fill="currentColor" opacity=".4"/>
+                <circle cx="372" cy="378" r="1" fill="var(--accent-2)" opacity=".4"/>
+                <!-- Context menu near node 310,280 -->
+                <rect x="322" y="262" width="45" height="35" fill="currentColor" opacity=".06" stroke="currentColor" stroke-width=".5" rx="3"/>
+                <text x="328" y="272" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".5">Expand</text>
+                <text x="328" y="280" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".5">Trace path</text>
+                <text x="328" y="288" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".5">Flag threat</text>
+                <text x="328" y="296" fill="var(--accent)" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".6">Isolate</text>
+                <!-- Corner HUD -->
+                <polyline points="10,25 10,10 25,10" fill="none" stroke="currentColor" stroke-width=".8" opacity=".25"/>
+                <polyline points="375,10 390,10 390,25" fill="none" stroke="currentColor" stroke-width=".8" opacity=".25"/>
+                <text x="15" y="22" fill="currentColor" font-size="7" font-family="'IBM Plex Mono', monospace" opacity=".4">NODES: 18</text>
+                <text x="385" y="22" text-anchor="end" fill="currentColor" font-size="7" font-family="'IBM Plex Mono', monospace" opacity=".4">BFS ACTIVE</text>
+                <!-- Additional graph edges for density -->
+                <line x1="120" y1="80" x2="130" y2="165" stroke="currentColor" stroke-width=".4" opacity=".1"/>
+                <line x1="240" y1="75" x2="275" y2="145" stroke="currentColor" stroke-width=".4" opacity=".1"/>
+                <line x1="320" y1="120" x2="280" y2="180" stroke="currentColor" stroke-width=".4" opacity=".1"/>
+                <line x1="340" y1="200" x2="280" y2="180" stroke="currentColor" stroke-width=".4" opacity=".1"/>
+                <line x1="60" y1="230" x2="130" y2="165" stroke="currentColor" stroke-width=".4" opacity=".1"/>
+                <line x1="100" y1="300" x2="150" y2="255" stroke="currentColor" stroke-width=".4" opacity=".1"/>
+                <line x1="170" y1="340" x2="220" y2="260" stroke="currentColor" stroke-width=".4" opacity=".1"/>
+                <line x1="260" y1="330" x2="220" y2="260" stroke="currentColor" stroke-width=".4" opacity=".08"/>
+                <line x1="310" y1="280" x2="345" y2="255" stroke="currentColor" stroke-width=".4" opacity=".08"/>
+                <line x1="200" y1="190" x2="130" y2="165" stroke="currentColor" stroke-width=".4" opacity=".1"/>
+                <line x1="200" y1="190" x2="275" y2="145" stroke="currentColor" stroke-width=".4" opacity=".1"/>
+                <line x1="200" y1="190" x2="220" y2="260" stroke="currentColor" stroke-width=".4" opacity=".08"/>
+                <!-- Additional scattered decorative nodes -->
+                <circle cx="280" cy="180" r="5" fill="none" stroke="currentColor" stroke-width=".8" opacity=".3"/>
+                <circle cx="130" cy="165" r="5" fill="none" stroke="currentColor" stroke-width=".8" opacity=".3"/>
+                <circle cx="275" cy="145" r="5" fill="none" stroke="currentColor" stroke-width=".8" opacity=".3"/>
+                <circle cx="220" cy="260" r="5" fill="none" stroke="currentColor" stroke-width=".8" opacity=".25"/>
+                <circle cx="150" cy="255" r="5" fill="none" stroke="currentColor" stroke-width=".8" opacity=".25"/>
+                <!-- Micro dots scattered around graph -->
+                <circle cx="110" cy="95" r=".8" fill="currentColor" opacity=".15"/>
+                <circle cx="140" cy="85" r=".8" fill="currentColor" opacity=".12"/>
+                <circle cx="195" cy="70" r=".8" fill="currentColor" opacity=".12"/>
+                <circle cx="285" cy="95" r=".8" fill="currentColor" opacity=".12"/>
+                <circle cx="355" cy="165" r=".8" fill="currentColor" opacity=".1"/>
+                <circle cx="360" cy="230" r=".8" fill="currentColor" opacity=".1"/>
+                <circle cx="330" cy="310" r=".8" fill="currentColor" opacity=".1"/>
+                <circle cx="290" cy="350" r=".8" fill="currentColor" opacity=".1"/>
+                <circle cx="210" cy="360" r=".8" fill="currentColor" opacity=".12"/>
+                <circle cx="130" cy="350" r=".8" fill="currentColor" opacity=".12"/>
+                <circle cx="75" cy="310" r=".8" fill="currentColor" opacity=".12"/>
+                <circle cx="45" cy="260" r=".8" fill="currentColor" opacity=".12"/>
+                <circle cx="40" cy="190" r=".8" fill="currentColor" opacity=".12"/>
+                <circle cx="50" cy="110" r=".8" fill="currentColor" opacity=".1"/>
+                <circle cx="195" cy="145" r=".8" fill="currentColor" opacity=".12"/>
+                <circle cx="250" cy="190" r=".8" fill="currentColor" opacity=".1"/>
+                <circle cx="150" cy="200" r=".8" fill="currentColor" opacity=".1"/>
+                <circle cx="230" cy="300" r=".8" fill="currentColor" opacity=".1"/>
+                <circle cx="145" cy="280" r=".8" fill="currentColor" opacity=".1"/>
+                <!-- Threat level legend (bottom-left) -->
+                <circle cx="20" cy="370" r="3" fill="var(--accent-3)" opacity=".5"/>
+                <text x="27" y="372" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">SAFE</text>
+                <circle cx="20" cy="380" r="3" fill="#f5a623" opacity=".5"/>
+                <text x="27" y="382" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">WATCH</text>
+                <circle cx="20" cy="390" r="3" fill="var(--accent)" opacity=".5"/>
+                <text x="27" y="392" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">THREAT</text>
+                <!-- Edge weight indicators -->
+                <circle cx="120" cy="95" r="1.2" fill="var(--accent)" opacity=".3"/>
+                <circle cx="180" cy="150" r="1.2" fill="var(--accent)" opacity=".3"/>
+                <circle cx="255" cy="235" r="1.2" fill="var(--accent)" opacity=".25"/>
+                <circle cx="285" cy="305" r="1.2" fill="var(--accent)" opacity=".25"/>
+                <!-- Additional decorative lines for grid feel -->
+                <line x1="15" y1="35" x2="385" y2="35" stroke="currentColor" stroke-width=".2" opacity=".04"/>
+                <line x1="15" y1="365" x2="300" y2="365" stroke="currentColor" stroke-width=".2" opacity=".04"/>
+                <line x1="15" y1="35" x2="15" y2="365" stroke="currentColor" stroke-width=".2" opacity=".04"/>
+                <line x1="385" y1="35" x2="385" y2="335" stroke="currentColor" stroke-width=".2" opacity=".04"/>
+                <!-- Node type indicators (tiny icons) -->
+                <line x1="237" y1="73" x2="243" y2="77" stroke="var(--accent-3)" stroke-width=".6" opacity=".4"/>
+                <line x1="97" y1="298" x2="103" y2="302" stroke="var(--accent-3)" stroke-width=".6" opacity=".4"/>
+                <line x1="317" y1="118" x2="323" y2="122" stroke="#f5a623" stroke-width=".6" opacity=".4"/>
+                <line x1="337" y1="198" x2="343" y2="202" stroke="#f5a623" stroke-width=".6" opacity=".4"/>
+                <line x1="57" y1="228" x2="63" y2="232" stroke="#f5a623" stroke-width=".6" opacity=".4"/>
+                <!-- Path weight labels -->
+                <text x="120" y="88" fill="var(--accent)" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".35">0.9</text>
+                <text x="180" y="145" fill="var(--accent)" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".35">0.8</text>
+                <text x="255" y="230" fill="var(--accent)" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".35">0.7</text>
+                <text x="285" y="300" fill="var(--accent)" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".35">0.6</text>
+                <!-- Additional density elements - scattered micro nodes -->
+                <circle cx="190" cy="55" r=".7" fill="currentColor" opacity=".12"/>
+                <circle cx="210" cy="50" r=".7" fill="currentColor" opacity=".1"/>
+                <circle cx="270" cy="60" r=".7" fill="currentColor" opacity=".1"/>
+                <circle cx="300" cy="90" r=".7" fill="currentColor" opacity=".1"/>
+                <circle cx="360" cy="150" r=".7" fill="currentColor" opacity=".08"/>
+                <circle cx="365" cy="180" r=".7" fill="currentColor" opacity=".08"/>
+                <circle cx="355" cy="260" r=".7" fill="currentColor" opacity=".08"/>
+                <circle cx="340" cy="330" r=".7" fill="currentColor" opacity=".08"/>
+                <circle cx="300" cy="355" r=".7" fill="currentColor" opacity=".08"/>
+                <circle cx="240" cy="360" r=".7" fill="currentColor" opacity=".1"/>
+                <circle cx="140" cy="355" r=".7" fill="currentColor" opacity=".1"/>
+                <circle cx="80" cy="320" r=".7" fill="currentColor" opacity=".1"/>
+                <circle cx="45" cy="280" r=".7" fill="currentColor" opacity=".1"/>
+                <circle cx="40" cy="200" r=".7" fill="currentColor" opacity=".08"/>
+                <circle cx="45" cy="140" r=".7" fill="currentColor" opacity=".08"/>
+                <circle cx="65" cy="60" r=".7" fill="currentColor" opacity=".08"/>
+                <circle cx="105" cy="50" r=".7" fill="currentColor" opacity=".08"/>
+                <circle cx="150" cy="60" r=".7" fill="currentColor" opacity=".08"/>
+                <!-- Additional decorative connection stubs -->
+                <line x1="370" y1="80" x2="350" y2="100" stroke="var(--accent-3)" stroke-width=".4" opacity=".15"/>
+                <line x1="40" y1="350" x2="60" y2="330" stroke="var(--accent-2)" stroke-width=".4" opacity=".15"/>
+                <line x1="200" y1="40" x2="195" y2="60" stroke="var(--accent)" stroke-width=".4" opacity=".15"/>
+                <line x1="370" y1="80" x2="365" y2="95" stroke="var(--accent-3)" stroke-width=".3" opacity=".1"/>
+                <line x1="40" y1="350" x2="50" y2="338" stroke="var(--accent-2)" stroke-width=".3" opacity=".1"/>
+                <!-- Node type count indicators -->
+                <rect x="80" y="380" width="25" height="10" fill="currentColor" opacity=".03" stroke="currentColor" stroke-width=".3" rx="2" opacity=".15"/>
+                <text x="92" y="387" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".3">5P</text>
+                <rect x="110" y="380" width="25" height="10" fill="currentColor" opacity=".03" stroke="currentColor" stroke-width=".3" rx="2" opacity=".15"/>
+                <text x="122" y="387" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".3">3W</text>
+                <rect x="140" y="380" width="25" height="10" fill="currentColor" opacity=".03" stroke="currentColor" stroke-width=".3" rx="2" opacity=".15"/>
+                <text x="152" y="387" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".3">3D</text>
+                <rect x="170" y="380" width="25" height="10" fill="currentColor" opacity=".03" stroke="currentColor" stroke-width=".3" rx="2" opacity=".15"/>
+                <text x="182" y="387" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".3">2E</text>
+                <!-- Final density padding -->
+                <circle cx="175" cy="290" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="225" cy="150" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="140" cy="230" r=".6" fill="currentColor" opacity=".08"/>
               </svg>
             </div>
             <div class="pin__frame-item" data-frame="3">
               <svg viewBox="0 0 400 400" class="pin__svg">
-                <!-- Data points (left side, scattered) -->
-                <circle class="svg-data-point" cx="50" cy="100" r="7" fill="var(--accent)" opacity=".5"/>
-                <circle class="svg-data-point" cx="80" cy="170" r="5" fill="var(--accent-2)" opacity=".4"/>
-                <polygon class="svg-data-point" points="40,230 48,245 32,245" fill="var(--accent-3)" opacity=".5"/>
-                <circle class="svg-data-point" cx="100" cy="280" r="6" fill="var(--accent)" opacity=".45"/>
-                <polygon class="svg-data-point" points="70,320 78,335 62,335" fill="var(--accent-2)" opacity=".4"/>
-                <circle class="svg-data-point" cx="120" cy="130" r="4" fill="currentColor" opacity=".4"/>
-                <polygon class="svg-data-point" points="90,80 98,95 82,95" fill="var(--accent-3)" opacity=".45"/>
-                <circle class="svg-data-point" cx="60" cy="360" r="5" fill="currentColor" opacity=".35"/>
-                <!-- Arrows/paths from data points toward document -->
-                <path d="M65 100 Q 150 100 220 120" stroke="currentColor" stroke-width=".5" opacity=".2" fill="none" stroke-dasharray="3 3"/>
-                <path d="M95 170 Q 160 170 220 175" stroke="currentColor" stroke-width=".5" opacity=".2" fill="none" stroke-dasharray="3 3"/>
-                <path d="M55 237 Q 150 240 220 230" stroke="currentColor" stroke-width=".5" opacity=".2" fill="none" stroke-dasharray="3 3"/>
-                <path d="M115 280 Q 170 285 220 285" stroke="currentColor" stroke-width=".5" opacity=".2" fill="none" stroke-dasharray="3 3"/>
-                <!-- Document rectangle (right side) -->
-                <rect x="220" y="75" width="150" height="250" fill="currentColor" opacity=".04" stroke="currentColor" stroke-width="1" rx="4"/>
-                <!-- Section dividers -->
-                <line x1="230" y1="137" x2="360" y2="137" stroke="currentColor" stroke-width=".4" opacity=".3"/>
-                <line x1="230" y1="200" x2="360" y2="200" stroke="currentColor" stroke-width=".4" opacity=".3"/>
-                <line x1="230" y1="262" x2="360" y2="262" stroke="currentColor" stroke-width=".4" opacity=".3"/>
-                <!-- Section labels -->
-                <text class="svg-doc-section" x="235" y="115" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7" style="transition-delay: 0.3s">Summary</text>
-                <text class="svg-doc-section" x="235" y="175" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7" style="transition-delay: 0.6s">Findings</text>
-                <text class="svg-doc-section" x="235" y="238" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7" style="transition-delay: 0.9s">Timeline</text>
-                <text class="svg-doc-section" x="235" y="295" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7" style="transition-delay: 1.2s">Risk</text>
-                <!-- Placeholder lines in each section -->
-                <rect class="svg-doc-section" x="235" y="120" width="80" height="4" fill="currentColor" opacity=".1" rx="2" style="transition-delay: 0.3s"/>
-                <rect class="svg-doc-section" x="235" y="180" width="100" height="4" fill="currentColor" opacity=".1" rx="2" style="transition-delay: 0.6s"/>
-                <rect class="svg-doc-section" x="235" y="243" width="70" height="4" fill="currentColor" opacity=".1" rx="2" style="transition-delay: 0.9s"/>
-                <rect class="svg-doc-section" x="235" y="300" width="90" height="4" fill="currentColor" opacity=".1" rx="2" style="transition-delay: 1.2s"/>
-                <!-- Checkmark circles near completed sections -->
-                <g class="svg-checkmark">
-                  <circle cx="365" cy="110" r="8" fill="var(--accent-3)" opacity=".8"/>
-                  <polyline points="361,110 364,113 369,107" fill="none" stroke="#fff" stroke-width="1.5"/>
+                <defs>
+                  <radialGradient id="reportGlow"><stop offset="0%" stop-color="var(--accent-3)" stop-opacity=".3"/><stop offset="100%" stop-color="var(--accent-3)" stop-opacity="0"/></radialGradient>
+                  <linearGradient id="reportDocFill" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="currentColor" stop-opacity=".06"/><stop offset="100%" stop-color="currentColor" stop-opacity=".02"/></linearGradient>
+                  <filter id="reportBlur"><feGaussianBlur stdDeviation="2"/></filter>
+                </defs>
+                <!-- Left Side: Scattered Data Elements -->
+                <g class="pin-report-data-point">
+                  <circle cx="55" cy="90" r="8" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".6"/>
+                  <circle cx="55" cy="90" r="3" fill="var(--accent)" opacity=".4"/>
+                  <text x="55" y="105" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">ENTITY</text>
                 </g>
-                <g class="svg-checkmark">
-                  <circle cx="365" cy="170" r="8" fill="var(--accent-3)" opacity=".8"/>
-                  <polyline points="361,170 364,173 369,167" fill="none" stroke="#fff" stroke-width="1.5"/>
+                <g class="pin-report-data-point">
+                  <circle cx="85" cy="150" r="7" fill="none" stroke="var(--accent-2)" stroke-width="1.5" opacity=".6"/>
+                  <circle cx="85" cy="150" r="3" fill="var(--accent-2)" opacity=".4"/>
+                  <text x="85" y="165" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">WALLET</text>
                 </g>
-                <g class="svg-checkmark">
-                  <circle cx="365" cy="232" r="8" fill="var(--accent-3)" opacity=".8"/>
-                  <polyline points="361,232 364,235 369,229" fill="none" stroke="#fff" stroke-width="1.5"/>
+                <g class="pin-report-data-point">
+                  <polygon points="45,210 55,200 65,210 55,220" fill="none" stroke="var(--accent-3)" stroke-width="1.3" opacity=".6"/>
+                  <text x="55" y="230" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">DOMAIN</text>
                 </g>
+                <g class="pin-report-data-point">
+                  <polygon points="95,260 105,250 115,260 105,270" fill="none" stroke="var(--accent)" stroke-width="1.3" opacity=".6"/>
+                  <text x="105" y="280" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">TX</text>
+                </g>
+                <g class="pin-report-data-point">
+                  <polygon points="50,300 58,290 66,300" fill="none" stroke="var(--accent-2)" stroke-width="1.3" opacity=".6"/>
+                  <text x="58" y="312" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">EVENT</text>
+                </g>
+                <g class="pin-report-data-point">
+                  <polygon points="110,115 118,108 126,115 126,125 118,132 110,125" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".6"/>
+                  <text x="118" y="142" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">HASH</text>
+                </g>
+                <g class="pin-report-data-point">
+                  <polygon points="70,340 78,333 86,340 86,350 78,357 70,350" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".6"/>
+                  <text x="78" y="367" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">ADDR</text>
+                </g>
+                <g class="pin-report-data-point">
+                  <rect x="32" cy="60" y="55" width="14" height="10" fill="none" stroke="var(--accent-2)" stroke-width="1.2" rx="2" opacity=".6"/>
+                  <text x="39" y="74" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">IP</text>
+                </g>
+                <g class="pin-report-data-point">
+                  <rect x="115" cy="185" y="180" width="14" height="10" fill="none" stroke="currentColor" stroke-width="1.2" rx="2" opacity=".5"/>
+                  <text x="122" y="199" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">TAG</text>
+                </g>
+                <g class="pin-report-data-point">
+                  <polygon points="40,148 48,140 56,148" fill="none" stroke="var(--accent-3)" stroke-width="1.2" opacity=".6"/>
+                  <text x="48" y="158" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">IOC</text>
+                </g>
+                <!-- Flow paths from data elements to document -->
+                <path d="M70 90 Q 150 85 220 100" class="pin-report-flow" stroke="var(--accent)" stroke-width=".6" fill="none"/>
+                <path d="M100 150 Q 160 145 220 140" class="pin-report-flow" stroke="var(--accent-2)" stroke-width=".6" fill="none"/>
+                <path d="M75 210 Q 150 205 220 180" class="pin-report-flow" stroke="var(--accent-3)" stroke-width=".6" fill="none"/>
+                <path d="M120 260 Q 170 250 220 220" class="pin-report-flow" stroke="var(--accent)" stroke-width=".6" fill="none"/>
+                <path d="M72 300 Q 150 290 220 260" class="pin-report-flow" stroke="var(--accent-2)" stroke-width=".6" fill="none"/>
+                <path d="M130 120 Q 170 115 220 115" class="pin-report-flow" stroke="var(--accent-3)" stroke-width=".6" fill="none"/>
+                <path d="M90 340 Q 160 330 220 290" class="pin-report-flow" stroke="var(--accent)" stroke-width=".6" fill="none"/>
+                <path d="M60 60 Q 140 55 220 80" class="pin-report-flow" stroke="var(--accent-2)" stroke-width=".6" fill="none"/>
+                <!-- Flow particles -->
+                <circle r="1.5" fill="var(--accent)" opacity=".8"><animateMotion dur="3.5s" repeatCount="indefinite" path="M70,90 Q150,85 220,100"/></circle>
+                <circle r="1.5" fill="var(--accent-2)" opacity=".8"><animateMotion dur="4s" begin="-1s" repeatCount="indefinite" path="M100,150 Q160,145 220,140"/></circle>
+                <circle r="1.5" fill="var(--accent-3)" opacity=".8"><animateMotion dur="3.8s" begin="-2s" repeatCount="indefinite" path="M75,210 Q150,205 220,180"/></circle>
+                <circle r="1.5" fill="var(--accent)" opacity=".7"><animateMotion dur="4.2s" begin="-0.5s" repeatCount="indefinite" path="M120,260 Q170,250 220,220"/></circle>
+                <!-- Document (right side) -->
+                <rect x="220" y="65" width="150" height="270" fill="url(#reportDocFill)" stroke="currentColor" stroke-width="1" rx="4"/>
+                <!-- Document header -->
+                <rect x="220" y="65" width="150" height="22" fill="currentColor" opacity=".05" rx="4"/>
+                <rect x="220" y="83" width="150" height="4" fill="currentColor" opacity=".03"/>
+                <text x="295" y="80" text-anchor="middle" fill="currentColor" font-size="8" font-family="'IBM Plex Mono', monospace" opacity=".6">SCOPNUM REPORT</text>
+                <!-- Section 1: Summary -->
+                <g class="pin-report-section" style="transition-delay:0.3s">
+                  <text x="230" y="105" fill="currentColor" font-size="9" font-family="'IBM Plex Mono', monospace" opacity=".7">Summary</text>
+                  <rect x="230" y="110" width="110" height="3" fill="currentColor" opacity=".1" rx="1.5"/>
+                  <rect x="230" y="117" width="90" height="3" fill="currentColor" opacity=".07" rx="1.5"/>
+                </g>
+                <!-- Section divider -->
+                <line x1="225" y1="128" x2="365" y2="128" stroke="currentColor" stroke-width=".4" opacity=".2"/>
+                <!-- Section 2: Findings -->
+                <g class="pin-report-section" style="transition-delay:0.6s">
+                  <text x="230" y="143" fill="currentColor" font-size="9" font-family="'IBM Plex Mono', monospace" opacity=".7">Findings</text>
+                  <rect x="230" y="148" width="120" height="3" fill="currentColor" opacity=".1" rx="1.5"/>
+                  <rect x="230" y="155" width="100" height="3" fill="currentColor" opacity=".07" rx="1.5"/>
+                  <rect x="230" y="162" width="85" height="3" fill="currentColor" opacity=".06" rx="1.5"/>
+                </g>
+                <!-- Section divider -->
+                <line x1="225" y1="175" x2="365" y2="175" stroke="currentColor" stroke-width=".4" opacity=".2"/>
+                <!-- Section 3: Timeline -->
+                <g class="pin-report-section" style="transition-delay:0.9s">
+                  <text x="230" y="190" fill="currentColor" font-size="9" font-family="'IBM Plex Mono', monospace" opacity=".7">Timeline</text>
+                  <rect x="230" y="195" width="105" height="3" fill="currentColor" opacity=".1" rx="1.5"/>
+                  <rect x="230" y="202" width="80" height="3" fill="currentColor" opacity=".07" rx="1.5"/>
+                </g>
+                <!-- Section divider -->
+                <line x1="225" y1="215" x2="365" y2="215" stroke="currentColor" stroke-width=".4" opacity=".2"/>
+                <!-- Section 4: Risk Assessment -->
+                <g class="pin-report-section" style="transition-delay:1.2s">
+                  <text x="230" y="230" fill="currentColor" font-size="9" font-family="'IBM Plex Mono', monospace" opacity=".7">Risk Assessment</text>
+                  <rect x="230" y="235" width="130" height="3" fill="currentColor" opacity=".1" rx="1.5"/>
+                </g>
+                <!-- Export Format Badges -->
+                <rect x="228" y="260" width="35" height="16" fill="currentColor" opacity=".04" stroke="var(--accent-2)" stroke-width=".8" rx="3"/>
+                <text x="245" y="271" text-anchor="middle" fill="var(--accent-2)" font-size="6" font-family="'IBM Plex Mono', monospace" opacity=".7">STIX</text>
+                <rect x="270" y="260" width="42" height="16" fill="currentColor" opacity=".04" stroke="var(--accent-3)" stroke-width=".8" rx="3"/>
+                <text x="291" y="271" text-anchor="middle" fill="var(--accent-3)" font-size="6" font-family="'IBM Plex Mono', monospace" opacity=".7">GraphML</text>
+                <rect x="319" y="260" width="30" height="16" fill="currentColor" opacity=".04" stroke="var(--accent)" stroke-width=".8" rx="3"/>
+                <text x="334" y="271" text-anchor="middle" fill="var(--accent)" font-size="6" font-family="'IBM Plex Mono', monospace" opacity=".7">PDF</text>
+                <!-- Fact-Check Badges -->
+                <g class="pin-report-checkmark">
+                  <circle cx="375" cy="105" r="8" fill="var(--accent-3)" opacity=".8"/>
+                  <polyline points="371,105 374,108 379,102" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+                </g>
+                <g class="pin-report-checkmark">
+                  <circle cx="375" cy="143" r="8" fill="var(--accent-3)" opacity=".8"/>
+                  <polyline points="371,143 374,146 379,140" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+                </g>
+                <g class="pin-report-checkmark">
+                  <circle cx="375" cy="190" r="8" fill="var(--accent-3)" opacity=".8"/>
+                  <polyline points="371,190 374,193 379,187" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+                </g>
+                <!-- Merkle Verification Chain (bottom area) -->
+                <!-- Level 3 (leaves, 8 nodes) -->
+                <circle cx="100" cy="390" r="3" fill="currentColor" opacity=".3"/>
+                <circle cx="130" cy="390" r="3" fill="currentColor" opacity=".3"/>
+                <circle cx="160" cy="390" r="3" fill="currentColor" opacity=".3"/>
+                <circle cx="190" cy="390" r="3" fill="currentColor" opacity=".3"/>
+                <circle cx="220" cy="390" r="3" fill="currentColor" opacity=".3"/>
+                <circle cx="250" cy="390" r="3" fill="currentColor" opacity=".3"/>
+                <circle cx="280" cy="390" r="3" fill="currentColor" opacity=".3"/>
+                <circle cx="310" cy="390" r="3" fill="currentColor" opacity=".3"/>
+                <!-- Level 2 (4 nodes) -->
+                <circle cx="115" cy="375" r="3.5" fill="currentColor" opacity=".35"/>
+                <circle cx="175" cy="375" r="3.5" fill="currentColor" opacity=".35"/>
+                <circle cx="235" cy="375" r="3.5" fill="currentColor" opacity=".35"/>
+                <circle cx="295" cy="375" r="3.5" fill="currentColor" opacity=".35"/>
+                <!-- Level 1 (2 nodes) -->
+                <circle cx="145" cy="360" r="4" fill="currentColor" opacity=".4"/>
+                <circle cx="265" cy="360" r="4" fill="currentColor" opacity=".4"/>
+                <!-- Root node -->
+                <circle cx="205" cy="345" r="6" fill="none" stroke="var(--accent-3)" stroke-width="1.5" opacity=".7"/>
+                <circle cx="205" cy="345" r="3" fill="var(--accent-3)" opacity=".6"/>
+                <circle cx="205" cy="345" r="9" fill="none" stroke="var(--accent-3)" stroke-width=".5" opacity=".3"/>
+                <!-- Merkle connecting lines -->
+                <line x1="100" y1="390" x2="115" y2="375" stroke="currentColor" stroke-width=".4" opacity=".25"/>
+                <line x1="130" y1="390" x2="115" y2="375" stroke="currentColor" stroke-width=".4" opacity=".25"/>
+                <line x1="160" y1="390" x2="175" y2="375" stroke="currentColor" stroke-width=".4" opacity=".25"/>
+                <line x1="190" y1="390" x2="175" y2="375" stroke="currentColor" stroke-width=".4" opacity=".25"/>
+                <line x1="220" y1="390" x2="235" y2="375" stroke="currentColor" stroke-width=".4" opacity=".25"/>
+                <line x1="250" y1="390" x2="235" y2="375" stroke="currentColor" stroke-width=".4" opacity=".25"/>
+                <line x1="280" y1="390" x2="295" y2="375" stroke="currentColor" stroke-width=".4" opacity=".25"/>
+                <line x1="310" y1="390" x2="295" y2="375" stroke="currentColor" stroke-width=".4" opacity=".25"/>
+                <line x1="115" y1="375" x2="145" y2="360" stroke="currentColor" stroke-width=".4" opacity=".3"/>
+                <line x1="175" y1="375" x2="145" y2="360" stroke="currentColor" stroke-width=".4" opacity=".3"/>
+                <line x1="235" y1="375" x2="265" y2="360" stroke="currentColor" stroke-width=".4" opacity=".3"/>
+                <line x1="295" y1="375" x2="265" y2="360" stroke="currentColor" stroke-width=".4" opacity=".3"/>
+                <line x1="145" y1="360" x2="205" y2="345" stroke="currentColor" stroke-width=".5" opacity=".35"/>
+                <line x1="265" y1="360" x2="205" y2="345" stroke="currentColor" stroke-width=".5" opacity=".35"/>
+                <!-- Merkle label -->
+                <text x="205" y="335" text-anchor="middle" fill="var(--accent-3)" font-size="6" font-family="'IBM Plex Mono', monospace" opacity=".5">INTEGRITY VERIFIED</text>
+                <!-- Corner HUD brackets -->
+                <polyline points="10,25 10,10 25,10" fill="none" stroke="currentColor" stroke-width=".8" opacity=".25"/>
+                <polyline points="375,10 390,10 390,25" fill="none" stroke="currentColor" stroke-width=".8" opacity=".25"/>
+                <polyline points="390,375 390,390 375,390" fill="none" stroke="currentColor" stroke-width=".8" opacity=".25"/>
+                <polyline points="25,390 10,390 10,375" fill="none" stroke="currentColor" stroke-width=".8" opacity=".25"/>
+                <!-- Additional document detail lines -->
+                <rect x="230" y="240" width="75" height="2.5" fill="currentColor" opacity=".06" rx="1"/>
+                <rect x="230" y="245" width="60" height="2.5" fill="currentColor" opacity=".05" rx="1"/>
+                <rect x="230" y="250" width="90" height="2.5" fill="currentColor" opacity=".04" rx="1"/>
+                <rect x="235" y="124" width="100" height="2.5" fill="currentColor" opacity=".06" rx="1"/>
+                <rect x="235" y="168" width="80" height="2.5" fill="currentColor" opacity=".05" rx="1"/>
+                <rect x="235" y="208" width="95" height="2.5" fill="currentColor" opacity=".05" rx="1"/>
+                <!-- Assembly progress indicator (bottom-left) -->
+                <rect x="15" y="385" width="80" height="4" fill="currentColor" opacity=".06" rx="2"/>
+                <rect x="15" y="385" width="56" height="4" fill="var(--accent-3)" opacity=".2" rx="2"/>
+                <text x="15" y="382" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">ASSEMBLY: 70%</text>
+                <!-- Additional scattered micro details -->
+                <circle cx="35" cy="120" r=".8" fill="currentColor" opacity=".15"/>
+                <circle cx="130" cy="85" r=".8" fill="currentColor" opacity=".12"/>
+                <circle cx="50" cy="250" r=".8" fill="currentColor" opacity=".12"/>
+                <circle cx="140" cy="300" r=".8" fill="currentColor" opacity=".12"/>
+                <circle cx="25" cy="170" r=".8" fill="currentColor" opacity=".12"/>
+                <circle cx="110" cy="225" r=".8" fill="currentColor" opacity=".1"/>
+                <circle cx="145" cy="160" r=".8" fill="currentColor" opacity=".1"/>
+                <circle cx="30" cy="330" r=".8" fill="currentColor" opacity=".1"/>
+                <circle cx="90" cy="370" r=".8" fill="currentColor" opacity=".1"/>
+                <circle cx="140" cy="340" r=".8" fill="currentColor" opacity=".1"/>
+                <!-- Decorative connection dots on flow paths -->
+                <circle cx="130" cy="87" r="1.2" fill="var(--accent)" opacity=".25"/>
+                <circle cx="165" cy="147" r="1.2" fill="var(--accent-2)" opacity=".25"/>
+                <circle cx="148" cy="208" r="1.2" fill="var(--accent-3)" opacity=".25"/>
+                <circle cx="170" cy="253" r="1.2" fill="var(--accent)" opacity=".2"/>
+                <circle cx="150" cy="293" r="1.2" fill="var(--accent-2)" opacity=".2"/>
+                <circle cx="170" cy="117" r="1.2" fill="var(--accent-3)" opacity=".25"/>
+                <circle cx="160" cy="332" r="1.2" fill="var(--accent)" opacity=".2"/>
+                <circle cx="140" cy="57" r="1.2" fill="var(--accent-2)" opacity=".2"/>
+                <!-- Document page decoration -->
+                <line x1="350" y1="70" x2="365" y2="70" stroke="currentColor" stroke-width=".3" opacity=".15"/>
+                <line x1="350" y1="73" x2="360" y2="73" stroke="currentColor" stroke-width=".3" opacity=".12"/>
+                <circle cx="225" cy="70" r="1.5" fill="currentColor" opacity=".15"/>
+                <circle cx="230" cy="70" r="1.5" fill="currentColor" opacity=".12"/>
+                <circle cx="235" cy="70" r="1.5" fill="currentColor" opacity=".1"/>
+                <!-- Merkle chain decorative pulses -->
+                <circle cx="115" cy="375" r="6" fill="none" stroke="currentColor" stroke-width=".3" opacity=".08"/>
+                <circle cx="175" cy="375" r="6" fill="none" stroke="currentColor" stroke-width=".3" opacity=".08"/>
+                <circle cx="235" cy="375" r="6" fill="none" stroke="currentColor" stroke-width=".3" opacity=".08"/>
+                <circle cx="295" cy="375" r="6" fill="none" stroke="currentColor" stroke-width=".3" opacity=".08"/>
+                <circle cx="145" cy="360" r="6" fill="none" stroke="currentColor" stroke-width=".3" opacity=".1"/>
+                <circle cx="265" cy="360" r="6" fill="none" stroke="currentColor" stroke-width=".3" opacity=".1"/>
+                <!-- Additional flow path decoration -->
+                <path d="M130 185 Q 170 180 220 165" class="pin-report-flow" stroke="currentColor" stroke-width=".4" fill="none"/>
+                <path d="M65 148 Q 130 140 220 128" class="pin-report-flow" stroke="currentColor" stroke-width=".4" fill="none"/>
+                <!-- Report metadata HUD -->
+                <text x="15" y="22" fill="currentColor" font-size="7" font-family="'IBM Plex Mono', monospace" opacity=".4">REPORT GEN</text>
+                <text x="385" y="22" text-anchor="end" fill="currentColor" font-size="7" font-family="'IBM Plex Mono', monospace" opacity=".4">v3.2.1</text>
+                <!-- Extra decorative elements for density -->
+                <line x1="225" y1="287" x2="365" y2="287" stroke="currentColor" stroke-width=".3" opacity=".12"/>
+                <line x1="225" y1="300" x2="365" y2="300" stroke="currentColor" stroke-width=".3" opacity=".1"/>
+                <rect x="230" y="290" width="45" height="7" fill="currentColor" opacity=".03" rx="1"/>
+                <rect x="280" y="290" width="35" height="7" fill="currentColor" opacity=".03" rx="1"/>
+                <rect x="320" y="290" width="40" height="7" fill="var(--accent)" opacity=".04" rx="1"/>
+                <text x="237" y="296" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".3">HIGH</text>
+                <text x="287" y="296" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".3">MED</text>
+                <text x="327" y="296" fill="var(--accent)" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".4">CRIT</text>
+                <!-- Additional density elements - scattered micro dots -->
+                <circle cx="20" cy="50" r=".6" fill="currentColor" opacity=".1"/>
+                <circle cx="30" cy="75" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="15" cy="100" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="140" cy="50" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="160" cy="70" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="105" cy="60" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="75" cy="130" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="130" cy="250" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="35" cy="280" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="115" cy="350" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="145" cy="375" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="30" cy="360" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="95" cy="200" r=".6" fill="currentColor" opacity=".08"/>
+                <circle cx="60" cy="175" r=".6" fill="currentColor" opacity=".08"/>
+                <!-- Document annotation marks -->
+                <line x1="355" y1="100" x2="365" y2="100" stroke="currentColor" stroke-width=".4" opacity=".12"/>
+                <line x1="355" y1="138" x2="365" y2="138" stroke="currentColor" stroke-width=".4" opacity=".12"/>
+                <line x1="355" y1="185" x2="365" y2="185" stroke="currentColor" stroke-width=".4" opacity=".12"/>
+                <line x1="355" y1="225" x2="365" y2="225" stroke="currentColor" stroke-width=".4" opacity=".12"/>
+                <!-- Timestamp info -->
+                <text x="230" y="320" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".3">2025-01-29T14:32:00Z</text>
+                <text x="230" y="328" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity=".25">SHA256: a4f2...c891</text>
               </svg>
             </div>
           </div>
