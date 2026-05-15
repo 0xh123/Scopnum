@@ -994,6 +994,7 @@
      ============================================ */
   const terminalBody = document.getElementById('terminalLines');
   let terminalRunning = false;
+  let currentRunId = 0;
 
   if (terminalBody) {
     const termScript = [
@@ -1013,6 +1014,7 @@
 
     function runTerminal() {
       if (!terminalRunning) return;
+      const myId = ++currentRunId;
       terminalBody.innerHTML = '';
       let delay = 0;
       termScript.forEach((item, idx) => {
@@ -1020,7 +1022,7 @@
         delay += item.type === 'prompt' ? 80 : 300;
         const d = delay;
         setTimeout(() => {
-          if (!terminalRunning) return;
+          if (myId !== currentRunId || !terminalRunning) return;
           const line = document.createElement('span');
           line.className = 'terminal__line terminal__line--' + item.type;
           line.textContent = item.text;
@@ -1029,7 +1031,7 @@
         if (item.type === 'prompt') delay += item.text.length * 30;
       });
       delay += 5000;
-      setTimeout(() => { if (terminalRunning) runTerminal(); }, delay);
+      setTimeout(() => { if (myId !== currentRunId || !terminalRunning) return; runTerminal(); }, delay);
     }
 
     const termObs = new IntersectionObserver((entries) => {
@@ -1293,8 +1295,9 @@
      ============================================ */
   // Hero spec counter fluctuation
   var heroSpecVal = document.querySelector('.hero__spec-val strong');
+  var heroSpecIntervalId = null;
   if (heroSpecVal) {
-    setInterval(function() {
+    heroSpecIntervalId = setInterval(function() {
       var val = 99.95 + Math.random() * 0.04;
       heroSpecVal.textContent = val.toFixed(2);
     }, 3000);
@@ -1302,14 +1305,36 @@
 
   // Footer live status rotation
   var footerLive = document.querySelector('.footer__live');
+  var footerLiveIntervalId = null;
   if (footerLive) {
     var statuses = ['[9 services \u00b7 nominal]', '[aggregator \u00b7 indexing]', '[snp \u00b7 47 cells active]', '[crypto \u00b7 16 chains synced]', '[globe \u00b7 sgp4 tracking]'];
     var statusIdx = 0;
-    setInterval(function() {
+    footerLiveIntervalId = setInterval(function() {
       statusIdx = (statusIdx + 1) % statuses.length;
       footerLive.innerHTML = '<i></i> ' + statuses[statusIdx];
     }, 4000);
   }
+
+  // Pause/resume intervals when page is not visible
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+      if (heroSpecIntervalId !== null) { clearInterval(heroSpecIntervalId); heroSpecIntervalId = null; }
+      if (footerLiveIntervalId !== null) { clearInterval(footerLiveIntervalId); footerLiveIntervalId = null; }
+    } else {
+      if (heroSpecVal && heroSpecIntervalId === null) {
+        heroSpecIntervalId = setInterval(function() {
+          var val = 99.95 + Math.random() * 0.04;
+          heroSpecVal.textContent = val.toFixed(2);
+        }, 3000);
+      }
+      if (footerLive && footerLiveIntervalId === null) {
+        footerLiveIntervalId = setInterval(function() {
+          statusIdx = (statusIdx + 1) % statuses.length;
+          footerLive.innerHTML = '<i></i> ' + statuses[statusIdx];
+        }, 4000);
+      }
+    }
+  });
 
   /* ============================================
      ENHANCED PARALLAX - horizontal geo-deco drift + manifesto title scale

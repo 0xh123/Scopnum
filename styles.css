@@ -2887,21 +2887,6 @@ html.no-smooth body { overflow-y: auto; }
   100% { opacity: 0; }
 }
 
-/* Individual particle with custom property directions */
-.particle {
-  position: fixed;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 10000;
-  animation: particleFly 0.6s var(--ease-out) forwards;
-}
-@keyframes particleFly {
-  from { transform: translate(0, 0) scale(1); opacity: 1; }
-  to { transform: translate(var(--tx, 40px), var(--ty, -40px)) scale(0); opacity: 0; }
-}
-
 /* =============================================
    RESPONSIVE
    ============================================= */
