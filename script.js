@@ -864,12 +864,13 @@
   }
 
   /* ============================================
-     FOOTER GENERATIVE CANVAS (morphing concentric rings)
+     FOOTER GENERATIVE CANVAS (neural mesh)
      ============================================ */
   const footerCanvasEl = document.getElementById('footerCanvas');
   let footerCtx, footerW, footerH, footerTime = 0;
   let footerRunning = false;
   let footerLastTime = performance.now();
+  var footerNodes = [];
 
   if (footerCanvasEl && !prefersReduced && !isMobile) {
     footerCtx = footerCanvasEl.getContext('2d');
@@ -887,6 +888,20 @@
     resizeFooterCanvas();
     window.addEventListener('resize', resizeFooterCanvas);
 
+    // Create neural mesh nodes
+    var meshNodeCount = 18;
+    for (var fn = 0; fn < meshNodeCount; fn++) {
+      footerNodes.push({
+        x: Math.random(),
+        y: Math.random(),
+        baseX: Math.random(),
+        baseY: Math.random(),
+        r: 2 + Math.random() * 3,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.3 + Math.random() * 0.4
+      });
+    }
+
     // Visibility gating: only tick when footer is in viewport
     new IntersectionObserver((entries) => {
       footerRunning = entries[0].isIntersecting;
@@ -901,37 +916,75 @@
     footerLastTime = now;
     footerCtx.clearRect(0, 0, footerW, footerH);
 
-    const cx = footerW / 2;
-    const cy = footerH / 2;
-    const maxR = Math.max(footerW, footerH) * 0.45;
-    const rings = 8;
-    const colors = [
-      { r: 255, g: 77, b: 21 },
-      { r: 33, g: 54, b: 240 },
-      { r: 183, g: 255, b: 46 }
-    ];
+    var nodeCount = footerNodes.length;
+    if (nodeCount === 0) return;
 
-    for (var ri = 0; ri < rings; ri++) {
-      var baseRadius = (ri + 1) / rings * maxR;
-      var pulse = Math.sin(footerTime * 1.2 + ri * 0.7) * 0.08;
-      var radius = baseRadius * (1 + pulse);
-      var c = colors[ri % 3];
-      var alpha = 0.3 - ri * 0.025;
+    // Update node positions with pulsing and mouse repulsion
+    for (var i = 0; i < nodeCount; i++) {
+      var nd = footerNodes[i];
+      var px = nd.baseX * footerW + Math.sin(footerTime * nd.speed + nd.phase) * 30;
+      var py = nd.baseY * footerH + Math.cos(footerTime * nd.speed * 0.8 + nd.phase) * 20;
 
-      footerCtx.beginPath();
-      var segments = 64;
-      for (var s = 0; s <= segments; s++) {
-        var angle = (s / segments) * Math.PI * 2;
-        var morph = Math.sin(angle * 3 + footerTime + ri * 0.5) * baseRadius * 0.06;
-        var px = cx + Math.cos(angle) * (radius + morph);
-        var py = cy + Math.sin(angle) * (radius + morph);
-        if (s === 0) footerCtx.moveTo(px, py);
-        else footerCtx.lineTo(px, py);
+      // Mouse repulsion
+      var nmx = mx, nmy = my;
+      var footerRect = footerCanvasEl.getBoundingClientRect();
+      var localMx = nmx - footerRect.left;
+      var localMy = nmy - footerRect.top;
+      var mdx = px - localMx, mdy = py - localMy;
+      var mDist = Math.sqrt(mdx * mdx + mdy * mdy) || 1;
+      if (mDist < 120) {
+        var repulse = (120 - mDist) * 0.15;
+        px += (mdx / mDist) * repulse;
+        py += (mdy / mDist) * repulse;
       }
-      footerCtx.closePath();
-      footerCtx.strokeStyle = 'rgba(' + c.r + ', ' + c.g + ', ' + c.b + ', ' + alpha + ')';
-      footerCtx.lineWidth = 1.5 - ri * 0.1;
-      footerCtx.stroke();
+
+      nd.x = px;
+      nd.y = py;
+    }
+
+    // Draw connections between nearby nodes
+    var connectionDist = Math.min(footerW, footerH) * 0.35;
+    for (var i2 = 0; i2 < nodeCount; i2++) {
+      for (var j = i2 + 1; j < nodeCount; j++) {
+        var a = footerNodes[i2], b = footerNodes[j];
+        var dx = a.x - b.x, dy = a.y - b.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < connectionDist) {
+          var alpha = (1 - dist / connectionDist) * 0.25;
+          footerCtx.save();
+          footerCtx.setLineDash([4, 6]);
+          footerCtx.lineDashOffset = -footerTime * 20 + i2 * 10;
+          footerCtx.strokeStyle = 'rgba(255,77,21,' + alpha + ')';
+          footerCtx.lineWidth = 0.8;
+          footerCtx.beginPath();
+          footerCtx.moveTo(a.x, a.y);
+          footerCtx.lineTo(b.x, b.y);
+          footerCtx.stroke();
+          footerCtx.restore();
+        }
+      }
+    }
+
+    // Draw nodes with pulsing glow
+    for (var i3 = 0; i3 < nodeCount; i3++) {
+      var node = footerNodes[i3];
+      var pulse = 0.5 + Math.sin(footerTime * 2 + node.phase) * 0.3;
+      var rr = node.r * (0.8 + pulse * 0.4);
+
+      // Glow
+      var grad = footerCtx.createRadialGradient(node.x, node.y, 0, node.x, node.y, rr * 4);
+      grad.addColorStop(0, 'rgba(255,77,21,' + (pulse * 0.12) + ')');
+      grad.addColorStop(1, 'rgba(255,77,21,0)');
+      footerCtx.fillStyle = grad;
+      footerCtx.beginPath();
+      footerCtx.arc(node.x, node.y, rr * 4, 0, Math.PI * 2);
+      footerCtx.fill();
+
+      // Core
+      footerCtx.fillStyle = 'rgba(255,77,21,' + (0.4 + pulse * 0.3) + ')';
+      footerCtx.beginPath();
+      footerCtx.arc(node.x, node.y, rr, 0, Math.PI * 2);
+      footerCtx.fill();
     }
   }
 
@@ -990,55 +1043,292 @@
   })();
 
   /* ============================================
-     INTERACTIVE TERMINAL ANIMATION
+     INTERACTIVE TERMINAL ANIMATION (dual-panel playground)
      ============================================ */
-  const terminalBody = document.getElementById('terminalLines');
-  let terminalRunning = false;
-  let currentRunId = 0;
+  var termSection = document.querySelector('.terminal-section');
+  var termRunBtn = document.getElementById('terminalRunBtn');
+  var termPipeline = document.getElementById('terminalPipeline');
+  var termCanvasEl = document.getElementById('terminalCanvas');
+  var termResultCard = document.getElementById('terminalResultCard');
+  var termGauge = document.getElementById('terminalGauge');
+  var termGaugeVal = document.getElementById('terminalGaugeVal');
+  var termEntityCount = document.getElementById('terminalEntityCount');
+  var termClusterCount = document.getElementById('terminalClusterCount');
+  var terminalRunning = false;
+  var termIsPlaying = false;
+  var termRunId = 0;
+  var termAutoTimer = null;
+  var termCtx = null;
+  var termW = 0, termH = 0;
 
-  if (terminalBody) {
-    const termScript = [
-      { type: 'prompt', text: '$ investigate wallet 0x742d35Cc6634C0532925a3b844Bc9e7595f2bD' },
-      { type: 'pause', ms: 600 },
-      { type: 'stage', text: '[aggregator] scanning 60+ sources........... done' },
-      { type: 'stage', text: '[brain]      tribunal routing query.......... done' },
-      { type: 'stage', text: '[crypto]     tracing 3 hops on ETH........... done' },
-      { type: 'stage', text: '[snp]        47 cells activated.............. done' },
-      { type: 'stage', text: '[report]     generating STIX 2.1............. done' },
-      { type: 'pause', ms: 400 },
-      { type: 'result', text: '--- RESULT ---' },
-      { type: 'result', text: 'clusters: 4 | risk_score: 0.89 | hops: 3' },
-      { type: 'result', text: 'linked_entities: 12 | mixer_detected: true' },
-      { type: 'result', text: 'report: /out/STX-2025-0742d.json' },
-    ];
+  // Terminal mini graph state
+  var termNodes = [];
+  var termEdges = [];
+  var termGraphTime = 0;
+  var termGraphRunning = false;
+  var termLastFrame = performance.now();
 
-    function runTerminal() {
-      if (!terminalRunning) return;
-      const myId = ++currentRunId;
-      terminalBody.innerHTML = '';
-      let delay = 0;
-      termScript.forEach((item, idx) => {
-        if (item.type === 'pause') { delay += item.ms; return; }
-        delay += item.type === 'prompt' ? 80 : 300;
-        const d = delay;
-        setTimeout(() => {
-          if (myId !== currentRunId || !terminalRunning) return;
-          const line = document.createElement('span');
-          line.className = 'terminal__line terminal__line--' + item.type;
-          line.textContent = item.text;
-          terminalBody.appendChild(line);
-        }, d);
-        if (item.type === 'prompt') delay += item.text.length * 30;
-      });
-      delay += 5000;
-      setTimeout(() => { if (myId !== currentRunId || !terminalRunning) return; runTerminal(); }, delay);
+  if (termSection && termCanvasEl && !prefersReduced) {
+    termCtx = termCanvasEl.getContext('2d');
+
+    function resizeTermCanvas() {
+      var rect = termCanvasEl.parentElement.getBoundingClientRect();
+      termW = rect.width;
+      termH = rect.height;
+      var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      termCanvasEl.width = termW * dpr;
+      termCanvasEl.height = termH * dpr;
+      termCanvasEl.style.width = termW + 'px';
+      termCanvasEl.style.height = termH + 'px';
+      termCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resizeTermCanvas();
+    window.addEventListener('resize', resizeTermCanvas);
+
+    function resetTermState() {
+      termNodes = [];
+      termEdges = [];
+      termGraphTime = 0;
+      termGraphRunning = false;
+      termCanvasEl.style.opacity = '1';
+      if (termResultCard) { termResultCard.classList.remove('is-visible'); }
+      if (termGauge) termGauge.style.setProperty('--gauge-deg', '0deg');
+      if (termGaugeVal) termGaugeVal.textContent = '0.00';
+      if (termEntityCount) termEntityCount.textContent = '0';
+      if (termClusterCount) termClusterCount.textContent = '0';
+      var stages = termPipeline ? termPipeline.querySelectorAll('.terminal__stage') : [];
+      for (var s = 0; s < stages.length; s++) {
+        stages[s].classList.remove('is-active', 'is-done');
+      }
+      if (termRunBtn) termRunBtn.classList.remove('is-running');
     }
 
-    const termObs = new IntersectionObserver((entries) => {
+    function addTermNode() {
+      var cx = termW / 2;
+      var cy = termH / 2;
+      var angle = Math.random() * Math.PI * 2;
+      var dist = 30 + Math.random() * 60;
+      var colors = [
+        { r: 255, g: 77, b: 21 },
+        { r: 33, g: 54, b: 240 },
+        { r: 183, g: 255, b: 46 }
+      ];
+      var ci = termNodes.length % 3;
+      termNodes.push({
+        x: cx + Math.cos(angle) * dist,
+        y: cy + Math.sin(angle) * dist,
+        vx: 0, vy: 0,
+        r: 3 + Math.random() * 3,
+        color: colors[ci],
+        opacity: 0
+      });
+      if (termNodes.length > 1) {
+        var tgt = Math.floor(Math.random() * (termNodes.length - 1));
+        termEdges.push({ from: termNodes.length - 1, to: tgt });
+        if (Math.random() > 0.5 && termNodes.length > 2) {
+          var t2 = Math.floor(Math.random() * (termNodes.length - 1));
+          if (t2 !== tgt) termEdges.push({ from: termNodes.length - 1, to: t2 });
+        }
+      }
+    }
+
+    function drawTermGraph() {
+      if (!termCtx || !termGraphRunning) return;
+      var now = performance.now();
+      var dt = Math.min((now - termLastFrame) * 0.001, 0.05);
+      termLastFrame = now;
+      termGraphTime += dt;
+      termCtx.clearRect(0, 0, termW, termH);
+
+      var cx = termW / 2;
+      var cy = termH / 2;
+
+      // Physics
+      for (var i = 0; i < termNodes.length; i++) {
+        var n = termNodes[i];
+        if (n.opacity < 1) n.opacity = Math.min(1, n.opacity + dt * 2.5);
+        // Repulsion
+        for (var j = i + 1; j < termNodes.length; j++) {
+          var m = termNodes[j];
+          var ddx = n.x - m.x, ddy = n.y - m.y;
+          var d = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+          if (d < 80) {
+            var f = (80 - d) * 0.004;
+            n.vx += (ddx / d) * f; n.vy += (ddy / d) * f;
+            m.vx -= (ddx / d) * f; m.vy -= (ddy / d) * f;
+          }
+        }
+        // Center attraction
+        var dcx = cx - n.x, dcy = cy - n.y;
+        var dc = Math.sqrt(dcx * dcx + dcy * dcy) || 1;
+        n.vx += (dcx / dc) * 0.03;
+        n.vy += (dcy / dc) * 0.03;
+        // Noise drift
+        if (noise2D) {
+          n.vx += noise2D(i * 0.5 + termGraphTime * 0.3, 0) * 0.2;
+          n.vy += noise2D(0, i * 0.5 + termGraphTime * 0.3) * 0.2;
+        }
+        n.vx *= 0.9; n.vy *= 0.9;
+        n.x += n.vx; n.y += n.vy;
+        // Bounds
+        if (n.x < 20) n.vx += 0.5;
+        if (n.x > termW - 20) n.vx -= 0.5;
+        if (n.y < 20) n.vy += 0.5;
+        if (n.y > termH - 20) n.vy -= 0.5;
+      }
+      // Edge spring
+      for (var e = 0; e < termEdges.length; e++) {
+        var edge = termEdges[e];
+        var a = termNodes[edge.from], b = termNodes[edge.to];
+        if (!a || !b) continue;
+        var edx = b.x - a.x, edy = b.y - a.y;
+        var ed = Math.sqrt(edx * edx + edy * edy) || 1;
+        var ef = (ed - 60) * 0.002;
+        a.vx += (edx / ed) * ef; a.vy += (edy / ed) * ef;
+        b.vx -= (edx / ed) * ef; b.vy -= (edy / ed) * ef;
+      }
+
+      // Draw edges
+      for (var e2 = 0; e2 < termEdges.length; e2++) {
+        var edge2 = termEdges[e2];
+        var ea = termNodes[edge2.from], eb = termNodes[edge2.to];
+        if (!ea || !eb) continue;
+        termCtx.strokeStyle = 'rgba(' + ea.color.r + ',' + ea.color.g + ',' + ea.color.b + ',' + (Math.min(ea.opacity, eb.opacity) * 0.3) + ')';
+        termCtx.lineWidth = 0.8;
+        termCtx.beginPath();
+        termCtx.moveTo(ea.x, ea.y);
+        termCtx.lineTo(eb.x, eb.y);
+        termCtx.stroke();
+      }
+
+      // Draw nodes
+      for (var i2 = 0; i2 < termNodes.length; i2++) {
+        var nd = termNodes[i2];
+        termCtx.fillStyle = 'rgba(' + nd.color.r + ',' + nd.color.g + ',' + nd.color.b + ',' + (nd.opacity * 0.7) + ')';
+        termCtx.beginPath();
+        termCtx.arc(nd.x, nd.y, nd.r, 0, Math.PI * 2);
+        termCtx.fill();
+        termCtx.strokeStyle = 'rgba(' + nd.color.r + ',' + nd.color.g + ',' + nd.color.b + ',' + nd.opacity + ')';
+        termCtx.lineWidth = 1;
+        termCtx.stroke();
+      }
+
+      if (termGraphRunning) requestAnimationFrame(drawTermGraph);
+    }
+
+    function animateResults() {
+      // Hide canvas, show result card
+      termCanvasEl.style.opacity = '0';
+      if (termResultCard) termResultCard.classList.add('is-visible');
+
+      // Animate gauge from 0 to 0.89
+      var targetRisk = 0.89;
+      var targetEntities = 12;
+      var targetClusters = 4;
+      var startTime = performance.now();
+      var duration = 1200;
+
+      function animStep() {
+        var elapsed = performance.now() - startTime;
+        var progress = Math.min(elapsed / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+
+        var currentRisk = eased * targetRisk;
+        var deg = currentRisk / 1 * 360;
+        if (termGauge) termGauge.style.setProperty('--gauge-deg', deg + 'deg');
+        if (termGaugeVal) termGaugeVal.textContent = currentRisk.toFixed(2);
+        if (termEntityCount) termEntityCount.textContent = Math.round(eased * targetEntities);
+        if (termClusterCount) termClusterCount.textContent = Math.round(eased * targetClusters);
+
+        if (progress < 1) requestAnimationFrame(animStep);
+      }
+      requestAnimationFrame(animStep);
+    }
+
+    function runTerminalSequence() {
+      if (termIsPlaying || !terminalRunning) return;
+      termIsPlaying = true;
+      var myId = ++termRunId;
+      resetTermState();
+      if (termRunBtn) termRunBtn.classList.add('is-running');
+      termGraphRunning = true;
+      termLastFrame = performance.now();
+      drawTermGraph();
+
+      var stages = termPipeline ? termPipeline.querySelectorAll('.terminal__stage') : [];
+      var stageDelay = 800;
+      var nodesPerStage = 2;
+
+      for (var si = 0; si < stages.length; si++) {
+        (function(idx) {
+          setTimeout(function() {
+            if (myId !== termRunId || !terminalRunning) return;
+            // Mark previous done, current active
+            if (idx > 0 && stages[idx - 1]) stages[idx - 1].classList.remove('is-active');
+            if (idx > 0 && stages[idx - 1]) stages[idx - 1].classList.add('is-done');
+            stages[idx].classList.add('is-active');
+            // Add nodes to graph
+            for (var n = 0; n < nodesPerStage; n++) {
+              addTermNode();
+            }
+          }, idx * stageDelay);
+        })(si);
+      }
+
+      // After all stages
+      var totalStageTime = stages.length * stageDelay;
+      setTimeout(function() {
+        if (myId !== termRunId || !terminalRunning) return;
+        if (stages.length > 0) {
+          stages[stages.length - 1].classList.remove('is-active');
+          stages[stages.length - 1].classList.add('is-done');
+        }
+        // Add a couple more nodes
+        addTermNode();
+        addTermNode();
+      }, totalStageTime);
+
+      // Show results after a brief pause
+      setTimeout(function() {
+        if (myId !== termRunId || !terminalRunning) return;
+        termGraphRunning = false;
+        animateResults();
+      }, totalStageTime + 600);
+
+      // Loop after 6s showing results
+      setTimeout(function() {
+        if (myId !== termRunId || !terminalRunning) return;
+        termIsPlaying = false;
+        runTerminalSequence();
+      }, totalStageTime + 600 + 6000);
+    }
+
+    // IntersectionObserver triggers auto-run after 3s
+    var termObs = new IntersectionObserver(function(entries) {
       terminalRunning = entries[0].isIntersecting;
-      if (terminalRunning) runTerminal();
-    }, { threshold: 0.2 });
-    termObs.observe(terminalBody.closest('.terminal-section'));
+      if (terminalRunning) {
+        if (!termIsPlaying) {
+          termAutoTimer = setTimeout(function() {
+            if (terminalRunning && !termIsPlaying) runTerminalSequence();
+          }, 3000);
+        }
+      } else {
+        clearTimeout(termAutoTimer);
+        termGraphRunning = false;
+        termIsPlaying = false;
+        termRunId++;
+      }
+    }, { threshold: 0.3 });
+    termObs.observe(termSection);
+
+    // Click "Run" triggers immediately
+    if (termRunBtn) {
+      termRunBtn.addEventListener('click', function() {
+        if (termIsPlaying) return;
+        clearTimeout(termAutoTimer);
+        runTerminalSequence();
+      });
+    }
   }
 
   /* ============================================

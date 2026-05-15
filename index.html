@@ -635,8 +635,33 @@
           <span class="terminal__title">scopnum-cli v3.1.0</span>
         </div>
         <div class="terminal__body" id="terminalBody">
-          <div class="terminal__lines" id="terminalLines"></div>
-          <div class="terminal__cursor"></div>
+          <div class="terminal__panels">
+            <div class="terminal__input">
+              <pre class="terminal__command" id="terminalCommand">$ investigate wallet 0x742d35Cc...6634C0532925a3b844Bc9e7595f2bD</pre>
+              <button class="terminal__run-btn" id="terminalRunBtn">[Run]</button>
+              <div class="terminal__pipeline" id="terminalPipeline">
+                <span class="terminal__stage" data-stage="0"><i></i><em>aggregator</em></span>
+                <span class="terminal__stage" data-stage="1"><i></i><em>brain</em></span>
+                <span class="terminal__stage" data-stage="2"><i></i><em>crypto</em></span>
+                <span class="terminal__stage" data-stage="3"><i></i><em>snp</em></span>
+                <span class="terminal__stage" data-stage="4"><i></i><em>report</em></span>
+              </div>
+            </div>
+            <div class="terminal__output">
+              <canvas class="terminal__canvas" id="terminalCanvas" aria-hidden="true"></canvas>
+              <div class="terminal__result-card" id="terminalResultCard">
+                <div class="terminal__gauge" id="terminalGauge">
+                  <span class="terminal__gauge-value" id="terminalGaugeVal">0.00</span>
+                  <em>risk_score</em>
+                </div>
+                <div class="terminal__result-stats">
+                  <div><strong id="terminalEntityCount">0</strong><em>entities</em></div>
+                  <div><strong id="terminalClusterCount">0</strong><em>clusters</em></div>
+                </div>
+                <p class="terminal__recommendation">[recommendation: flag for review, mixer detected]</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
