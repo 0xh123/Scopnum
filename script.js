@@ -1106,6 +1106,30 @@
   }
 
   /* ============================================
+     EMAIL OBFUSCATION (anti-spam)
+     ============================================ */
+  (function initEmails() {
+    var u1 = 'hello';
+    var u2 = 'press';
+    var d = 'scopnum';
+    var t = '.ai';
+    var helloAddr = u1 + '@' + d + t;
+    var pressAddr = u2 + '@' + d + t;
+
+    var ctaEl = document.getElementById('ctaEmail');
+    if (ctaEl) {
+      ctaEl.href = 'mailto:' + helloAddr;
+      var span = ctaEl.querySelector('.email-placeholder');
+      if (span) span.textContent = '[' + helloAddr + ']';
+    }
+
+    var pressEl = document.getElementById('pressEmail');
+    if (pressEl) {
+      pressEl.textContent = '[' + pressAddr + ']';
+    }
+  })();
+
+  /* ============================================
      MASTER RAF LOOP
      ============================================ */
   function masterLoop() {

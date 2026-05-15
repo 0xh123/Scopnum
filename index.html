@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f2ece0" />
   <meta name="format-detection" content="telephone=no" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" />
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Scopnum — [AI studio]</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,900;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,900&family=Inter+Tight:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,900;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,900&family=Inter+Tight:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" crossorigin />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -923,8 +926,8 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
         что-то большое]
       </h2>
       <div class="cta__row">
-        <a href="mailto:" class="cta__mail" data-hover data-magnetic data-tilt>
-          <span>[hello@scopnum.ai]</span>
+        <a href="#" class="cta__mail" id="ctaEmail" data-hover data-magnetic data-tilt>
+          <span class="email-placeholder">[loading...]</span>
           <span class="cta__mail-arrow">
             <svg viewBox="0 0 60 60"><path d="M15 30h30M35 18l12 12-12 12" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
           </span>
@@ -941,7 +944,7 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
         </div>
         <div>
           <small>[press]</small>
-          <p>[press@scopnum.ai]</p>
+          <p id="pressEmail">[loading...]</p>
         </div>
       </div>
     </div>
@@ -974,10 +977,10 @@ ai.<u>run</u>(<i>"[запрос]"</i>)</code></pre>
         </div>
         <div data-reveal>
           <h4>[социальные]</h4>
-          <a href="#" data-hover>[twitter]</a>
-          <a href="#" data-hover>[linkedin]</a>
-          <a href="#" data-hover>[github]</a>
-          <a href="#" data-hover>[dribbble]</a>
+          <a href="#" data-hover target="_blank" rel="noopener noreferrer">[twitter]</a>
+          <a href="#" data-hover target="_blank" rel="noopener noreferrer">[linkedin]</a>
+          <a href="#" data-hover target="_blank" rel="noopener noreferrer">[github]</a>
+          <a href="#" data-hover target="_blank" rel="noopener noreferrer">[dribbble]</a>
         </div>
       </div>
     </div>
