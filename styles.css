@@ -3220,6 +3220,114 @@ html.no-smooth body { overflow-y: auto; }
 .card:hover .crypto-analytics circle { animation-duration: 1.5s; }
 .card:hover .crypto-grid polygon { animation-duration: 3s; }
 
+/* =============================================
+   CARD 3: GLOBE SERVICE ANIMATIONS
+   ============================================= */
+
+.globe-space circle { animation: starTwinkle 4s ease-in-out infinite; }
+.globe-space circle:nth-child(3n) { animation-delay: -1.3s; }
+.globe-space circle:nth-child(5n) { animation-delay: -2.7s; }
+.globe-space circle:nth-child(7n) { animation-delay: -3.5s; }
+
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0.05; }
+  50% { opacity: 0.2; }
+}
+
+.globe-meridian { stroke-dasharray: 6 4; animation: meridianRotate 8s linear infinite; transform-origin: center; transform-box: fill-box; }
+.globe-meridian:nth-child(2) { animation-duration: 10s; animation-direction: reverse; }
+.globe-meridian:nth-child(3) { animation-duration: 12s; }
+.globe-meridian:nth-child(4) { animation-duration: 14s; animation-direction: reverse; }
+.globe-meridian:nth-child(5) { animation-duration: 9s; }
+
+@keyframes meridianRotate { to { stroke-dashoffset: -20; } }
+
+.globe-conflict-pulse { animation: globeConflictPulse 2s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes globeConflictPulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(2.5); opacity: 0; } }
+
+.globe-disaster-ripple { animation: globeDisasterRipple 3s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes globeDisasterRipple { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2); opacity: 0; } }
+
+.globe-monitor-scan { animation: globeMonitorScan 4s linear infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes globeMonitorScan { to { transform: rotate(360deg); } }
+
+.globe-connection { animation: connectionFlash 3s ease-in-out infinite; }
+@keyframes connectionFlash { 0%, 40%, 100% { opacity: 0; } 50%, 90% { opacity: 0.4; } }
+
+.globe-reticle { animation: reticleRotate 12s linear infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes reticleRotate { to { transform: rotate(360deg); } }
+
+.globe-planet > circle:nth-child(2) { animation: atmosphereBreath 6s ease-in-out infinite; }
+@keyframes atmosphereBreath { 0%, 100% { opacity: 0.04; } 50% { opacity: 0.08; } }
+
+.globe-satellite { will-change: transform; }
+
+.card:hover .globe-meridian { animation-duration: 4s; }
+.card:hover .globe-conflict-pulse { animation-duration: 1s; }
+.card:hover .globe-connection { animation-duration: 1.5s; }
+.card:hover .globe-reticle { animation-duration: 6s; }
+.card:hover .globe-space circle { animation-duration: 2s; }
+.card:hover .globe-disaster-ripple { animation-duration: 1.5s; }
+.card:hover .globe-monitor-scan { animation-duration: 2s; }
+
+/* =============================================
+   CARD 4: SNP NEURO-PROCESSOR ANIMATIONS
+   ============================================= */
+
+.snp-field circle { animation: dormantDrift 20s ease-in-out infinite; }
+.snp-field circle:nth-child(even) { animation-delay: -10s; animation-direction: reverse; }
+@keyframes dormantDrift { 0%,100% { transform: translate(0,0); } 33% { transform: translate(2px,-1px); } 66% { transform: translate(-1px,2px); } }
+
+.snp-island { animation: islandBreath 5s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+.snp-island--1 { animation-delay: 0s; }
+.snp-island--2 { animation-delay: -1s; animation-duration: 6s; }
+.snp-island--3 { animation-delay: -2s; animation-duration: 4.5s; }
+.snp-island--4 { animation-delay: -3s; animation-duration: 5.5s; }
+.snp-island--5 { animation-delay: -4s; animation-duration: 7s; }
+@keyframes islandBreath { 0%,100% { opacity: 0.85; } 50% { opacity: 1; } }
+
+.snp-migration { stroke-dasharray: 6 4; animation: migrationFlow 4s linear infinite; }
+.snp-migration:nth-child(2) { animation-delay: -0.5s; animation-duration: 5s; }
+.snp-migration:nth-child(3) { animation-delay: -1s; animation-duration: 3.5s; }
+.snp-migration:nth-child(4) { animation-delay: -1.5s; animation-duration: 6s; }
+.snp-migration:nth-child(5) { animation-delay: -2s; animation-duration: 4.5s; }
+@keyframes migrationFlow { to { stroke-dashoffset: -20; } }
+
+.snp-promotion-particle { animation: promotionBurst 7s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes promotionBurst { 0%,85% { transform: scale(1); opacity: 0; } 90% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(3); opacity: 0; } }
+
+.snp-promotion-beam { animation: promotionBeam 7s ease-in-out infinite; }
+@keyframes promotionBeam { 0%,80%,100% { opacity: 0; } 85%,95% { opacity: 0.3; } }
+
+.snp-firewall-gate { animation: firewallSeq 4s ease-in-out infinite; }
+.snp-firewall-gate:nth-child(1) { animation-delay: 0s; }
+.snp-firewall-gate:nth-child(2) { animation-delay: 0.57s; }
+.snp-firewall-gate:nth-child(3) { animation-delay: 1.14s; }
+.snp-firewall-gate:nth-child(4) { animation-delay: 1.71s; }
+.snp-firewall-gate:nth-child(5) { animation-delay: 2.28s; }
+.snp-firewall-gate:nth-child(6) { animation-delay: 2.85s; }
+.snp-firewall-gate:nth-child(7) { animation-delay: 3.42s; }
+@keyframes firewallSeq { 0%,20%,100% { fill: rgba(100,100,100,0.2); } 10% { fill: #b7ff2e; } }
+
+.snp-surprise { animation: surpriseSpike 5s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+.snp-surprise:nth-child(2) { animation-delay: -1.7s; }
+.snp-surprise:nth-child(3) { animation-delay: -3.3s; }
+@keyframes surpriseSpike { 0%,90%,100% { transform: scale(1); } 95% { transform: scale(1.8); } }
+
+.snp-island circle:first-child { stroke-dasharray: 3 2; animation: leaderRotate 8s linear infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes leaderRotate { to { stroke-dashoffset: -20; } }
+
+.snp-tick-counter { animation: tickBlink 2s steps(1) infinite; }
+@keyframes tickBlink { 0%,70% { opacity: 0.5; } 75%,100% { opacity: 0.2; } }
+
+.card:hover .snp-migration { animation-duration: 2s; opacity: 0.9; }
+.card:hover .snp-island { opacity: 1; }
+.card:hover .snp-promotion-particle { animation-duration: 3s; }
+.card:hover .snp-firewall-gate { animation-duration: 1.5s; }
+.card:hover .snp-surprise { animation-duration: 2s; }
+.card:hover .snp-field circle { animation-duration: 10s; }
+.card:hover .snp-promotion-beam { opacity: 0.4; }
+
 /* Tablet perspective reduction */
 @media (max-width: 1024px) {
   .bento {
