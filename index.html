@@ -851,77 +851,145 @@
 
     <div class="bento">
       <div class="bento__cell bento__cell--a" data-tilt data-hover data-reveal data-parallax="0.02">
-        <span class="bento__chip">[01 · osint agent]</span>
-        <h3>[62 интента, 80+ типов шагов, <i>автономный</i> brain-loop до 50 итераций]</h3>
+        <span class="bento__chip">[01 · автономное расследование]</span>
+        <h3>[до 50 итераций автономного анализа — агент сам <i>решает</i> когда остановиться]</h3>
         <div class="bento__viz">
-          <div class="waves">
-            <span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span>
-          </div>
+          <svg viewBox="0 0 160 100" class="bento__brain-loop">
+            <!-- 5 nodes in circle + center -->
+            <circle cx="80" cy="50" r="8" fill="none" stroke="currentColor" stroke-width="1.5" class="svg-hub"/>
+            <circle cx="80" cy="15" r="5" fill="none" stroke="currentColor" stroke-width="1" class="svg-node" style="animation-delay:0s"/>
+            <circle cx="113" cy="32" r="5" fill="none" stroke="currentColor" stroke-width="1" class="svg-node" style="animation-delay:0.6s"/>
+            <circle cx="100" cy="72" r="5" fill="none" stroke="currentColor" stroke-width="1" class="svg-node" style="animation-delay:1.2s"/>
+            <circle cx="60" cy="72" r="5" fill="none" stroke="currentColor" stroke-width="1" class="svg-node" style="animation-delay:1.8s"/>
+            <circle cx="47" cy="32" r="5" fill="none" stroke="currentColor" stroke-width="1" class="svg-node" style="animation-delay:2.4s"/>
+            <!-- Connecting lines to center -->
+            <line class="svg-edge" x1="80" y1="50" x2="80" y2="15" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+            <line class="svg-edge" x1="80" y1="50" x2="113" y2="32" stroke="currentColor" stroke-width="0.6" opacity="0.4" style="animation-delay:0.5s"/>
+            <line class="svg-edge" x1="80" y1="50" x2="100" y2="72" stroke="currentColor" stroke-width="0.6" opacity="0.4" style="animation-delay:1s"/>
+            <line class="svg-edge" x1="80" y1="50" x2="60" y2="72" stroke="currentColor" stroke-width="0.6" opacity="0.4" style="animation-delay:1.5s"/>
+            <line class="svg-edge" x1="80" y1="50" x2="47" y2="32" stroke="currentColor" stroke-width="0.6" opacity="0.4" style="animation-delay:2s"/>
+            <!-- Cascade highlight arc -->
+            <path class="svg-cascade-path" d="M80,15 L113,32 L100,72 L60,72 L47,32 Z" fill="none" stroke="var(--accent-3)" stroke-width="1.5"/>
+          </svg>
         </div>
       </div>
 
       <div class="bento__cell bento__cell--b" data-tilt data-hover data-reveal data-delay="80" data-parallax="-0.03">
-        <span class="bento__chip">[02 · latency]</span>
+        <span class="bento__chip">[02 · время реакции]</span>
         <div class="bento__big">
           <span data-count="10">0</span><em>ms</em>
         </div>
-        <p>[latency нативного IPC-канала]</p>
-        <div class="bento__spark">
-          <svg viewBox="0 0 100 30" preserveAspectRatio="none">
-            <polyline points="0,20 10,15 20,25 30,10 40,18 50,5 60,15 70,8 80,20 90,12 100,18" fill="none" stroke="currentColor" stroke-width="1"/>
+        <p>[от запроса до результата — нативные сервисы на Rust]</p>
+        <div class="bento__breakdown-bar">
+          <svg viewBox="0 0 200 20" preserveAspectRatio="none" class="breakdown-svg">
+            <rect class="bar-seg bar-seg--1" x="0" y="4" width="60" height="12" rx="2" fill="var(--accent)"/>
+            <rect class="bar-seg bar-seg--2" x="64" y="4" width="50" height="12" rx="2" fill="var(--accent-2)"/>
+            <rect class="bar-seg bar-seg--3" x="118" y="4" width="40" height="12" rx="2" fill="var(--accent-3)"/>
+            <rect class="bar-seg bar-seg--4" x="162" y="4" width="35" height="12" rx="2" fill="var(--ink-mute)"/>
           </svg>
         </div>
       </div>
 
       <div class="bento__cell bento__cell--c" data-tilt data-hover data-reveal data-delay="140" data-parallax="0.04">
-        <span class="bento__chip">[03 · security]</span>
-        <h3>[Merkle-аудит, AES-GCM, <i>anti-fingerprinting</i> профили]</h3>
-        <div class="bento__lock">
-          <svg viewBox="0 0 80 80">
-            <rect x="20" y="35" width="40" height="35" fill="none" stroke="currentColor" stroke-width="1.5" rx="2"/>
-            <path d="M28 35 V25 a12 12 0 0 1 24 0 V35" fill="none" stroke="currentColor" stroke-width="1.5"/>
-            <circle cx="40" cy="50" r="3" fill="currentColor"/>
-            <line x1="40" y1="52" x2="40" y2="60" stroke="currentColor" stroke-width="1.5"/>
+        <span class="bento__chip">[03 · верифицируемость]</span>
+        <h3>[Merkle-аудит каждого решения — невозможно подделать цепочку <i>рассуждений</i>]</h3>
+        <div class="bento__merkle">
+          <svg viewBox="0 0 120 100" class="merkle-svg">
+            <!-- Root (level 0) -->
+            <circle cx="60" cy="15" r="7" fill="none" stroke="currentColor" stroke-width="1.5" class="merkle-node merkle-root"/>
+            <text x="60" y="30" text-anchor="middle" fill="currentColor" font-size="6" font-family="var(--font-mono)" opacity="0.7" class="merkle-label">SHA-256</text>
+            <!-- Mid nodes (level 1) -->
+            <circle cx="35" cy="50" r="5" fill="none" stroke="currentColor" stroke-width="1" class="merkle-node merkle-mid"/>
+            <circle cx="85" cy="50" r="5" fill="none" stroke="currentColor" stroke-width="1" class="merkle-node merkle-mid"/>
+            <!-- Leaf nodes (level 2) -->
+            <circle cx="20" cy="82" r="4" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
+            <circle cx="50" cy="82" r="4" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
+            <circle cx="70" cy="82" r="4" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
+            <circle cx="100" cy="82" r="4" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
+            <!-- Connecting lines -->
+            <line x1="60" y1="22" x2="35" y2="45" stroke="currentColor" stroke-width="0.6" opacity="0.5"/>
+            <line x1="60" y1="22" x2="85" y2="45" stroke="currentColor" stroke-width="0.6" opacity="0.5"/>
+            <line x1="35" y1="55" x2="20" y2="78" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+            <line x1="35" y1="55" x2="50" y2="78" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+            <line x1="85" y1="55" x2="70" y2="78" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+            <line x1="85" y1="55" x2="100" y2="78" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
           </svg>
         </div>
       </div>
 
       <div class="bento__cell bento__cell--d" data-tilt data-hover data-reveal data-delay="200" data-parallax="-0.02">
-        <span class="bento__chip">[04 · integration]</span>
-        <h3>[3 строки до <i>первого</i> расследования]</h3>
-        <pre class="bento__code"><code><b>from</b> scopnum <b>import</b> Agent
-agent = Agent(intent=<i>"trace_wallet"</i>)
-agent.<u>run</u>(<i>"bc1q...xyz"</i>)</code></pre>
+        <span class="bento__chip">[04 · крипто-трейсинг]</span>
+        <h3>[16 блокчейнов · taint-анализ · CoinJoin-демиксинг · <i>кросс-чейн</i> мосты]</h3>
+        <div class="bento__mini-chain">
+          <svg viewBox="0 0 200 40" preserveAspectRatio="none" class="mini-chain-svg">
+            <rect x="10" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+            <line class="svg-edge" x1="26" y1="20" x2="44" y2="20" stroke="currentColor" stroke-width="0.6" opacity="0.5"/>
+            <rect x="44" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+            <line class="svg-edge" x1="60" y1="20" x2="78" y2="20" stroke="currentColor" stroke-width="0.6" opacity="0.5" style="animation-delay:0.3s"/>
+            <rect x="78" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+            <line class="svg-edge" x1="94" y1="20" x2="112" y2="20" stroke="currentColor" stroke-width="0.6" opacity="0.5" style="animation-delay:0.6s"/>
+            <rect x="112" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+            <!-- Taint overlay -->
+            <rect class="svg-taint" x="10" y="14" width="30" height="12" rx="1" fill="var(--accent)" opacity="0.3"/>
+            <!-- Arrow to end -->
+            <path d="M128,20 L145,20 M140,16 L145,20 L140,24" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+          </svg>
+        </div>
       </div>
 
       <div class="bento__cell bento__cell--e" data-tilt data-hover data-reveal data-delay="260" data-parallax="0.03">
-        <span class="bento__chip">[05 · neuro]</span>
-        <h3>[8000 нейронных ячеек, <i>5 островов</i>, 16 блокчейнов]</h3>
-        <div class="bento__grid">
-          <i></i><i></i><i></i><i></i><i></i>
-          <i></i><i></i><i></i><i></i><i></i>
-          <i></i><i></i><i></i><i></i><i></i>
-          <i></i><i></i><i></i><i></i><i></i>
+        <span class="bento__chip">[05 · 8000 нейронных клеток]</span>
+        <h3>[5 островов · 15 ролей · <i>предиктивное</i> кодирование]</h3>
+        <div class="bento__clusters">
+          <svg viewBox="0 0 120 60" class="clusters-svg">
+            <!-- 5 small clusters -->
+            <circle cx="20" cy="20" r="4" fill="currentColor" opacity="0.7" class="svg-node"/>
+            <circle cx="14" cy="14" r="2" fill="currentColor" opacity="0.4"/>
+            <circle cx="26" cy="15" r="2" fill="currentColor" opacity="0.4"/>
+            <circle cx="18" cy="28" r="2" fill="currentColor" opacity="0.4"/>
+            
+            <circle cx="55" cy="15" r="4" fill="currentColor" opacity="0.7" class="svg-node" style="animation-delay:0.5s"/>
+            <circle cx="48" cy="10" r="2" fill="currentColor" opacity="0.4"/>
+            <circle cx="62" cy="12" r="2" fill="currentColor" opacity="0.4"/>
+            
+            <circle cx="95" cy="20" r="4" fill="currentColor" opacity="0.7" class="svg-node" style="animation-delay:1s"/>
+            <circle cx="102" cy="14" r="2" fill="currentColor" opacity="0.4"/>
+            <circle cx="90" cy="26" r="2" fill="currentColor" opacity="0.4"/>
+            
+            <circle cx="35" cy="45" r="4" fill="currentColor" opacity="0.7" class="svg-node" style="animation-delay:1.5s"/>
+            <circle cx="28" cy="40" r="2" fill="currentColor" opacity="0.4"/>
+            <circle cx="42" cy="42" r="2" fill="currentColor" opacity="0.4"/>
+            
+            <circle cx="80" cy="45" r="4" fill="currentColor" opacity="0.7" class="svg-node" style="animation-delay:2s"/>
+            <circle cx="73" cy="40" r="2" fill="currentColor" opacity="0.4"/>
+            <circle cx="87" cy="42" r="2" fill="currentColor" opacity="0.4"/>
+            
+            <!-- Migration lines -->
+            <path class="svg-edge" d="M24,22 Q40,30 50,17" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.3"/>
+            <path class="svg-edge" d="M59,18 Q75,25 91,22" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.3" style="animation-delay:0.8s"/>
+          </svg>
         </div>
       </div>
 
       <div class="bento__cell bento__cell--f" data-tilt data-hover data-reveal data-delay="320" data-parallax="-0.04">
-        <span class="bento__chip">[06 · globe]</span>
-        <h3>[спутники, конфликты и катастрофы <i>в реальном</i> времени]</h3>
+        <span class="bento__chip">[06 · глобальный мониторинг]</span>
+        <h3>[спутники SGP4 · зоны конфликтов · катастрофы <i>в реальном</i> времени]</h3>
         <div class="bento__globe">
           <svg viewBox="0 0 140 140">
             <circle cx="70" cy="70" r="55" fill="none" stroke="currentColor" stroke-width=".8"/>
-            <ellipse cx="70" cy="70" rx="55" ry="22" fill="none" stroke="currentColor" stroke-width=".6"/>
-            <ellipse cx="70" cy="70" rx="22" ry="55" fill="none" stroke="currentColor" stroke-width=".6"/>
-            <ellipse cx="70" cy="70" rx="40" ry="55" fill="none" stroke="currentColor" stroke-width=".5" opacity=".5"/>
-            <ellipse cx="70" cy="70" rx="55" ry="40" fill="none" stroke="currentColor" stroke-width=".5" opacity=".5"/>
-            <circle cx="95" cy="55" r="3" fill="currentColor"/>
-            <circle cx="50" cy="85" r="3" fill="currentColor"/>
-            <circle cx="80" cy="95" r="2" fill="currentColor"/>
+            <ellipse cx="70" cy="70" rx="55" ry="22" fill="none" stroke="currentColor" stroke-width=".5" opacity=".4" class="svg-meridian"/>
+            <ellipse cx="70" cy="70" rx="22" ry="55" fill="none" stroke="currentColor" stroke-width=".5" opacity=".4" class="svg-meridian" style="animation-delay:1s"/>
+            <!-- Event dots with pulse -->
+            <circle cx="90" cy="55" r="3" fill="var(--accent)" class="svg-event-dot"/>
+            <circle cx="90" cy="55" r="3" fill="none" stroke="var(--accent)" stroke-width="0.5" class="svg-pulse-ring"/>
+            <circle cx="50" cy="82" r="3" fill="var(--accent)" class="svg-event-dot" style="animation-delay:1s"/>
+            <circle cx="50" cy="82" r="3" fill="none" stroke="var(--accent)" stroke-width="0.5" class="svg-pulse-ring" style="animation-delay:1s"/>
+            <circle cx="78" cy="92" r="2.5" fill="var(--accent-3)" class="svg-event-dot" style="animation-delay:2s"/>
+            <circle cx="78" cy="92" r="2.5" fill="none" stroke="var(--accent-3)" stroke-width="0.5" class="svg-pulse-ring" style="animation-delay:2s"/>
+            <!-- Orbiting satellite -->
+            <circle r="2.5" fill="currentColor" class="svg-satellite">
+              <animateMotion dur="6s" repeatCount="indefinite" path="M0,-25 A60,25 0 1,1 0,25 A60,25 0 1,1 0,-25"/>
+            </circle>
           </svg>
         </div>
       </div>
