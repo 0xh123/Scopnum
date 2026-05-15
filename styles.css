@@ -1775,10 +1775,12 @@ html.no-smooth body { overflow-y: auto; }
 
 .bento__merkle { flex: 1; display: grid; place-items: center; }
 .merkle-svg { width: 120px; height: 100px; }
-.merkle-node { opacity: 0; animation: merkleGrow 3s var(--ease-out) infinite; }
+.merkle-node { opacity: 0; animation: merkleGrow 3s var(--ease-out) infinite; transform-origin: center; transform-box: fill-box; }
 .merkle-leaf { animation-delay: 0s; }
+.merkle-mid-2 { animation-delay: 0.8s; }
+.merkle-mid-1 { animation-delay: 1.6s; }
 .merkle-mid { animation-delay: 0.8s; }
-.merkle-root { animation-delay: 1.6s; }
+.merkle-root { animation-delay: 2.4s; }
 .merkle-label { animation: nodeBreath 3s ease-in-out infinite; animation-delay: 2s; }
 
 @keyframes merkleGrow {
@@ -1813,6 +1815,56 @@ html.no-smooth body { overflow-y: auto; }
   color: var(--ink);
 }
 .bento__globe svg { width: 120px; height: 120px; animation: spin 18s linear infinite; }
+
+/* =============================================
+   BENTO CELL ANIMATIONS (enhanced)
+   ============================================= */
+
+/* Brain Loop cascade */
+.bento-agent-outer { stroke-dasharray: 3 2; animation: bentoAgentRotate 8s linear infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes bentoAgentRotate { to { stroke-dashoffset: -10; } }
+
+.bento-cascade-path { stroke-dasharray: 8 4; animation: bentoCascade 4s linear infinite; }
+@keyframes bentoCascade { to { stroke-dashoffset: -24; } }
+
+.bento-brain-edge { stroke-dasharray: 4 3; animation: bentoBrainEdge 3s linear infinite; }
+@keyframes bentoBrainEdge { to { stroke-dashoffset: -14; } }
+
+.bento-iter-text { animation: bentoIterBlink 2s ease-in-out infinite; }
+@keyframes bentoIterBlink { 0%,100% { opacity: 0.7; } 50% { opacity: 1; } }
+
+/* Breakdown bar - 5th segment */
+.bar-seg--5 { animation-delay: 1.4s; }
+
+/* Merkle enhanced */
+.merkle-root-glow { animation: merkleRootGlow 3s ease-in-out infinite; }
+@keyframes merkleRootGlow { 0%,100% { opacity: 0.05; } 50% { opacity: 0.15; } }
+
+.merkle-checkmark { opacity: 0; transform: scale(0); transition: opacity 0.4s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: center; transform-box: fill-box; }
+.bento__cell--c.is-visible .merkle-checkmark { opacity: 1; transform: scale(1); transition-delay: 3s; }
+
+/* Mini chain */
+.bento-chain-link { stroke-dasharray: 4 3; animation: bentoChainFlow 2.5s linear infinite; }
+@keyframes bentoChainFlow { to { stroke-dashoffset: -14; } }
+
+.bento-chain-taint { animation: bentoTaintSlide 5s linear infinite; }
+@keyframes bentoTaintSlide { 0% { transform: translateX(-40px); } 100% { transform: translateX(200px); } }
+
+/* Clusters */
+.bento-cluster-migration { stroke-dasharray: 3 2; animation: bentoMigration 4s linear infinite; }
+@keyframes bentoMigration { to { stroke-dashoffset: -10; } }
+
+/* Globe mini */
+.bento-globe-meridian { stroke-dasharray: 5 3; animation: bentoGlobeMeridian 8s linear infinite; }
+.bento-globe-meridian:nth-child(2) { animation-duration: 10s; animation-direction: reverse; }
+.bento-globe-meridian:nth-child(3) { animation-duration: 12s; }
+@keyframes bentoGlobeMeridian { to { stroke-dashoffset: -16; } }
+
+.bento-globe-pulse { animation: bentoGlobePulse 2s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes bentoGlobePulse { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(2); opacity: 0; } }
+
+.bento-globe-stream { stroke-dasharray: 2 3; animation: bentoGlobeStream 3s linear infinite; }
+@keyframes bentoGlobeStream { to { stroke-dashoffset: -10; } }
 
 /* =============================================
    MANIFESTO (inverted)

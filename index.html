@@ -2780,21 +2780,106 @@
         <h3>[до 50 итераций автономного анализа — агент сам <i>решает</i> когда остановиться]</h3>
         <div class="bento__viz">
           <svg viewBox="0 0 160 100" class="bento__brain-loop">
-            <!-- 5 nodes in circle + center -->
-            <circle cx="80" cy="50" r="8" fill="none" stroke="currentColor" stroke-width="1.5" class="svg-hub"/>
-            <circle cx="80" cy="15" r="5" fill="none" stroke="currentColor" stroke-width="1" class="svg-node" style="animation-delay:0s"/>
-            <circle cx="113" cy="32" r="5" fill="none" stroke="currentColor" stroke-width="1" class="svg-node" style="animation-delay:0.6s"/>
-            <circle cx="100" cy="72" r="5" fill="none" stroke="currentColor" stroke-width="1" class="svg-node" style="animation-delay:1.2s"/>
-            <circle cx="60" cy="72" r="5" fill="none" stroke="currentColor" stroke-width="1" class="svg-node" style="animation-delay:1.8s"/>
-            <circle cx="47" cy="32" r="5" fill="none" stroke="currentColor" stroke-width="1" class="svg-node" style="animation-delay:2.4s"/>
-            <!-- Connecting lines to center -->
-            <line class="svg-edge" x1="80" y1="50" x2="80" y2="15" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
-            <line class="svg-edge" x1="80" y1="50" x2="113" y2="32" stroke="currentColor" stroke-width="0.6" opacity="0.4" style="animation-delay:0.5s"/>
-            <line class="svg-edge" x1="80" y1="50" x2="100" y2="72" stroke="currentColor" stroke-width="0.6" opacity="0.4" style="animation-delay:1s"/>
-            <line class="svg-edge" x1="80" y1="50" x2="60" y2="72" stroke="currentColor" stroke-width="0.6" opacity="0.4" style="animation-delay:1.5s"/>
-            <line class="svg-edge" x1="80" y1="50" x2="47" y2="32" stroke="currentColor" stroke-width="0.6" opacity="0.4" style="animation-delay:2s"/>
-            <!-- Cascade highlight arc -->
-            <path class="svg-cascade-path" d="M80,15 L113,32 L100,72 L60,72 L47,32 Z" fill="none" stroke="var(--accent-3)" stroke-width="1.5"/>
+            <defs>
+              <radialGradient id="bentoHubGlow"><stop offset="0%" stop-color="var(--accent-2)" stop-opacity="0.15"/><stop offset="100%" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient>
+              <path id="bentoCascadePath" d="M80,15 L113,32 L100,72 L60,72 L47,32 Z"/>
+            </defs>
+            <!-- Hub glow -->
+            <circle cx="80" cy="50" r="18" fill="url(#bentoHubGlow)"/>
+            <!-- Center hub -->
+            <circle cx="80" cy="50" r="12" fill="none" stroke="currentColor" stroke-width="0.4" stroke-dasharray="3 2" class="bento-agent-outer"/>
+            <circle cx="80" cy="50" r="8" fill="var(--accent-2)" opacity="0.15"/>
+            <circle cx="80" cy="50" r="8" fill="none" stroke="var(--accent-2)" stroke-width="1"/>
+            <!-- Progress arc (~94%) -->
+            <circle cx="80" cy="50" r="14" fill="none" stroke="var(--accent-3)" stroke-width="1" stroke-dasharray="82.9 88" stroke-linecap="round" opacity="0.5" transform="rotate(-90 80 50)"/>
+            <!-- Agent 1: A (top) -->
+            <circle cx="80" cy="15" r="7" fill="none" stroke="currentColor" stroke-width="0.5" stroke-dasharray="3 2" class="bento-agent-outer"/>
+            <circle cx="80" cy="15" r="4" fill="var(--accent)" opacity="0.2"/>
+            <circle cx="80" cy="15" r="4" fill="none" stroke="var(--accent)" stroke-width="0.8"/>
+            <text x="80" y="17" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace">A</text>
+            <!-- Agent 2: C (top-right) -->
+            <circle cx="113" cy="32" r="7" fill="none" stroke="currentColor" stroke-width="0.5" stroke-dasharray="3 2" class="bento-agent-outer"/>
+            <circle cx="113" cy="32" r="4" fill="var(--accent-2)" opacity="0.2"/>
+            <circle cx="113" cy="32" r="4" fill="none" stroke="var(--accent-2)" stroke-width="0.8"/>
+            <text x="113" y="34" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace">C</text>
+            <!-- Agent 3: V (bottom-right) -->
+            <circle cx="100" cy="72" r="7" fill="none" stroke="currentColor" stroke-width="0.5" stroke-dasharray="3 2" class="bento-agent-outer"/>
+            <circle cx="100" cy="72" r="4" fill="var(--accent-3)" opacity="0.2"/>
+            <circle cx="100" cy="72" r="4" fill="none" stroke="var(--accent-3)" stroke-width="0.8"/>
+            <text x="100" y="74" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace">V</text>
+            <!-- Agent 4: S (bottom-left) -->
+            <circle cx="60" cy="72" r="7" fill="none" stroke="currentColor" stroke-width="0.5" stroke-dasharray="3 2" class="bento-agent-outer"/>
+            <circle cx="60" cy="72" r="4" fill="var(--accent)" opacity="0.15"/>
+            <circle cx="60" cy="72" r="4" fill="none" stroke="var(--accent)" stroke-width="0.8"/>
+            <text x="60" y="74" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace">S</text>
+            <!-- Agent 5: M (top-left) -->
+            <circle cx="47" cy="32" r="7" fill="none" stroke="currentColor" stroke-width="0.5" stroke-dasharray="3 2" class="bento-agent-outer"/>
+            <circle cx="47" cy="32" r="4" fill="var(--accent-2)" opacity="0.15"/>
+            <circle cx="47" cy="32" r="4" fill="none" stroke="var(--accent-2)" stroke-width="0.8"/>
+            <text x="47" y="34" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace">M</text>
+            <!-- Hub-to-agent edges -->
+            <line class="bento-brain-edge" x1="80" y1="50" x2="80" y2="22" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+            <line class="bento-brain-edge" x1="80" y1="50" x2="106" y2="32" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+            <line class="bento-brain-edge" x1="80" y1="50" x2="96" y2="68" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+            <line class="bento-brain-edge" x1="80" y1="50" x2="64" y2="68" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+            <line class="bento-brain-edge" x1="80" y1="50" x2="54" y2="35" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+            <!-- Cross-connections (adjacent agents) -->
+            <line x1="80" y1="22" x2="106" y2="32" stroke="currentColor" stroke-width="0.3" opacity="0.2"/>
+            <line x1="113" y1="32" x2="100" y2="65" stroke="currentColor" stroke-width="0.3" opacity="0.2"/>
+            <line x1="100" y1="72" x2="67" y2="72" stroke="currentColor" stroke-width="0.3" opacity="0.2"/>
+            <line x1="60" y1="72" x2="50" y2="39" stroke="currentColor" stroke-width="0.3" opacity="0.2"/>
+            <line x1="47" y1="32" x2="73" y2="18" stroke="currentColor" stroke-width="0.3" opacity="0.2"/>
+            <!-- Cascade highlight path -->
+            <use href="#bentoCascadePath" fill="none" stroke="var(--accent-3)" stroke-width="1.5" class="bento-cascade-path"/>
+            <!-- Particles on cascade path -->
+            <circle r="1" fill="var(--accent-3)" opacity="0.8">
+              <animateMotion dur="3s" repeatCount="indefinite"><mpath href="#bentoCascadePath"/></animateMotion>
+            </circle>
+            <circle r="1" fill="var(--accent-3)" opacity="0.6">
+              <animateMotion dur="3s" repeatCount="indefinite" begin="1s"><mpath href="#bentoCascadePath"/></animateMotion>
+            </circle>
+            <circle r="1" fill="var(--accent-3)" opacity="0.4">
+              <animateMotion dur="3s" repeatCount="indefinite" begin="2s"><mpath href="#bentoCascadePath"/></animateMotion>
+            </circle>
+            <!-- Iteration counter -->
+            <text x="130" y="92" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" class="bento-iter-text">ITER: 47</text>
+            <!-- Additional cross-connections (non-adjacent) -->
+            <line x1="80" y1="22" x2="96" y2="68" stroke="currentColor" stroke-width="0.25" opacity="0.15"/>
+            <line x1="113" y1="32" x2="64" y2="68" stroke="currentColor" stroke-width="0.25" opacity="0.15"/>
+            <line x1="100" y1="72" x2="50" y2="35" stroke="currentColor" stroke-width="0.25" opacity="0.15"/>
+            <line x1="60" y1="72" x2="106" y2="32" stroke="currentColor" stroke-width="0.25" opacity="0.15"/>
+            <line x1="47" y1="32" x2="96" y2="68" stroke="currentColor" stroke-width="0.25" opacity="0.15"/>
+            <!-- Agent glows -->
+            <circle cx="80" cy="15" r="10" fill="var(--accent)" opacity="0.03"/>
+            <circle cx="113" cy="32" r="10" fill="var(--accent-2)" opacity="0.03"/>
+            <circle cx="100" cy="72" r="10" fill="var(--accent-3)" opacity="0.03"/>
+            <circle cx="60" cy="72" r="10" fill="var(--accent)" opacity="0.03"/>
+            <circle cx="47" cy="32" r="10" fill="var(--accent-2)" opacity="0.03"/>
+            <!-- Orbit dots around hub -->
+            <circle cx="92" cy="50" r="1" fill="var(--accent-2)" opacity="0.5" class="svg-node"/>
+            <circle cx="68" cy="50" r="1" fill="var(--accent-2)" opacity="0.5" class="svg-node"/>
+            <circle cx="80" cy="38" r="1" fill="var(--accent-2)" opacity="0.5" class="svg-node"/>
+            <circle cx="80" cy="62" r="1" fill="var(--accent-2)" opacity="0.5" class="svg-node"/>
+            <!-- Background field dots -->
+            <circle cx="10" cy="10" r="0.8" fill="currentColor" opacity="0.08"/>
+            <circle cx="30" cy="8" r="0.6" fill="currentColor" opacity="0.06"/>
+            <circle cx="145" cy="15" r="0.7" fill="currentColor" opacity="0.07"/>
+            <circle cx="150" cy="85" r="0.6" fill="currentColor" opacity="0.06"/>
+            <circle cx="8" cy="90" r="0.7" fill="currentColor" opacity="0.05"/>
+            <circle cx="25" cy="92" r="0.5" fill="currentColor" opacity="0.06"/>
+            <circle cx="140" cy="50" r="0.6" fill="currentColor" opacity="0.05"/>
+            <circle cx="5" cy="50" r="0.7" fill="currentColor" opacity="0.06"/>
+            <circle cx="50" cy="5" r="0.5" fill="currentColor" opacity="0.07"/>
+            <circle cx="110" cy="90" r="0.6" fill="currentColor" opacity="0.05"/>
+            <circle cx="120" cy="8" r="0.5" fill="currentColor" opacity="0.06"/>
+            <circle cx="15" cy="40" r="0.6" fill="currentColor" opacity="0.05"/>
+            <!-- Concentric reference ring -->
+            <circle cx="80" cy="50" r="38" fill="none" stroke="currentColor" stroke-width="0.2" stroke-dasharray="2 4" opacity="0.1"/>
+            <!-- Status label -->
+            <text x="10" y="8" fill="currentColor" font-size="4" font-family="'IBM Plex Mono', monospace" opacity="0.4">MULTI-AGENT</text>
+            <!-- Progress bar near bottom -->
+            <rect x="10" y="94" width="50" height="2" rx="1" fill="currentColor" opacity="0.06"/>
+            <rect x="10" y="94" width="47" height="2" rx="1" fill="var(--accent-3)" opacity="0.2"/>
           </svg>
         </div>
       </div>
@@ -2807,10 +2892,42 @@
         <p>[от запроса до результата — нативные сервисы на Rust]</p>
         <div class="bento__breakdown-bar">
           <svg viewBox="0 0 200 20" preserveAspectRatio="none" class="breakdown-svg">
-            <rect class="bar-seg bar-seg--1" x="0" y="4" width="60" height="12" rx="2" fill="var(--accent)"/>
-            <rect class="bar-seg bar-seg--2" x="64" y="4" width="50" height="12" rx="2" fill="var(--accent-2)"/>
-            <rect class="bar-seg bar-seg--3" x="118" y="4" width="40" height="12" rx="2" fill="var(--accent-3)"/>
-            <rect class="bar-seg bar-seg--4" x="162" y="4" width="35" height="12" rx="2" fill="var(--ink-mute)"/>
+            <defs>
+              <linearGradient id="barGrad1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ff4d15"/><stop offset="100%" stop-color="#ff7040"/></linearGradient>
+              <linearGradient id="barGrad2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2136f0"/><stop offset="100%" stop-color="#4a5ef5"/></linearGradient>
+              <linearGradient id="barGrad3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#b7ff2e"/><stop offset="100%" stop-color="#d4ff7a"/></linearGradient>
+              <linearGradient id="barGrad4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f5a623"/><stop offset="100%" stop-color="#f7c563"/></linearGradient>
+              <linearGradient id="barGrad5" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#666"/><stop offset="100%" stop-color="#888"/></linearGradient>
+              <filter id="barGlow"><feGaussianBlur stdDeviation="1" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter>
+            </defs>
+            <!-- Shadow beneath -->
+            <rect x="2" y="5" width="196" height="13" rx="3" fill="currentColor" opacity="0.05"/>
+            <!-- Glow on first 2 segments -->
+            <rect x="2" y="3" width="55" height="14" rx="3" fill="var(--accent)" opacity="0.06" filter="url(#barGlow)"/>
+            <rect x="59" y="3" width="45" height="14" rx="3" fill="var(--accent-2)" opacity="0.05" filter="url(#barGlow)"/>
+            <!-- Service labels above -->
+            <text x="29" y="2.5" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.6">AGG</text>
+            <text x="81" y="2.5" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.6">BRAIN</text>
+            <text x="125" y="2.5" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.6">CRYPTO</text>
+            <text x="161" y="2.5" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.6">SNP</text>
+            <text x="188" y="2.5" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.6">RPT</text>
+            <!-- Bar segments -->
+            <rect class="bar-seg bar-seg--1" x="2" y="4" width="55" height="12" rx="3" ry="6" fill="url(#barGrad1)"/>
+            <rect class="bar-seg bar-seg--2" x="59" y="4" width="45" height="12" rx="3" ry="6" fill="url(#barGrad2)"/>
+            <rect class="bar-seg bar-seg--3" x="106" y="4" width="38" height="12" rx="3" ry="6" fill="url(#barGrad3)"/>
+            <rect class="bar-seg bar-seg--4" x="146" y="4" width="30" height="12" rx="3" ry="6" fill="url(#barGrad4)"/>
+            <rect class="bar-seg bar-seg--5" x="178" y="4" width="20" height="12" rx="3" ry="6" fill="url(#barGrad5)"/>
+            <!-- Divider lines -->
+            <line x1="57" y1="3" x2="57" y2="17" stroke="currentColor" stroke-width="0.3" opacity="0.2"/>
+            <line x1="104" y1="3" x2="104" y2="17" stroke="currentColor" stroke-width="0.3" opacity="0.2"/>
+            <line x1="144" y1="3" x2="144" y2="17" stroke="currentColor" stroke-width="0.3" opacity="0.2"/>
+            <line x1="176" y1="3" x2="176" y2="17" stroke="currentColor" stroke-width="0.3" opacity="0.2"/>
+            <!-- ms values below -->
+            <text x="29" y="19.5" text-anchor="middle" fill="currentColor" font-size="3" font-family="'IBM Plex Mono', monospace" opacity="0.4">2ms</text>
+            <text x="81" y="19.5" text-anchor="middle" fill="currentColor" font-size="3" font-family="'IBM Plex Mono', monospace" opacity="0.4">3ms</text>
+            <text x="125" y="19.5" text-anchor="middle" fill="currentColor" font-size="3" font-family="'IBM Plex Mono', monospace" opacity="0.4">2ms</text>
+            <text x="161" y="19.5" text-anchor="middle" fill="currentColor" font-size="3" font-family="'IBM Plex Mono', monospace" opacity="0.4">2ms</text>
+            <text x="188" y="19.5" text-anchor="middle" fill="currentColor" font-size="3" font-family="'IBM Plex Mono', monospace" opacity="0.4">1ms</text>
           </svg>
         </div>
       </div>
@@ -2820,24 +2937,88 @@
         <h3>[Merkle-аудит каждого решения — невозможно подделать цепочку <i>рассуждений</i>]</h3>
         <div class="bento__merkle">
           <svg viewBox="0 0 120 100" class="merkle-svg">
-            <!-- Root (level 0) -->
-            <circle cx="60" cy="15" r="7" fill="none" stroke="currentColor" stroke-width="1.5" class="merkle-node merkle-root"/>
-            <text x="60" y="30" text-anchor="middle" fill="currentColor" font-size="6" font-family="var(--font-mono)" opacity="0.7" class="merkle-label">SHA-256</text>
-            <!-- Mid nodes (level 1) -->
-            <circle cx="35" cy="50" r="5" fill="none" stroke="currentColor" stroke-width="1" class="merkle-node merkle-mid"/>
-            <circle cx="85" cy="50" r="5" fill="none" stroke="currentColor" stroke-width="1" class="merkle-node merkle-mid"/>
-            <!-- Leaf nodes (level 2) -->
-            <circle cx="20" cy="82" r="4" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
-            <circle cx="50" cy="82" r="4" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
-            <circle cx="70" cy="82" r="4" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
-            <circle cx="100" cy="82" r="4" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
-            <!-- Connecting lines -->
-            <line x1="60" y1="22" x2="35" y2="45" stroke="currentColor" stroke-width="0.6" opacity="0.5"/>
-            <line x1="60" y1="22" x2="85" y2="45" stroke="currentColor" stroke-width="0.6" opacity="0.5"/>
-            <line x1="35" y1="55" x2="20" y2="78" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
-            <line x1="35" y1="55" x2="50" y2="78" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
-            <line x1="85" y1="55" x2="70" y2="78" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
-            <line x1="85" y1="55" x2="100" y2="78" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+            <defs>
+              <radialGradient id="merkleRootGlowGrad"><stop offset="0%" stop-color="var(--accent-3)" stop-opacity="0.12"/><stop offset="100%" stop-color="var(--accent-3)" stop-opacity="0"/></radialGradient>
+            </defs>
+            <!-- Root glow -->
+            <circle cx="60" cy="12" r="14" fill="url(#merkleRootGlowGrad)" class="merkle-root-glow"/>
+            <!-- Connecting lines (level 3 to level 2) -->
+            <line x1="20" y1="54" x2="12" y2="78" stroke="currentColor" stroke-width="0.5" opacity="0.3"/>
+            <line x1="20" y1="54" x2="28" y2="78" stroke="currentColor" stroke-width="0.5" opacity="0.3"/>
+            <line x1="50" y1="54" x2="42" y2="78" stroke="currentColor" stroke-width="0.5" opacity="0.3"/>
+            <line x1="50" y1="54" x2="58" y2="78" stroke="currentColor" stroke-width="0.5" opacity="0.3"/>
+            <line x1="70" y1="54" x2="65" y2="78" stroke="currentColor" stroke-width="0.5" opacity="0.3"/>
+            <line x1="70" y1="54" x2="75" y2="78" stroke="currentColor" stroke-width="0.5" opacity="0.3"/>
+            <line x1="100" y1="54" x2="92" y2="78" stroke="currentColor" stroke-width="0.5" opacity="0.3"/>
+            <line x1="100" y1="54" x2="108" y2="78" stroke="currentColor" stroke-width="0.5" opacity="0.3"/>
+            <!-- Connecting lines (level 2 to level 1) -->
+            <line x1="35" y1="31" x2="20" y2="54" stroke="currentColor" stroke-width="0.5" opacity="0.4"/>
+            <line x1="35" y1="31" x2="50" y2="54" stroke="currentColor" stroke-width="0.5" opacity="0.4"/>
+            <line x1="85" y1="31" x2="70" y2="54" stroke="currentColor" stroke-width="0.5" opacity="0.4"/>
+            <line x1="85" y1="31" x2="100" y2="54" stroke="currentColor" stroke-width="0.5" opacity="0.4"/>
+            <!-- Connecting lines (level 1 to root) -->
+            <line x1="60" y1="12" x2="35" y2="31" stroke="currentColor" stroke-width="0.6" opacity="0.5"/>
+            <line x1="60" y1="12" x2="85" y2="31" stroke="currentColor" stroke-width="0.6" opacity="0.5"/>
+            <!-- Level 3 leaf nodes (8) -->
+            <circle cx="12" cy="82" r="3" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
+            <circle cx="28" cy="82" r="3" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
+            <circle cx="42" cy="82" r="3" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
+            <circle cx="58" cy="82" r="3" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
+            <circle cx="65" cy="82" r="3" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
+            <circle cx="75" cy="82" r="3" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
+            <circle cx="92" cy="82" r="3" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
+            <circle cx="108" cy="82" r="3" fill="currentColor" opacity="0.6" class="merkle-node merkle-leaf"/>
+            <!-- Level 2 mid nodes (4) -->
+            <circle cx="20" cy="58" r="4" fill="none" stroke="currentColor" stroke-width="0.8" class="merkle-node merkle-mid-2"/>
+            <circle cx="50" cy="58" r="4" fill="none" stroke="currentColor" stroke-width="0.8" class="merkle-node merkle-mid-2"/>
+            <circle cx="70" cy="58" r="4" fill="none" stroke="currentColor" stroke-width="0.8" class="merkle-node merkle-mid-2"/>
+            <circle cx="100" cy="58" r="4" fill="none" stroke="currentColor" stroke-width="0.8" class="merkle-node merkle-mid-2"/>
+            <!-- Level 1 mid nodes (2) -->
+            <circle cx="35" cy="35" r="5" fill="none" stroke="currentColor" stroke-width="1" class="merkle-node merkle-mid-1"/>
+            <circle cx="85" cy="35" r="5" fill="none" stroke="currentColor" stroke-width="1" class="merkle-node merkle-mid-1"/>
+            <!-- Root node (level 0) -->
+            <circle cx="60" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="0.4" stroke-dasharray="3 2" opacity="0.5"/>
+            <circle cx="60" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="1.2" class="merkle-node merkle-root"/>
+            <!-- Hash labels -->
+            <text x="12" y="90" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.4">a4f2</text>
+            <text x="28" y="90" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.4">b7c1</text>
+            <text x="42" y="90" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.4">d9e3</text>
+            <text x="58" y="90" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.4">2f8a</text>
+            <text x="65" y="90" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.4">c1b5</text>
+            <text x="75" y="90" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.4">7e4d</text>
+            <text x="92" y="90" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.4">f3a9</text>
+            <text x="108" y="90" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.4">6d0e</text>
+            <text x="20" y="66" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.45">8c2a</text>
+            <text x="50" y="66" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.45">e5f1</text>
+            <text x="70" y="66" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.45">3b7d</text>
+            <text x="100" y="66" text-anchor="middle" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.45">9a4c</text>
+            <text x="35" y="44" text-anchor="middle" fill="currentColor" font-size="4" font-family="'IBM Plex Mono', monospace" opacity="0.5">fc12</text>
+            <text x="85" y="44" text-anchor="middle" fill="currentColor" font-size="4" font-family="'IBM Plex Mono', monospace" opacity="0.5">d8e7</text>
+            <!-- Root label -->
+            <text x="60" y="4" text-anchor="middle" fill="currentColor" font-size="5" font-family="'IBM Plex Mono', monospace" opacity="0.7" class="merkle-label">SHA-256</text>
+            <!-- Checkmark at root -->
+            <path d="M55,12 L58,15 L65,9" fill="none" stroke="var(--accent-3)" stroke-width="1.5" stroke-linecap="round" class="merkle-checkmark"/>
+            <!-- Decorative background dots -->
+            <circle cx="5" cy="5" r="0.5" fill="currentColor" opacity="0.06"/>
+            <circle cx="115" cy="5" r="0.5" fill="currentColor" opacity="0.05"/>
+            <circle cx="5" cy="95" r="0.5" fill="currentColor" opacity="0.06"/>
+            <circle cx="115" cy="95" r="0.5" fill="currentColor" opacity="0.05"/>
+            <circle cx="3" cy="50" r="0.4" fill="currentColor" opacity="0.05"/>
+            <circle cx="117" cy="50" r="0.4" fill="currentColor" opacity="0.05"/>
+            <circle cx="60" cy="97" r="0.4" fill="currentColor" opacity="0.05"/>
+            <!-- Connection highlight dots at junctions -->
+            <circle cx="60" cy="12" r="1.5" fill="var(--accent-3)" opacity="0.1"/>
+            <circle cx="35" cy="35" r="1" fill="currentColor" opacity="0.08"/>
+            <circle cx="85" cy="35" r="1" fill="currentColor" opacity="0.08"/>
+            <!-- Verification status text -->
+            <text x="100" y="97" fill="var(--accent-3)" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.4">VALID</text>
+            <!-- Tiny connection markers between levels -->
+            <circle cx="47" cy="23" r="0.6" fill="currentColor" opacity="0.15"/>
+            <circle cx="73" cy="23" r="0.6" fill="currentColor" opacity="0.15"/>
+            <circle cx="27" cy="46" r="0.5" fill="currentColor" opacity="0.12"/>
+            <circle cx="43" cy="46" r="0.5" fill="currentColor" opacity="0.12"/>
+            <circle cx="77" cy="46" r="0.5" fill="currentColor" opacity="0.12"/>
+            <circle cx="93" cy="46" r="0.5" fill="currentColor" opacity="0.12"/>
           </svg>
         </div>
       </div>
@@ -2847,17 +3028,72 @@
         <h3>[16 блокчейнов · taint-анализ · CoinJoin-демиксинг · <i>кросс-чейн</i> мосты]</h3>
         <div class="bento__mini-chain">
           <svg viewBox="0 0 200 40" preserveAspectRatio="none" class="mini-chain-svg">
-            <rect x="10" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
-            <line class="svg-edge" x1="26" y1="20" x2="44" y2="20" stroke="currentColor" stroke-width="0.6" opacity="0.5"/>
-            <rect x="44" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
-            <line class="svg-edge" x1="60" y1="20" x2="78" y2="20" stroke="currentColor" stroke-width="0.6" opacity="0.5" style="animation-delay:0.3s"/>
-            <rect x="78" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
-            <line class="svg-edge" x1="94" y1="20" x2="112" y2="20" stroke="currentColor" stroke-width="0.6" opacity="0.5" style="animation-delay:0.6s"/>
-            <rect x="112" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+            <defs>
+              <linearGradient id="chainTaintGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="var(--accent)" stop-opacity="0"/><stop offset="50%" stop-color="var(--accent)" stop-opacity="0.35"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient>
+            </defs>
+            <!-- Bottom timeline -->
+            <line x1="5" y1="35" x2="195" y2="35" stroke="currentColor" stroke-width="0.3" opacity="0.2"/>
+            <line x1="19" y1="33" x2="19" y2="37" stroke="currentColor" stroke-width="0.3" opacity="0.3"/>
+            <line x1="57" y1="33" x2="57" y2="37" stroke="currentColor" stroke-width="0.3" opacity="0.3"/>
+            <line x1="95" y1="33" x2="95" y2="37" stroke="currentColor" stroke-width="0.3" opacity="0.3"/>
+            <line x1="133" y1="33" x2="133" y2="37" stroke="currentColor" stroke-width="0.3" opacity="0.3"/>
+            <line x1="171" y1="33" x2="171" y2="37" stroke="currentColor" stroke-width="0.3" opacity="0.3"/>
+            <!-- Block 1 -->
+            <text x="19" y="7" text-anchor="middle" fill="currentColor" font-size="4" font-family="'IBM Plex Mono', monospace" opacity="0.5">1</text>
+            <rect x="10" y="10" width="18" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+            <rect x="10" y="10" width="18" height="5" rx="2" fill="currentColor" opacity="0.08"/>
+            <rect x="13" y="18" width="10" height="1.5" rx="0.5" fill="currentColor" opacity="0.2"/>
+            <rect x="13" y="22" width="13" height="1.5" rx="0.5" fill="currentColor" opacity="0.15"/>
+            <!-- Block 2 -->
+            <text x="57" y="7" text-anchor="middle" fill="currentColor" font-size="4" font-family="'IBM Plex Mono', monospace" opacity="0.5">2</text>
+            <rect x="48" y="10" width="18" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+            <rect x="48" y="10" width="18" height="5" rx="2" fill="currentColor" opacity="0.08"/>
+            <rect x="51" y="18" width="10" height="1.5" rx="0.5" fill="currentColor" opacity="0.2"/>
+            <rect x="51" y="22" width="13" height="1.5" rx="0.5" fill="currentColor" opacity="0.15"/>
+            <!-- Block 3 -->
+            <text x="95" y="7" text-anchor="middle" fill="currentColor" font-size="4" font-family="'IBM Plex Mono', monospace" opacity="0.5">3</text>
+            <rect x="86" y="10" width="18" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+            <rect x="86" y="10" width="18" height="5" rx="2" fill="currentColor" opacity="0.08"/>
+            <rect x="89" y="18" width="10" height="1.5" rx="0.5" fill="currentColor" opacity="0.2"/>
+            <rect x="89" y="22" width="13" height="1.5" rx="0.5" fill="currentColor" opacity="0.15"/>
+            <!-- Block 4 -->
+            <text x="133" y="7" text-anchor="middle" fill="currentColor" font-size="4" font-family="'IBM Plex Mono', monospace" opacity="0.5">4</text>
+            <rect x="124" y="10" width="18" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+            <rect x="124" y="10" width="18" height="5" rx="2" fill="currentColor" opacity="0.08"/>
+            <rect x="127" y="18" width="10" height="1.5" rx="0.5" fill="currentColor" opacity="0.2"/>
+            <rect x="127" y="22" width="13" height="1.5" rx="0.5" fill="currentColor" opacity="0.15"/>
+            <!-- Block 5 -->
+            <text x="171" y="7" text-anchor="middle" fill="currentColor" font-size="4" font-family="'IBM Plex Mono', monospace" opacity="0.5">5</text>
+            <rect x="162" y="10" width="18" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+            <rect x="162" y="10" width="18" height="5" rx="2" fill="currentColor" opacity="0.08"/>
+            <rect x="165" y="18" width="10" height="1.5" rx="0.5" fill="currentColor" opacity="0.2"/>
+            <rect x="165" y="22" width="13" height="1.5" rx="0.5" fill="currentColor" opacity="0.15"/>
+            <!-- Chain links -->
+            <path d="M28,20 C33,20 43,20 48,20" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.5" class="bento-chain-link"/>
+            <circle cx="38" cy="20" r="1" fill="currentColor" opacity="0.3"/>
+            <path d="M66,20 C71,20 81,20 86,20" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.5" class="bento-chain-link"/>
+            <circle cx="76" cy="20" r="1" fill="currentColor" opacity="0.3"/>
+            <path d="M104,20 C109,20 119,20 124,20" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.5" class="bento-chain-link"/>
+            <circle cx="114" cy="20" r="1" fill="currentColor" opacity="0.3"/>
+            <path d="M180,20 C185,20 190,20 195,20" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.5" class="bento-chain-link"/>
+            <circle cx="190" cy="20" r="1" fill="currentColor" opacity="0.3"/>
+            <!-- Risk indicators (tainted: blocks 1-3) -->
+            <circle cx="19" cy="5" r="2" fill="var(--accent)" opacity="0.7" class="svg-pulse-ring"/>
+            <circle cx="57" cy="5" r="2" fill="var(--accent)" opacity="0.7" class="svg-pulse-ring"/>
+            <circle cx="95" cy="5" r="2" fill="var(--accent)" opacity="0.7" class="svg-pulse-ring"/>
+            <!-- Clean indicators (blocks 4-5) -->
+            <circle cx="133" cy="5" r="2" fill="var(--accent-3)" opacity="0.7"/>
+            <circle cx="171" cy="5" r="2" fill="var(--accent-3)" opacity="0.7"/>
             <!-- Taint overlay -->
-            <rect class="svg-taint" x="10" y="14" width="30" height="12" rx="1" fill="var(--accent)" opacity="0.3"/>
-            <!-- Arrow to end -->
-            <path d="M128,20 L145,20 M140,16 L145,20 L140,24" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+            <rect class="bento-chain-taint" x="0" y="10" width="40" height="20" rx="2" fill="url(#chainTaintGrad)"/>
+            <!-- Arrow at end -->
+            <path d="M185,20 L195,20 M191,16 L195,20 L191,24" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+            <!-- Block hash indicators -->
+            <text x="19" y="33" text-anchor="middle" fill="currentColor" font-size="2.5" font-family="'IBM Plex Mono', monospace" opacity="0.3">0xa4</text>
+            <text x="57" y="33" text-anchor="middle" fill="currentColor" font-size="2.5" font-family="'IBM Plex Mono', monospace" opacity="0.3">0xb7</text>
+            <text x="95" y="33" text-anchor="middle" fill="currentColor" font-size="2.5" font-family="'IBM Plex Mono', monospace" opacity="0.3">0xf1</text>
+            <text x="133" y="33" text-anchor="middle" fill="currentColor" font-size="2.5" font-family="'IBM Plex Mono', monospace" opacity="0.3">0xd9</text>
+            <text x="171" y="33" text-anchor="middle" fill="currentColor" font-size="2.5" font-family="'IBM Plex Mono', monospace" opacity="0.3">0xe3</text>
           </svg>
         </div>
       </div>
@@ -2867,31 +3103,94 @@
         <h3>[5 островов · 15 ролей · <i>предиктивное</i> кодирование]</h3>
         <div class="bento__clusters">
           <svg viewBox="0 0 120 60" class="clusters-svg">
-            <!-- 5 small clusters -->
-            <circle cx="20" cy="20" r="4" fill="currentColor" opacity="0.7" class="svg-node"/>
-            <circle cx="14" cy="14" r="2" fill="currentColor" opacity="0.4"/>
-            <circle cx="26" cy="15" r="2" fill="currentColor" opacity="0.4"/>
-            <circle cx="18" cy="28" r="2" fill="currentColor" opacity="0.4"/>
-            
-            <circle cx="55" cy="15" r="4" fill="currentColor" opacity="0.7" class="svg-node" style="animation-delay:0.5s"/>
-            <circle cx="48" cy="10" r="2" fill="currentColor" opacity="0.4"/>
-            <circle cx="62" cy="12" r="2" fill="currentColor" opacity="0.4"/>
-            
-            <circle cx="95" cy="20" r="4" fill="currentColor" opacity="0.7" class="svg-node" style="animation-delay:1s"/>
-            <circle cx="102" cy="14" r="2" fill="currentColor" opacity="0.4"/>
-            <circle cx="90" cy="26" r="2" fill="currentColor" opacity="0.4"/>
-            
-            <circle cx="35" cy="45" r="4" fill="currentColor" opacity="0.7" class="svg-node" style="animation-delay:1.5s"/>
-            <circle cx="28" cy="40" r="2" fill="currentColor" opacity="0.4"/>
-            <circle cx="42" cy="42" r="2" fill="currentColor" opacity="0.4"/>
-            
-            <circle cx="80" cy="45" r="4" fill="currentColor" opacity="0.7" class="svg-node" style="animation-delay:2s"/>
-            <circle cx="73" cy="40" r="2" fill="currentColor" opacity="0.4"/>
-            <circle cx="87" cy="42" r="2" fill="currentColor" opacity="0.4"/>
-            
-            <!-- Migration lines -->
-            <path class="svg-edge" d="M24,22 Q40,30 50,17" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.3"/>
-            <path class="svg-edge" d="M59,18 Q75,25 91,22" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.3" style="animation-delay:0.8s"/>
+            <defs>
+              <path id="bentoMigPath1" d="M24,18 C35,10 45,12 51,14"/>
+              <path id="bentoMigPath2" d="M59,14 C70,10 82,12 91,18"/>
+              <path id="bentoMigPath3" d="M23,22 C28,35 30,40 32,42"/>
+              <path id="bentoMigPath4" d="M83,45 C88,35 90,25 92,21"/>
+            </defs>
+            <!-- Cluster 1: orange (20,18) -->
+            <ellipse cx="20" cy="18" rx="12" ry="9" fill="var(--accent)" opacity="0.04" stroke="var(--accent)" stroke-width="0.4" stroke-dasharray="2 2"/>
+            <circle cx="20" cy="18" r="5" fill="none" stroke="var(--accent)" stroke-width="0.4" stroke-dasharray="2 1.5"/>
+            <circle cx="20" cy="18" r="3" fill="var(--accent)" opacity="0.3"/>
+            <circle cx="14" cy="14" r="2" fill="var(--accent)" opacity="0.5"/>
+            <circle cx="26" cy="15" r="1.5" fill="var(--accent)" opacity="0.4"/>
+            <circle cx="18" cy="24" r="1.5" fill="var(--accent)" opacity="0.35"/>
+            <circle cx="25" cy="22" r="1.5" fill="var(--accent)" opacity="0.3"/>
+            <line x1="20" y1="18" x2="14" y2="14" stroke="var(--accent)" stroke-width="0.3" opacity="0.3"/>
+            <line x1="20" y1="18" x2="26" y2="15" stroke="var(--accent)" stroke-width="0.3" opacity="0.3"/>
+            <line x1="20" y1="18" x2="18" y2="24" stroke="var(--accent)" stroke-width="0.3" opacity="0.3"/>
+            <text x="20" y="30" text-anchor="middle" fill="var(--accent)" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.4">C</text>
+            <!-- Cluster 2: indigo (55,14) -->
+            <ellipse cx="55" cy="14" rx="11" ry="8" fill="var(--accent-2)" opacity="0.04" stroke="var(--accent-2)" stroke-width="0.4" stroke-dasharray="2 2"/>
+            <circle cx="55" cy="14" r="5" fill="none" stroke="var(--accent-2)" stroke-width="0.4" stroke-dasharray="2 1.5"/>
+            <circle cx="55" cy="14" r="3" fill="var(--accent-2)" opacity="0.3"/>
+            <circle cx="48" cy="10" r="2" fill="var(--accent-2)" opacity="0.5"/>
+            <circle cx="62" cy="12" r="1.5" fill="var(--accent-2)" opacity="0.4"/>
+            <circle cx="52" cy="20" r="1.5" fill="var(--accent-2)" opacity="0.35"/>
+            <line x1="55" y1="14" x2="48" y2="10" stroke="var(--accent-2)" stroke-width="0.3" opacity="0.3"/>
+            <line x1="55" y1="14" x2="62" y2="12" stroke="var(--accent-2)" stroke-width="0.3" opacity="0.3"/>
+            <line x1="55" y1="14" x2="52" y2="20" stroke="var(--accent-2)" stroke-width="0.3" opacity="0.3"/>
+            <text x="55" y="25" text-anchor="middle" fill="var(--accent-2)" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.4">F</text>
+            <!-- Cluster 3: lime (95,18) -->
+            <ellipse cx="95" cy="18" rx="12" ry="9" fill="var(--accent-3)" opacity="0.04" stroke="var(--accent-3)" stroke-width="0.4" stroke-dasharray="2 2"/>
+            <circle cx="95" cy="18" r="5" fill="none" stroke="var(--accent-3)" stroke-width="0.4" stroke-dasharray="2 1.5"/>
+            <circle cx="95" cy="18" r="3" fill="var(--accent-3)" opacity="0.3"/>
+            <circle cx="102" cy="14" r="2" fill="var(--accent-3)" opacity="0.5"/>
+            <circle cx="90" cy="22" r="1.5" fill="var(--accent-3)" opacity="0.4"/>
+            <circle cx="100" cy="23" r="1.5" fill="var(--accent-3)" opacity="0.35"/>
+            <circle cx="89" cy="14" r="1.5" fill="var(--accent-3)" opacity="0.3"/>
+            <line x1="95" y1="18" x2="102" y2="14" stroke="var(--accent-3)" stroke-width="0.3" opacity="0.3"/>
+            <line x1="95" y1="18" x2="90" y2="22" stroke="var(--accent-3)" stroke-width="0.3" opacity="0.3"/>
+            <line x1="95" y1="18" x2="89" y2="14" stroke="var(--accent-3)" stroke-width="0.3" opacity="0.3"/>
+            <text x="95" y="30" text-anchor="middle" fill="var(--accent-3)" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.4">T</text>
+            <!-- Cluster 4: cyan (35,45) -->
+            <ellipse cx="35" cy="45" rx="12" ry="9" fill="#00bcd4" opacity="0.04" stroke="#00bcd4" stroke-width="0.4" stroke-dasharray="2 2"/>
+            <circle cx="35" cy="45" r="5" fill="none" stroke="#00bcd4" stroke-width="0.4" stroke-dasharray="2 1.5"/>
+            <circle cx="35" cy="45" r="3" fill="#00bcd4" opacity="0.3"/>
+            <circle cx="28" cy="41" r="2" fill="#00bcd4" opacity="0.5"/>
+            <circle cx="42" cy="42" r="1.5" fill="#00bcd4" opacity="0.4"/>
+            <circle cx="32" cy="52" r="1.5" fill="#00bcd4" opacity="0.35"/>
+            <line x1="35" y1="45" x2="28" y2="41" stroke="#00bcd4" stroke-width="0.3" opacity="0.3"/>
+            <line x1="35" y1="45" x2="42" y2="42" stroke="#00bcd4" stroke-width="0.3" opacity="0.3"/>
+            <line x1="35" y1="45" x2="32" y2="52" stroke="#00bcd4" stroke-width="0.3" opacity="0.3"/>
+            <text x="35" y="57" text-anchor="middle" fill="#00bcd4" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.4">D</text>
+            <!-- Cluster 5: gray (80,45) -->
+            <ellipse cx="80" cy="45" rx="12" ry="9" fill="#888" opacity="0.04" stroke="#888" stroke-width="0.4" stroke-dasharray="2 2"/>
+            <circle cx="80" cy="45" r="5" fill="none" stroke="#888" stroke-width="0.4" stroke-dasharray="2 1.5"/>
+            <circle cx="80" cy="45" r="3" fill="#888" opacity="0.3"/>
+            <circle cx="73" cy="41" r="2" fill="#888" opacity="0.5"/>
+            <circle cx="87" cy="42" r="1.5" fill="#888" opacity="0.4"/>
+            <circle cx="78" cy="52" r="1.5" fill="#888" opacity="0.35"/>
+            <circle cx="85" cy="50" r="1.5" fill="#888" opacity="0.3"/>
+            <line x1="80" y1="45" x2="73" y2="41" stroke="#888" stroke-width="0.3" opacity="0.3"/>
+            <line x1="80" y1="45" x2="87" y2="42" stroke="#888" stroke-width="0.3" opacity="0.3"/>
+            <line x1="80" y1="45" x2="78" y2="52" stroke="#888" stroke-width="0.3" opacity="0.3"/>
+            <text x="80" y="57" text-anchor="middle" fill="#888" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.4">G</text>
+            <!-- Migration paths -->
+            <use href="#bentoMigPath1" fill="none" stroke="var(--accent)" stroke-width="0.4" stroke-dasharray="3 2" class="bento-cluster-migration"/>
+            <use href="#bentoMigPath2" fill="none" stroke="var(--accent-2)" stroke-width="0.4" stroke-dasharray="3 2" class="bento-cluster-migration"/>
+            <use href="#bentoMigPath3" fill="none" stroke="#00bcd4" stroke-width="0.4" stroke-dasharray="3 2" class="bento-cluster-migration"/>
+            <use href="#bentoMigPath4" fill="none" stroke="#888" stroke-width="0.4" stroke-dasharray="3 2" class="bento-cluster-migration"/>
+            <!-- Traveling dots on migration paths -->
+            <circle r="1" fill="var(--accent)" opacity="0.7">
+              <animateMotion dur="4s" repeatCount="indefinite"><mpath href="#bentoMigPath1"/></animateMotion>
+            </circle>
+            <circle r="1" fill="var(--accent-2)" opacity="0.7">
+              <animateMotion dur="5s" repeatCount="indefinite"><mpath href="#bentoMigPath2"/></animateMotion>
+            </circle>
+            <!-- Extra worker dots -->
+            <circle cx="15" cy="20" r="1" fill="var(--accent)" opacity="0.25"/>
+            <circle cx="59" cy="18" r="1" fill="var(--accent-2)" opacity="0.25"/>
+            <circle cx="98" cy="24" r="1" fill="var(--accent-3)" opacity="0.25"/>
+            <circle cx="38" cy="50" r="1" fill="#00bcd4" opacity="0.25"/>
+            <circle cx="76" cy="50" r="1" fill="#888" opacity="0.25"/>
+            <!-- Extra intra-cluster connections -->
+            <line x1="14" y1="14" x2="26" y2="15" stroke="var(--accent)" stroke-width="0.2" opacity="0.2"/>
+            <line x1="48" y1="10" x2="62" y2="12" stroke="var(--accent-2)" stroke-width="0.2" opacity="0.2"/>
+            <line x1="102" y1="14" x2="90" y2="22" stroke="var(--accent-3)" stroke-width="0.2" opacity="0.2"/>
+            <line x1="28" y1="41" x2="42" y2="42" stroke="#00bcd4" stroke-width="0.2" opacity="0.2"/>
+            <line x1="73" y1="41" x2="87" y2="42" stroke="#888" stroke-width="0.2" opacity="0.2"/>
           </svg>
         </div>
       </div>
@@ -2901,20 +3200,92 @@
         <h3>[спутники SGP4 · зоны конфликтов · катастрофы <i>в реальном</i> времени]</h3>
         <div class="bento__globe">
           <svg viewBox="0 0 140 140">
-            <circle cx="70" cy="70" r="55" fill="none" stroke="currentColor" stroke-width=".8"/>
-            <ellipse cx="70" cy="70" rx="55" ry="22" fill="none" stroke="currentColor" stroke-width=".5" opacity=".4" class="svg-meridian"/>
-            <ellipse cx="70" cy="70" rx="22" ry="55" fill="none" stroke="currentColor" stroke-width=".5" opacity=".4" class="svg-meridian" style="animation-delay:1s"/>
-            <!-- Event dots with pulse -->
-            <circle cx="90" cy="55" r="3" fill="var(--accent)" class="svg-event-dot"/>
-            <circle cx="90" cy="55" r="3" fill="none" stroke="var(--accent)" stroke-width="0.5" class="svg-pulse-ring"/>
-            <circle cx="50" cy="82" r="3" fill="var(--accent)" class="svg-event-dot" style="animation-delay:1s"/>
-            <circle cx="50" cy="82" r="3" fill="none" stroke="var(--accent)" stroke-width="0.5" class="svg-pulse-ring" style="animation-delay:1s"/>
-            <circle cx="78" cy="92" r="2.5" fill="var(--accent-3)" class="svg-event-dot" style="animation-delay:2s"/>
-            <circle cx="78" cy="92" r="2.5" fill="none" stroke="var(--accent-3)" stroke-width="0.5" class="svg-pulse-ring" style="animation-delay:2s"/>
-            <!-- Orbiting satellite -->
-            <circle r="2.5" fill="currentColor" class="svg-satellite">
-              <animateMotion dur="6s" repeatCount="indefinite" path="M0,-25 A60,25 0 1,1 0,25 A60,25 0 1,1 0,-25"/>
+            <defs>
+              <radialGradient id="bentoAtmoGrad"><stop offset="0%" stop-color="var(--accent-3)" stop-opacity="0.04"/><stop offset="100%" stop-color="var(--accent-3)" stop-opacity="0"/></radialGradient>
+              <path id="bentoOrbit1" d="M5,70 A65,25 0 1,1 135,70 A65,25 0 1,1 5,70" transform="rotate(15 70 70)"/>
+              <path id="bentoOrbit2" d="M10,70 A60,22 0 1,1 130,70 A60,22 0 1,1 10,70" transform="rotate(-20 70 70)"/>
+            </defs>
+            <!-- Atmosphere -->
+            <circle cx="70" cy="70" r="58" fill="url(#bentoAtmoGrad)"/>
+            <!-- Globe circle -->
+            <circle cx="70" cy="70" r="55" fill="none" stroke="currentColor" stroke-width="0.8"/>
+            <!-- Meridians -->
+            <ellipse cx="70" cy="70" rx="55" ry="20" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.4" class="bento-globe-meridian"/>
+            <ellipse cx="70" cy="70" rx="20" ry="55" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.4" class="bento-globe-meridian"/>
+            <ellipse cx="70" cy="70" rx="40" ry="50" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.3" transform="rotate(25 70 70)" class="bento-globe-meridian"/>
+            <!-- Parallels -->
+            <ellipse cx="70" cy="45" rx="45" ry="12" fill="none" stroke="currentColor" stroke-width="0.3" opacity="0.2"/>
+            <ellipse cx="70" cy="95" rx="45" ry="12" fill="none" stroke="currentColor" stroke-width="0.3" opacity="0.2"/>
+            <!-- Orbital rings -->
+            <ellipse cx="70" cy="70" rx="65" ry="25" fill="none" stroke="currentColor" stroke-width="0.3" opacity="0.2" stroke-dasharray="4 3" transform="rotate(15 70 70)"/>
+            <ellipse cx="70" cy="70" rx="60" ry="22" fill="none" stroke="currentColor" stroke-width="0.3" opacity="0.2" stroke-dasharray="4 3" transform="rotate(-20 70 70)"/>
+            <!-- Satellite 1 -->
+            <rect width="5" height="3" rx="0.5" fill="currentColor" opacity="0.7">
+              <animateMotion dur="6s" repeatCount="indefinite"><mpath href="#bentoOrbit1"/></animateMotion>
+            </rect>
+            <!-- Satellite 2 -->
+            <circle r="2" fill="currentColor" opacity="0.6">
+              <animateMotion dur="8s" repeatCount="indefinite"><mpath href="#bentoOrbit2"/></animateMotion>
             </circle>
+            <!-- Event: Conflict (red) -->
+            <circle cx="90" cy="55" r="3" fill="var(--accent)" opacity="0.8"/>
+            <circle cx="90" cy="55" r="5" fill="none" stroke="var(--accent)" stroke-width="0.5" class="bento-globe-pulse"/>
+            <!-- Event: Disaster (amber) -->
+            <circle cx="50" cy="80" r="2.5" fill="#f5a623" opacity="0.8"/>
+            <circle cx="50" cy="80" r="4" fill="none" stroke="#f5a623" stroke-width="0.5" class="bento-globe-pulse"/>
+            <!-- Event: Monitor (green) -->
+            <circle cx="78" cy="90" r="2.5" fill="var(--accent-3)" opacity="0.8"/>
+            <circle cx="78" cy="90" r="4" fill="none" stroke="var(--accent-3)" stroke-width="0.5" class="bento-globe-pulse"/>
+            <!-- Data stream lines -->
+            <line x1="90" y1="52" x2="95" y2="38" stroke="var(--accent)" stroke-width="0.4" stroke-dasharray="2 3" class="bento-globe-stream"/>
+            <line x1="50" y1="77" x2="45" y2="60" stroke="#f5a623" stroke-width="0.4" stroke-dasharray="2 3" class="bento-globe-stream"/>
+            <!-- Outer tick marks (N/S/E/W) -->
+            <line x1="70" y1="12" x2="70" y2="15" stroke="currentColor" stroke-width="0.5" opacity="0.4"/>
+            <line x1="70" y1="125" x2="70" y2="128" stroke="currentColor" stroke-width="0.5" opacity="0.4"/>
+            <line x1="12" y1="70" x2="15" y2="70" stroke="currentColor" stroke-width="0.5" opacity="0.4"/>
+            <line x1="125" y1="70" x2="128" y2="70" stroke="currentColor" stroke-width="0.5" opacity="0.4"/>
+            <!-- HUD: LIVE indicator -->
+            <circle cx="18" cy="18" r="2" fill="var(--accent)" opacity="0.7"/>
+            <text x="24" y="20" fill="currentColor" font-size="4" font-family="'IBM Plex Mono', monospace" opacity="0.5">LIVE</text>
+            <!-- Additional parallels -->
+            <ellipse cx="70" cy="55" rx="52" ry="15" fill="none" stroke="currentColor" stroke-width="0.2" opacity="0.15"/>
+            <ellipse cx="70" cy="85" rx="48" ry="14" fill="none" stroke="currentColor" stroke-width="0.2" opacity="0.15"/>
+            <!-- More data streams -->
+            <line x1="78" y1="87" x2="82" y2="72" stroke="var(--accent-3)" stroke-width="0.3" stroke-dasharray="2 3" class="bento-globe-stream"/>
+            <!-- Surface detail: continent outlines -->
+            <path d="M55,50 Q60,45 68,48 Q72,52 70,58 Q65,60 58,55 Z" fill="currentColor" opacity="0.03" stroke="currentColor" stroke-width="0.2" opacity="0.08"/>
+            <path d="M82,65 Q90,62 95,68 Q92,74 85,72 Z" fill="currentColor" opacity="0.03" stroke="currentColor" stroke-width="0.2" opacity="0.08"/>
+            <path d="M45,60 Q50,57 55,62 Q52,67 46,65 Z" fill="currentColor" opacity="0.02" stroke="currentColor" stroke-width="0.2" opacity="0.06"/>
+            <!-- Extra event connection lines from events to orbit region -->
+            <line x1="90" y1="50" x2="100" y2="42" stroke="var(--accent)" stroke-width="0.3" opacity="0.2" stroke-dasharray="1 2"/>
+            <line x1="50" y1="77" x2="42" y2="65" stroke="#f5a623" stroke-width="0.3" opacity="0.2" stroke-dasharray="1 2"/>
+            <!-- Background star dots -->
+            <circle cx="12" cy="30" r="0.5" fill="currentColor" opacity="0.08"/>
+            <circle cx="128" cy="25" r="0.5" fill="currentColor" opacity="0.07"/>
+            <circle cx="130" cy="110" r="0.6" fill="currentColor" opacity="0.06"/>
+            <circle cx="15" cy="115" r="0.5" fill="currentColor" opacity="0.07"/>
+            <circle cx="8" cy="70" r="0.4" fill="currentColor" opacity="0.06"/>
+            <circle cx="132" cy="70" r="0.4" fill="currentColor" opacity="0.05"/>
+            <circle cx="25" cy="130" r="0.5" fill="currentColor" opacity="0.06"/>
+            <circle cx="115" cy="130" r="0.4" fill="currentColor" opacity="0.05"/>
+            <circle cx="20" cy="50" r="0.5" fill="currentColor" opacity="0.06"/>
+            <circle cx="120" cy="50" r="0.5" fill="currentColor" opacity="0.05"/>
+            <circle cx="70" cy="5" r="0.5" fill="currentColor" opacity="0.07"/>
+            <circle cx="35" cy="8" r="0.4" fill="currentColor" opacity="0.06"/>
+            <circle cx="105" cy="8" r="0.4" fill="currentColor" opacity="0.05"/>
+            <circle cx="50" cy="130" r="0.4" fill="currentColor" opacity="0.05"/>
+            <circle cx="90" cy="132" r="0.5" fill="currentColor" opacity="0.06"/>
+            <!-- Additional orbital debris/markers -->
+            <circle cx="30" cy="40" r="0.8" fill="currentColor" opacity="0.1"/>
+            <circle cx="110" cy="100" r="0.8" fill="currentColor" opacity="0.1"/>
+            <!-- Coverage cone indicator -->
+            <path d="M88,52 L98,38 L102,42 Z" fill="var(--accent)" opacity="0.05" stroke="var(--accent)" stroke-width="0.2" opacity="0.1"/>
+            <!-- Coordinates text -->
+            <text x="100" y="130" fill="currentColor" font-size="3.5" font-family="'IBM Plex Mono', monospace" opacity="0.3">48.8N 2.3E</text>
+            <!-- Extra detail markers -->
+            <circle cx="65" cy="55" r="0.5" fill="currentColor" opacity="0.1"/>
+            <circle cx="75" cy="65" r="0.5" fill="currentColor" opacity="0.1"/>
+            <circle cx="58" cy="72" r="0.5" fill="currentColor" opacity="0.08"/>
           </svg>
         </div>
       </div>
