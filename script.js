@@ -231,11 +231,11 @@
       const speed = parseFloat(el.dataset.parallax) || 0.2;
       const rect = el.getBoundingClientRect();
       const center = rect.top + rect.height / 2;
-      const velFactor = 1 + Math.min(Math.abs(scrollVelocity) * 0.05, 0.8);
-      const offset = (center - vh / 2) * speed * 1.5 * velFactor;
+      const velFactor = 1 + Math.min(Math.abs(scrollVelocity) * 0.01, 0.2);
+      const offset = (center - vh / 2) * speed * velFactor;
       // Multi-axis: horizontal drift + micro-rotation
-      const hDrift = offset * 0.1;
-      const microRot = offset * 0.01;
+      const hDrift = offset * 0.05;
+      const microRot = offset * 0.005;
       // Scale if data-parallax-scale is present
       const scaleAttr = el.dataset.parallaxScale;
       let scaleStr = '';
@@ -1345,10 +1345,38 @@
 
   function enhancedParallaxTick() {
     if (prefersReduced || isMobile) return;
-    // Horizontal drift on geo-deco shapes
+    // Interactive geo-deco shapes with scroll + mouse reaction
     geoDecos.forEach(function(el, i) {
+      if (isMobile) return;
       var dir = i % 2 === 0 ? 1 : -1;
-      el.style.transform = 'translateX(' + (smoothY * 0.03 * dir) + 'px)';
+      var speed = 0.02 + (i % 3) * 0.01;
+
+      // Scroll-based drift
+      var driftX = smoothY * speed * dir;
+      var driftY = smoothY * speed * 0.5 * (i % 2 === 0 ? -1 : 1);
+
+      // Scroll velocity rotation
+      var rotSpeed = 0.02 + (i % 4) * 0.008;
+      var rotation = smoothY * rotSpeed * dir + scrollVelocity * 2 * dir;
+
+      // Mouse proximity reaction (magnetic)
+      var rect = el.getBoundingClientRect();
+      var elCx = rect.left + rect.width / 2;
+      var elCy = rect.top + rect.height / 2;
+      var mdx = mx - elCx;
+      var mdy = my - elCy;
+      var dist = Math.sqrt(mdx * mdx + mdy * mdy);
+      var mouseInfluence = 0;
+      var mousePushX = 0, mousePushY = 0;
+
+      if (dist < 300 && hasHover) {
+        mouseInfluence = (300 - dist) / 300;
+        // Repulsion effect - push away from mouse
+        mousePushX = -(mdx / dist) * mouseInfluence * 20;
+        mousePushY = -(mdy / dist) * mouseInfluence * 20;
+      }
+
+      el.style.transform = 'translate(' + (driftX + mousePushX) + 'px, ' + (driftY + mousePushY) + 'px) rotate(' + rotation + 'deg)';
     });
     // Scale on scroll for manifesto title
     if (manifestoTitle) {
@@ -1372,6 +1400,80 @@
   }
 
   /* ============================================
+     AMBIENT PARTICLE CANVAS
+     ============================================ */
+  const ambientCanvas = document.getElementById('ambientCanvas');
+  let ambientCtx, ambientW, ambientH;
+  const ambientParticles = [];
+  const AMBIENT_COUNT = 50;
+
+  if (ambientCanvas && !prefersReduced && !isMobile) {
+    ambientCtx = ambientCanvas.getContext('2d');
+
+    function resizeAmbient() {
+      ambientW = window.innerWidth;
+      ambientH = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      ambientCanvas.width = ambientW * dpr;
+      ambientCanvas.height = ambientH * dpr;
+      ambientCanvas.style.width = ambientW + 'px';
+      ambientCanvas.style.height = ambientH + 'px';
+      ambientCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resizeAmbient();
+    window.addEventListener('resize', resizeAmbient);
+
+    // Initialize particles with random positions, sizes, speeds
+    for (let i = 0; i < AMBIENT_COUNT; i++) {
+      ambientParticles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        r: 0.5 + Math.random() * 1.5,
+        opacity: 0.03 + Math.random() * 0.03,
+        speed: 0.2 + Math.random() * 0.4,
+        noiseOffsetX: Math.random() * 1000,
+        noiseOffsetY: Math.random() * 1000,
+        isAccent: Math.random() < 0.3
+      });
+    }
+  }
+
+  function ambientTick() {
+    if (!ambientCtx || !noise2D) return;
+    ambientCtx.clearRect(0, 0, ambientW, ambientH);
+
+    const time = performance.now() * 0.0003;
+    const scrollBoost = 1 + Math.min(Math.abs(scrollVelocity) * 0.1, 2);
+
+    for (let i = 0; i < ambientParticles.length; i++) {
+      const p = ambientParticles[i];
+
+      // Noise-driven organic movement
+      const nx = noise2D(p.noiseOffsetX + time * p.speed, i * 0.5) * p.speed * scrollBoost;
+      const ny = noise2D(i * 0.5, p.noiseOffsetY + time * p.speed) * p.speed * scrollBoost;
+
+      p.x += nx;
+      p.y += ny;
+
+      // Wrap around screen edges
+      if (p.x < -10) p.x = ambientW + 10;
+      if (p.x > ambientW + 10) p.x = -10;
+      if (p.y < -10) p.y = ambientH + 10;
+      if (p.y > ambientH + 10) p.y = -10;
+
+      // Draw particle
+      if (p.isAccent) {
+        ambientCtx.fillStyle = 'rgba(255, 77, 21, ' + p.opacity + ')';
+      } else {
+        ambientCtx.fillStyle = 'rgba(14, 14, 14, ' + p.opacity + ')';
+      }
+      ambientCtx.beginPath();
+      ambientCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ambientCtx.fill();
+    }
+  }
+
+  /* ============================================
      MASTER RAF LOOP
      ============================================ */
   function masterLoop() {
@@ -1387,6 +1489,7 @@
     pinTick();
     cineTick();
     footerCanvasTick();
+    ambientTick();
     sectionThemeTick();
     enhancedParallaxTick();
     requestAnimationFrame(masterLoop);
