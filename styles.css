@@ -802,6 +802,9 @@ html.no-smooth body { overflow-y: auto; }
   margin: 0 auto;
   padding: 0 120px;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .hero__title {
@@ -935,11 +938,6 @@ html.no-smooth body { overflow-y: auto; }
   margin: 0 auto;
   display: flex;
   justify-content: center;
-}
-.hero__main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 /* =============================================
@@ -2933,7 +2931,8 @@ html.no-smooth body { overflow-y: auto; }
    ============================================= */
 
 /* Fix SVG transform-origin defaults (SVG defaults to 0,0 not center) */
-.svg-node, .svg-pulse-ring, .svg-hub, .svg-event-dot, .svg-concept-star, .svg-block {
+.svg-node, .svg-pulse-ring, .svg-hub, .svg-event-dot, .svg-concept-star, .svg-block,
+.merkle-node, .merkle-label {
   transform-box: fill-box;
   transform-origin: center;
 }
