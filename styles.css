@@ -2603,12 +2603,14 @@ html.no-smooth body { overflow-y: auto; }
 /* Dynamic viewport height (dvh) with fallback */
 .hero {
   min-height: 110vh;
+  min-height: calc(var(--vh, 1vh) * 110);
   min-height: 110dvh;
 }
 .h-scroll__sticky,
 .pin__sticky,
 .cine__sticky {
   height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
   height: 100dvh;
 }
 
@@ -2651,72 +2653,6 @@ html.no-smooth body { overflow-y: auto; }
   .btn--pill::before { display: none; }
   .btn--pill:hover::before { display: none; }
   .hero__cta:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
-}
-
-/* =============================================
-   MOBILE PERFORMANCE OPTIMIZATIONS
-   ============================================= */
-
-@media (max-width: 768px) {
-  /* Reduce rendering complexity */
-  .hero__grain {
-    animation: none;
-    opacity: 0.04;
-  }
-  
-  .hero__orb {
-    animation: none !important;
-    opacity: 0.3;
-  }
-  
-  /* Simplify shadows for performance */
-  .card:hover,
-  .bento__cell:hover,
-  .faq__item:hover {
-    box-shadow: var(--shadow-sm);
-  }
-  
-  /* Disable 3D perspective transforms */
-  .card {
-    transform-style: flat;
-  }
-  .bento__cell {
-    transform-style: flat;
-  }
-  
-  /* Reduce animation complexity */
-  .hero__orb--1,
-  .hero__orb--2,
-  .hero__orb--3 {
-    filter: blur(30px);
-  }
-  
-  /* Content containment for rendering perf */
-  .section,
-  .bento-section,
-  .stats-section,
-  .faq-section {
-    contain: layout style;
-  }
-  
-  /* Reduce ticker animation impact */
-  .ticker__track {
-    will-change: auto;
-  }
-  
-  /* Disable footer canvas overlay on mobile */
-  .footer__canvas {
-    display: none;
-  }
-  
-  /* Simplify ambient particles */
-  .ambient::after {
-    display: none;
-  }
-  .ambient::before {
-    opacity: 0.04;
-    animation: none;
-  }
 }
 
 /* =============================================
@@ -3109,6 +3045,63 @@ html.no-smooth body { overflow-y: auto; }
     margin: 0 auto;
   }
   .pin__labels { display: none; }
+
+  /* Mobile performance optimizations */
+  .hero__grain {
+    animation: none;
+    opacity: 0.04;
+  }
+  
+  .hero__orb {
+    animation: none !important;
+    opacity: 0.3;
+  }
+  
+  /* Simplify shadows for performance */
+  .card:hover,
+  .bento__cell:hover,
+  .faq__item:hover {
+    box-shadow: var(--shadow-sm);
+  }
+  
+  /* Disable 3D perspective transforms */
+  .card {
+    transform-style: flat;
+  }
+  .bento__cell {
+    transform-style: flat;
+  }
+  
+  /* Reduce animation complexity */
+  .hero__orb--1,
+  .hero__orb--2,
+  .hero__orb--3 {
+    filter: blur(30px);
+  }
+  
+  /* Content containment for rendering perf */
+  .ticker__track {
+    contain: layout style paint;
+  }
+  
+  /* Reduce ticker animation impact */
+  .ticker__track {
+    will-change: auto;
+  }
+  
+  /* Disable footer canvas overlay on mobile */
+  .footer__canvas {
+    display: none;
+  }
+  
+  /* Simplify ambient particles */
+  .ambient::after {
+    display: none;
+  }
+  .ambient::before {
+    opacity: 0.04;
+    animation: none;
+  }
 }
 
 /* -------------------------------------------------

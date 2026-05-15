@@ -6,9 +6,9 @@
   'use strict';
 
   /* Cross-browser & mobile detection */
-  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  const isMobile = window.innerWidth < 768;
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const mobileQuery = window.matchMedia('(max-width: 767px)');
+  let isMobile = mobileQuery.matches;
+  mobileQuery.addEventListener('change', function(e) { isMobile = e.matches; });
   
   /* Dynamic viewport height fix for mobile browsers (address bar issue) */
   function setVH() {
