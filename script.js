@@ -870,7 +870,7 @@
   let footerCtx, footerW, footerH, footerTime = 0;
   let footerRunning = false;
   let footerLastTime = performance.now();
-  var footerNodes = [];
+  let footerNodes = [];
 
   if (footerCanvasEl && !prefersReduced && !isMobile) {
     footerCtx = footerCanvasEl.getContext('2d');
@@ -889,8 +889,8 @@
     window.addEventListener('resize', resizeFooterCanvas);
 
     // Create neural mesh nodes
-    var meshNodeCount = 18;
-    for (var fn = 0; fn < meshNodeCount; fn++) {
+    const meshNodeCount = 18;
+    for (let fn = 0; fn < meshNodeCount; fn++) {
       footerNodes.push({
         x: Math.random(),
         y: Math.random(),
@@ -916,24 +916,23 @@
     footerLastTime = now;
     footerCtx.clearRect(0, 0, footerW, footerH);
 
-    var nodeCount = footerNodes.length;
+    const nodeCount = footerNodes.length;
     if (nodeCount === 0) return;
 
     // Update node positions with pulsing and mouse repulsion
-    for (var i = 0; i < nodeCount; i++) {
-      var nd = footerNodes[i];
-      var px = nd.baseX * footerW + Math.sin(footerTime * nd.speed + nd.phase) * 30;
-      var py = nd.baseY * footerH + Math.cos(footerTime * nd.speed * 0.8 + nd.phase) * 20;
+    const footerRect = footerCanvasEl.getBoundingClientRect();
+    for (let i = 0; i < nodeCount; i++) {
+      const nd = footerNodes[i];
+      let px = nd.baseX * footerW + Math.sin(footerTime * nd.speed + nd.phase) * 30;
+      let py = nd.baseY * footerH + Math.cos(footerTime * nd.speed * 0.8 + nd.phase) * 20;
 
       // Mouse repulsion
-      var nmx = mx, nmy = my;
-      var footerRect = footerCanvasEl.getBoundingClientRect();
-      var localMx = nmx - footerRect.left;
-      var localMy = nmy - footerRect.top;
-      var mdx = px - localMx, mdy = py - localMy;
-      var mDist = Math.sqrt(mdx * mdx + mdy * mdy) || 1;
+      const localMx = mx - footerRect.left;
+      const localMy = my - footerRect.top;
+      const mdx = px - localMx, mdy = py - localMy;
+      const mDist = Math.sqrt(mdx * mdx + mdy * mdy) || 1;
       if (mDist < 120) {
-        var repulse = (120 - mDist) * 0.15;
+        const repulse = (120 - mDist) * 0.15;
         px += (mdx / mDist) * repulse;
         py += (mdy / mDist) * repulse;
       }
@@ -943,48 +942,50 @@
     }
 
     // Draw connections between nearby nodes
-    var connectionDist = Math.min(footerW, footerH) * 0.35;
-    for (var i2 = 0; i2 < nodeCount; i2++) {
-      for (var j = i2 + 1; j < nodeCount; j++) {
-        var a = footerNodes[i2], b = footerNodes[j];
-        var dx = a.x - b.x, dy = a.y - b.y;
-        var dist = Math.sqrt(dx * dx + dy * dy);
+    let connectionDist = Math.min(footerW, footerH) * 0.35;
+    footerCtx.setLineDash([4, 6]);
+    footerCtx.lineWidth = 0.8;
+    for (let i2 = 0; i2 < nodeCount; i2++) {
+      for (let j = i2 + 1; j < nodeCount; j++) {
+        let a = footerNodes[i2], b = footerNodes[j];
+        let dx = a.x - b.x, dy = a.y - b.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < connectionDist) {
-          var alpha = (1 - dist / connectionDist) * 0.25;
-          footerCtx.save();
-          footerCtx.setLineDash([4, 6]);
+          let alpha = (1 - dist / connectionDist) * 0.25;
           footerCtx.lineDashOffset = -footerTime * 20 + i2 * 10;
           footerCtx.strokeStyle = 'rgba(255,77,21,' + alpha + ')';
-          footerCtx.lineWidth = 0.8;
           footerCtx.beginPath();
           footerCtx.moveTo(a.x, a.y);
           footerCtx.lineTo(b.x, b.y);
           footerCtx.stroke();
-          footerCtx.restore();
         }
       }
     }
+    footerCtx.setLineDash([]);
 
-    // Draw nodes with pulsing glow
-    for (var i3 = 0; i3 < nodeCount; i3++) {
-      var node = footerNodes[i3];
-      var pulse = 0.5 + Math.sin(footerTime * 2 + node.phase) * 0.3;
-      var rr = node.r * (0.8 + pulse * 0.4);
+    // Draw nodes with pulsing glow (reuse a single offscreen gradient pattern)
+    for (let i3 = 0; i3 < nodeCount; i3++) {
+      let node = footerNodes[i3];
+      let pulse = 0.5 + Math.sin(footerTime * 2 + node.phase) * 0.3;
+      let rr = node.r * (0.8 + pulse * 0.4);
 
-      // Glow
-      var grad = footerCtx.createRadialGradient(node.x, node.y, 0, node.x, node.y, rr * 4);
+      // Glow - reuse gradient by translating context
+      footerCtx.save();
+      footerCtx.translate(node.x, node.y);
+      let grad = footerCtx.createRadialGradient(0, 0, 0, 0, 0, rr * 4);
       grad.addColorStop(0, 'rgba(255,77,21,' + (pulse * 0.12) + ')');
       grad.addColorStop(1, 'rgba(255,77,21,0)');
       footerCtx.fillStyle = grad;
       footerCtx.beginPath();
-      footerCtx.arc(node.x, node.y, rr * 4, 0, Math.PI * 2);
+      footerCtx.arc(0, 0, rr * 4, 0, Math.PI * 2);
       footerCtx.fill();
 
       // Core
       footerCtx.fillStyle = 'rgba(255,77,21,' + (0.4 + pulse * 0.3) + ')';
       footerCtx.beginPath();
-      footerCtx.arc(node.x, node.y, rr, 0, Math.PI * 2);
+      footerCtx.arc(0, 0, rr, 0, Math.PI * 2);
       footerCtx.fill();
+      footerCtx.restore();
     }
   }
 
@@ -1045,28 +1046,28 @@
   /* ============================================
      INTERACTIVE TERMINAL ANIMATION (dual-panel playground)
      ============================================ */
-  var termSection = document.querySelector('.terminal-section');
-  var termRunBtn = document.getElementById('terminalRunBtn');
-  var termPipeline = document.getElementById('terminalPipeline');
-  var termCanvasEl = document.getElementById('terminalCanvas');
-  var termResultCard = document.getElementById('terminalResultCard');
-  var termGauge = document.getElementById('terminalGauge');
-  var termGaugeVal = document.getElementById('terminalGaugeVal');
-  var termEntityCount = document.getElementById('terminalEntityCount');
-  var termClusterCount = document.getElementById('terminalClusterCount');
-  var terminalRunning = false;
-  var termIsPlaying = false;
-  var termRunId = 0;
-  var termAutoTimer = null;
-  var termCtx = null;
-  var termW = 0, termH = 0;
+  const termSection = document.querySelector('.terminal-section');
+  const termRunBtn = document.getElementById('terminalRunBtn');
+  const termPipeline = document.getElementById('terminalPipeline');
+  const termCanvasEl = document.getElementById('terminalCanvas');
+  const termResultCard = document.getElementById('terminalResultCard');
+  const termGauge = document.getElementById('terminalGauge');
+  const termGaugeVal = document.getElementById('terminalGaugeVal');
+  const termEntityCount = document.getElementById('terminalEntityCount');
+  const termClusterCount = document.getElementById('terminalClusterCount');
+  let terminalRunning = false;
+  let termIsPlaying = false;
+  let termRunId = 0;
+  let termAutoTimer = null;
+  let termCtx = null;
+  let termW = 0, termH = 0;
 
   // Terminal mini graph state
-  var termNodes = [];
-  var termEdges = [];
-  var termGraphTime = 0;
-  var termGraphRunning = false;
-  var termLastFrame = performance.now();
+  let termNodes = [];
+  let termEdges = [];
+  let termGraphTime = 0;
+  let termGraphRunning = false;
+  let termLastFrame = performance.now();
 
   if (termSection && termCanvasEl && !prefersReduced) {
     termCtx = termCanvasEl.getContext('2d');
@@ -1304,7 +1305,7 @@
     }
 
     // IntersectionObserver triggers auto-run after 3s
-    var termObs = new IntersectionObserver(function(entries) {
+    const termObs = new IntersectionObserver(function(entries) {
       terminalRunning = entries[0].isIntersecting;
       if (terminalRunning) {
         if (!termIsPlaying) {
@@ -1629,61 +1630,82 @@
   /* ============================================
      ENHANCED PARALLAX - horizontal geo-deco drift + manifesto title scale
      ============================================ */
-  var geoDecos = document.querySelectorAll('.geo-deco__shape');
-  var manifestoTitle = document.querySelector('.manifesto__title');
-  var footerHuge = document.querySelector('.footer__huge');
+  const geoDecos = document.querySelectorAll('.geo-deco__shape');
+  const manifestoTitle = document.querySelector('.manifesto__title');
+  const footerHuge = document.querySelector('.footer__huge');
+
+  // Cache geo-deco rects to avoid per-frame layout thrashing
+  let geoDecoRects = [];
+  function updateGeoDecoRects() {
+    geoDecoRects = [];
+    geoDecos.forEach(function(el) {
+      const rect = el.getBoundingClientRect();
+      geoDecoRects.push({
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height
+      });
+    });
+  }
+  if (geoDecos.length) {
+    updateGeoDecoRects();
+    window.addEventListener('scroll', updateGeoDecoRects, { passive: true });
+    window.addEventListener('resize', updateGeoDecoRects);
+  }
 
   function enhancedParallaxTick() {
     if (prefersReduced || isMobile) return;
     // Interactive geo-deco shapes with scroll + mouse reaction
     geoDecos.forEach(function(el, i) {
       if (isMobile) return;
-      var dir = i % 2 === 0 ? 1 : -1;
-      var speed = 0.02 + (i % 3) * 0.01;
+      const dir = i % 2 === 0 ? 1 : -1;
+      const speed = 0.02 + (i % 3) * 0.01;
 
       // Scroll-based drift
-      var driftX = smoothY * speed * dir;
-      var driftY = smoothY * speed * 0.5 * (i % 2 === 0 ? -1 : 1);
+      const driftX = smoothY * speed * dir;
+      const driftY = smoothY * speed * 0.5 * (i % 2 === 0 ? -1 : 1);
 
       // Scroll velocity rotation
-      var rotSpeed = 0.02 + (i % 4) * 0.008;
-      var rotation = smoothY * rotSpeed * dir + scrollVelocity * 2 * dir;
+      const rotSpeed = 0.02 + (i % 4) * 0.008;
+      const rotation = smoothY * rotSpeed * dir + scrollVelocity * 2 * dir;
 
-      // Mouse proximity reaction (magnetic)
-      var rect = el.getBoundingClientRect();
-      var elCx = rect.left + rect.width / 2;
-      var elCy = rect.top + rect.height / 2;
-      var mdx = mx - elCx;
-      var mdy = my - elCy;
-      var dist = Math.sqrt(mdx * mdx + mdy * mdy);
-      var mouseInfluence = 0;
-      var mousePushX = 0, mousePushY = 0;
+      // Mouse proximity reaction (magnetic) - use cached rects
+      let mousePushX = 0, mousePushY = 0;
+      const cachedRect = geoDecoRects[i];
+      if (cachedRect && hasHover) {
+        const elCx = cachedRect.left + cachedRect.width / 2;
+        const elCy = cachedRect.top + cachedRect.height / 2;
+        const mdx = mx - elCx;
+        const mdy = my - elCy;
+        const dist = Math.sqrt(mdx * mdx + mdy * mdy);
 
-      if (dist < 300 && hasHover) {
-        mouseInfluence = (300 - dist) / 300;
-        // Repulsion effect - push away from mouse
-        mousePushX = -(mdx / dist) * mouseInfluence * 20;
-        mousePushY = -(mdy / dist) * mouseInfluence * 20;
+        if (dist < 300) {
+          const mouseInfluence = (300 - dist) / 300;
+          // Repulsion effect - push away from mouse
+          mousePushX = -(mdx / dist) * mouseInfluence * 20;
+          mousePushY = -(mdy / dist) * mouseInfluence * 20;
+        }
       }
 
       el.style.transform = 'translate(' + (driftX + mousePushX) + 'px, ' + (driftY + mousePushY) + 'px) rotate(' + rotation + 'deg)';
     });
     // Scale on scroll for manifesto title
     if (manifestoTitle) {
-      var rect = manifestoTitle.getBoundingClientRect();
-      var vh = window.innerHeight;
+      const rect = manifestoTitle.getBoundingClientRect();
+      const vh = window.innerHeight;
       if (rect.top < vh && rect.bottom > 0) {
-        var progress = 1 - (rect.top / vh);
-        var scale = 1 + clamp(progress * 0.05, 0, 0.05);
+        const progress = 1 - (rect.top / vh);
+        const scale = 1 + clamp(progress * 0.05, 0, 0.05);
         manifestoTitle.style.transform = 'scale(' + scale.toFixed(4) + ')';
       }
     }
     // Stronger parallax on footer huge
     if (footerHuge) {
-      var r2 = footerHuge.getBoundingClientRect();
-      var vh2 = window.innerHeight;
+      const r2 = footerHuge.getBoundingClientRect();
+      const vh2 = window.innerHeight;
       if (r2.top < vh2 && r2.bottom > 0) {
-        var offset = (r2.top - vh2 / 2) * 0.35;
+        const offset = (r2.top - vh2 / 2) * 0.35;
         footerHuge.style.transform = 'translateY(' + (-offset) + 'px)';
       }
     }
@@ -1728,8 +1750,12 @@
     }
   }
 
+  let ambientFrame = 0;
   function ambientTick() {
     if (!ambientCtx || !noise2D) return;
+    if (document.hidden) return;
+    ambientFrame++;
+    if (ambientFrame % 2 !== 0) return;
     ambientCtx.clearRect(0, 0, ambientW, ambientH);
 
     const time = performance.now() * 0.0003;
