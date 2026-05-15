@@ -37,6 +37,48 @@
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
+/* =============================================
+   CROSS-BROWSER COMPATIBILITY
+   ============================================= */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Dynamic viewport height custom property (set from JS) */
+:root {
+  --vh: 1vh;
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-mute) transparent;
+}
+
+/* Webkit scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-mute);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
@@ -736,6 +778,8 @@ html.no-smooth body { overflow-y: auto; }
   color: transparent;
   -webkit-text-stroke: 1px rgba(14, 14, 14, .2);
   white-space: nowrap;
+  -webkit-user-select: none;
+  -moz-user-select: none;
   user-select: none;
   z-index: 2;
   will-change: transform;
@@ -810,6 +854,7 @@ html.no-smooth body { overflow-y: auto; }
   text-transform: uppercase;
   letter-spacing: .15em;
   background: rgba(242, 236, 224, .6);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   width: fit-content;
 }
@@ -853,6 +898,7 @@ html.no-smooth body { overflow-y: auto; }
   border: 1px solid var(--line-2);
   border-radius: var(--radius-lg);
   background: rgba(242, 236, 224, .7);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   min-width: 200px;
   transform-style: preserve-3d;
@@ -1777,6 +1823,8 @@ html.no-smooth body { overflow-y: auto; }
   color: transparent;
   -webkit-text-stroke: 1.5px var(--line-2);
   will-change: transform;
+  -webkit-user-select: none;
+  -moz-user-select: none;
   user-select: none;
   filter: url(#displace);
 }
@@ -2461,6 +2509,8 @@ html.no-smooth body { overflow-y: auto; }
   margin: 40px -32px -20px;
   color: var(--ink);
   text-align: center;
+  -webkit-user-select: none;
+  -moz-user-select: none;
   user-select: none;
   will-change: transform;
   position: relative;
@@ -2517,6 +2567,156 @@ html.no-smooth body { overflow-y: auto; }
   border-radius: 50%;
   box-shadow: 0 0 8px var(--accent-3);
   animation: dotPulse 1.8s ease-out infinite;
+}
+
+/* =============================================
+   FEATURE DETECTION & FALLBACKS
+   ============================================= */
+
+/* Backdrop-filter fallback for older Firefox and browsers without support */
+@supports not (backdrop-filter: blur(1px)) {
+  .nav.is-scrolled {
+    background: rgba(242, 236, 224, 0.95);
+  }
+  .hero__tag {
+    background: rgba(242, 236, 224, 0.92);
+  }
+  .hero__spec {
+    background: rgba(242, 236, 224, 0.92);
+  }
+}
+
+/* Clip-path fallback for pin frame items */
+@supports not (clip-path: circle(50%)) {
+  .pin__frame-item {
+    clip-path: none;
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  .pin__frame-item.is-active {
+    clip-path: none;
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Dynamic viewport height (dvh) with fallback */
+.hero {
+  min-height: 110vh;
+  min-height: 110dvh;
+}
+.h-scroll__sticky,
+.pin__sticky,
+.cine__sticky {
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* =============================================
+   TOUCH DEVICE ADAPTATIONS
+   ============================================= */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Increase touch targets */
+  .nav__menu a { padding: 14px 18px; }
+  .btn--pill { padding: 16px 24px; min-height: 48px; }
+  .card__link { padding: 12px; min-width: 48px; min-height: 48px; }
+  .faq__item summary { padding: 32px 0; min-height: 64px; }
+  .hero__cta { padding: 20px 24px 20px 32px; }
+  .footer__cols a { padding: 10px 0; }
+  
+  /* Disable hover-dependent visual effects */
+  .card:hover { transform: none; box-shadow: none; border-color: var(--line-2); }
+  .card--alt:hover { transform: none; box-shadow: none; background: var(--ink); }
+  .bento__cell:hover { transform: none; box-shadow: none; border-color: var(--line-2); }
+  .bento__cell:hover::after { opacity: 0; }
+  .nav__menu a::before { display: none; }
+  .nav__menu a:hover { color: inherit; }
+  .faq__item:hover { box-shadow: none; }
+  .faq__item:hover .faq__q { transform: none; }
+  .faq__item:hover::before { width: 0; }
+  .sg:hover { background: transparent; color: var(--ink); }
+  
+  /* Disable 3D tilt/magnetic effects */
+  [data-tilt] { transform: none !important; }
+  [data-magnetic] { transform: none !important; }
+  
+  /* Remove mix-blend-mode which hurts mobile performance */
+  .cursor-trail { display: none; }
+  
+  /* Remove grain animation on touch (performance) */
+  .hero__grain { animation: none; opacity: 0.05; }
+  
+  /* Disable complex hover states */
+  .btn--pill::before { display: none; }
+  .btn--pill:hover::before { display: none; }
+  .hero__cta:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+}
+
+/* =============================================
+   MOBILE PERFORMANCE OPTIMIZATIONS
+   ============================================= */
+
+@media (max-width: 768px) {
+  /* Reduce rendering complexity */
+  .hero__grain {
+    animation: none;
+    opacity: 0.04;
+  }
+  
+  .hero__orb {
+    animation: none !important;
+    opacity: 0.3;
+  }
+  
+  /* Simplify shadows for performance */
+  .card:hover,
+  .bento__cell:hover,
+  .faq__item:hover {
+    box-shadow: var(--shadow-sm);
+  }
+  
+  /* Disable 3D perspective transforms */
+  .card {
+    transform-style: flat;
+  }
+  .bento__cell {
+    transform-style: flat;
+  }
+  
+  /* Reduce animation complexity */
+  .hero__orb--1,
+  .hero__orb--2,
+  .hero__orb--3 {
+    filter: blur(30px);
+  }
+  
+  /* Content containment for rendering perf */
+  .section,
+  .bento-section,
+  .stats-section,
+  .faq-section {
+    contain: layout style;
+  }
+  
+  /* Reduce ticker animation impact */
+  .ticker__track {
+    will-change: auto;
+  }
+  
+  /* Disable footer canvas overlay on mobile */
+  .footer__canvas {
+    display: none;
+  }
+  
+  /* Simplify ambient particles */
+  .ambient::after {
+    display: none;
+  }
+  .ambient::before {
+    opacity: 0.04;
+    animation: none;
+  }
 }
 
 /* =============================================

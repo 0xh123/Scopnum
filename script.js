@@ -5,6 +5,22 @@
 (() => {
   'use strict';
 
+  /* Cross-browser & mobile detection */
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const isMobile = window.innerWidth < 768;
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  
+  /* Dynamic viewport height fix for mobile browsers (address bar issue) */
+  function setVH() {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', vh + 'px');
+  }
+  setVH();
+  window.addEventListener('resize', setVH);
+  window.addEventListener('orientationchange', function() {
+    setTimeout(setVH, 100);
+  });
+
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hasHover = window.matchMedia('(hover: hover)').matches;
   const lerp = (a, b, n) => a + (b - a) * n;
@@ -206,7 +222,7 @@
   const rotEls = document.querySelectorAll('[data-rot]');
 
   function parallaxTick() {
-    if (prefersReduced) return;
+    if (prefersReduced || isMobile) return;
     const vh = window.innerHeight;
     // Use smoothY for parallax calculations to add inertia/depth perception
     const sy = smoothY;
@@ -307,6 +323,7 @@
     if (hProgress) hProgress.style.width = (p * 100) + '%';
 
     // depth: scale cards based on distance from center + 3D rotateY
+    if (isMobile) return;
     const cards = hTrack.querySelectorAll('[data-card]');
     const cx = window.innerWidth / 2;
     cards.forEach((card) => {
@@ -994,7 +1011,7 @@
   let footerRunning = false;
   let footerLastTime = performance.now();
 
-  if (footerCanvasEl && !prefersReduced) {
+  if (footerCanvasEl && !prefersReduced && !isMobile) {
     footerCtx = footerCanvasEl.getContext('2d');
     const resizeFooterCanvas = () => {
       const rect = footerCanvasEl.parentElement.getBoundingClientRect();
