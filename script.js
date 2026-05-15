@@ -1449,18 +1449,6 @@
   }
 
   /* ============================================
-     CARD SVG HOVER INTERACTIVITY
-     ============================================ */
-  document.querySelectorAll('.card').forEach(function(card) {
-    card.addEventListener('mouseenter', function() {
-      card.classList.add('is-hovered');
-    });
-    card.addEventListener('mouseleave', function() {
-      card.classList.remove('is-hovered');
-    });
-  });
-
-  /* ============================================
      MICRO-INTERACTIONS
      ============================================ */
   // Glitch text on hover for .section__tag

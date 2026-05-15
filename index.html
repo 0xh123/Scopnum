@@ -663,11 +663,13 @@
                 <!-- Red (threat) nodes - not on BFS path -->
                 <!-- Neutral nodes -->
                 <!-- BFS path nodes (sequential reveal) -->
-                <circle class="svg-bfs-node" cx="80" cy="80" r="10" fill="var(--accent)" opacity=".9"/>
-                <circle class="svg-bfs-node" cx="180" cy="120" r="10" fill="var(--accent)" opacity=".9"/>
-                <circle class="svg-bfs-node" cx="200" cy="200" r="10" fill="var(--accent)" opacity=".9"/>
-                <circle class="svg-bfs-node" cx="320" cy="240" r="10" fill="var(--accent)" opacity=".9"/>
-                <circle class="svg-bfs-node" cx="280" cy="320" r="10" fill="var(--accent)" opacity=".9"/>
+                <g class="bfs-group">
+                  <circle class="svg-bfs-node" cx="80" cy="80" r="10" fill="var(--accent)" opacity=".9"/>
+                  <circle class="svg-bfs-node" cx="180" cy="120" r="10" fill="var(--accent)" opacity=".9"/>
+                  <circle class="svg-bfs-node" cx="200" cy="200" r="10" fill="var(--accent)" opacity=".9"/>
+                  <circle class="svg-bfs-node" cx="320" cy="240" r="10" fill="var(--accent)" opacity=".9"/>
+                  <circle class="svg-bfs-node" cx="280" cy="320" r="10" fill="var(--accent)" opacity=".9"/>
+                </g>
                 <!-- Mini context menu near node at 320,240 -->
                 <rect x="335" y="225" width="40" height="30" fill="currentColor" opacity=".08" stroke="currentColor" stroke-width=".5" rx="3"/>
                 <line x1="341" y1="233" x2="369" y2="233" stroke="currentColor" stroke-width=".5" opacity=".4"/>
@@ -698,15 +700,15 @@
                 <line x1="230" y1="200" x2="360" y2="200" stroke="currentColor" stroke-width=".4" opacity=".3"/>
                 <line x1="230" y1="262" x2="360" y2="262" stroke="currentColor" stroke-width=".4" opacity=".3"/>
                 <!-- Section labels -->
-                <text class="svg-doc-section" x="235" y="115" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7">Summary</text>
-                <text class="svg-doc-section" x="235" y="175" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7">Findings</text>
-                <text class="svg-doc-section" x="235" y="238" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7">Timeline</text>
-                <text class="svg-doc-section" x="235" y="295" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7">Risk</text>
+                <text class="svg-doc-section" x="235" y="115" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7" style="transition-delay: 0.3s">Summary</text>
+                <text class="svg-doc-section" x="235" y="175" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7" style="transition-delay: 0.6s">Findings</text>
+                <text class="svg-doc-section" x="235" y="238" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7" style="transition-delay: 0.9s">Timeline</text>
+                <text class="svg-doc-section" x="235" y="295" fill="currentColor" font-size="11" font-family="var(--font-mono)" opacity=".7" style="transition-delay: 1.2s">Risk</text>
                 <!-- Placeholder lines in each section -->
-                <rect class="svg-doc-section" x="235" y="120" width="80" height="4" fill="currentColor" opacity=".1" rx="2"/>
-                <rect class="svg-doc-section" x="235" y="180" width="100" height="4" fill="currentColor" opacity=".1" rx="2"/>
-                <rect class="svg-doc-section" x="235" y="243" width="70" height="4" fill="currentColor" opacity=".1" rx="2"/>
-                <rect class="svg-doc-section" x="235" y="300" width="90" height="4" fill="currentColor" opacity=".1" rx="2"/>
+                <rect class="svg-doc-section" x="235" y="120" width="80" height="4" fill="currentColor" opacity=".1" rx="2" style="transition-delay: 0.3s"/>
+                <rect class="svg-doc-section" x="235" y="180" width="100" height="4" fill="currentColor" opacity=".1" rx="2" style="transition-delay: 0.6s"/>
+                <rect class="svg-doc-section" x="235" y="243" width="70" height="4" fill="currentColor" opacity=".1" rx="2" style="transition-delay: 0.9s"/>
+                <rect class="svg-doc-section" x="235" y="300" width="90" height="4" fill="currentColor" opacity=".1" rx="2" style="transition-delay: 1.2s"/>
                 <!-- Checkmark circles near completed sections -->
                 <g class="svg-checkmark">
                   <circle cx="365" cy="110" r="8" fill="var(--accent-3)" opacity=".8"/>
