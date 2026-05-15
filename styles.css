@@ -2656,6 +2656,188 @@ html.no-smooth body { overflow-y: auto; }
 }
 
 /* =============================================
+   FEAT-002: INTERACTIVE TERMINAL
+   ============================================= */
+
+.terminal-section {
+  position: relative;
+  padding: 100px 32px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.terminal-section__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.terminal {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #0d0d0d;
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: var(--shadow-xl), 0 0 60px rgba(255,77,21,.06);
+}
+.terminal__head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 14px 18px;
+  background: #161616;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.terminal__dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #333;
+}
+.terminal__dot:nth-child(1) { background: #ff5f57; }
+.terminal__dot:nth-child(2) { background: #febc2e; }
+.terminal__dot:nth-child(3) { background: #28c840; }
+.terminal__title {
+  margin-left: 12px;
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  color: rgba(255,255,255,.4);
+  letter-spacing: .05em;
+}
+.terminal__body {
+  padding: 24px;
+  min-height: 320px;
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  line-height: 1.8;
+  color: rgba(242,236,224,.85);
+  position: relative;
+  overflow: hidden;
+}
+.terminal__lines {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.terminal__line {
+  display: block;
+  opacity: 0;
+  animation: termFadeIn .3s var(--ease-out) forwards;
+}
+.terminal__line--prompt {
+  color: var(--accent-3);
+}
+.terminal__line--stage {
+  color: var(--accent);
+}
+.terminal__line--result {
+  color: rgba(183,255,46,.9);
+}
+.terminal__cursor {
+  display: inline-block;
+  width: 8px; height: 16px;
+  background: var(--accent-3);
+  animation: termBlink 1s steps(2) infinite;
+  vertical-align: middle;
+  position: absolute;
+  bottom: 24px;
+}
+
+@keyframes termFadeIn { to { opacity: 1; } }
+@keyframes termBlink { 50% { opacity: 0; } }
+
+/* =============================================
+   FEAT-002: SECTION BACKGROUND CANVASES
+   ============================================= */
+
+.section-bg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: .35;
+  z-index: 0;
+}
+.band { position: relative; }
+.bento-section { position: relative; }
+.stats-section { position: relative; }
+
+/* =============================================
+   FEAT-002: CARD CANVAS OVERLAYS
+   ============================================= */
+
+.card__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: .55;
+}
+.card__viz { position: relative; z-index: 2; }
+
+/* =============================================
+   FEAT-002: 3D DEPTH + PERSPECTIVE
+   ============================================= */
+
+.bento {
+  perspective: 2000px;
+  transform-style: preserve-3d;
+}
+.bento__cell--a { transform: translateZ(10px); }
+.bento__cell--b { transform: translateZ(-5px); }
+.bento__cell--c { transform: translateZ(15px); }
+.bento__cell--d { transform: translateZ(-10px); }
+.bento__cell--e { transform: translateZ(8px); }
+.bento__cell--f { transform: translateZ(-8px); }
+
+.stats-grid {
+  perspective: 1800px;
+  transform-style: preserve-3d;
+}
+.sg:nth-child(1) { transform: translateZ(5px); }
+.sg:nth-child(2) { transform: translateZ(-5px); }
+.sg:nth-child(3) { transform: translateZ(8px); }
+.sg:nth-child(4) { transform: translateZ(-8px); }
+.sg.is-visible:nth-child(1) { transform: translateX(0) translateY(0) translateZ(5px); }
+.sg.is-visible:nth-child(2) { transform: translateX(0) translateY(0) translateZ(-5px); }
+.sg.is-visible:nth-child(3) { transform: translateX(0) translateY(0) translateZ(8px); }
+.sg.is-visible:nth-child(4) { transform: translateX(0) translateY(0) translateZ(-8px); }
+
+.faq__item[open] {
+  transform: perspective(1800px) rotateX(-1deg);
+  transition: transform .4s var(--ease);
+}
+
+/* =============================================
+   FEAT-002: ENHANCED 3D CARD TILT
+   ============================================= */
+
+[data-tilt] {
+  transition: transform .4s var(--ease), box-shadow .4s var(--ease);
+}
+[data-tilt]:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* =============================================
+   FEAT-002: MICRO-INTERACTIONS
+   ============================================= */
+
+.section__tag {
+  cursor: pointer;
+}
+.particle-burst {
+  position: fixed;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  animation: burstOut .6s var(--ease-out) forwards;
+}
+@keyframes burstOut {
+  0% { transform: translate(0,0) scale(1); opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* =============================================
    RESPONSIVE
    ============================================= */
 

@@ -630,7 +630,7 @@
   });
 
   /* ============================================
-     3D TILT
+     3D TILT (enhanced 18deg + translateZ + shadow parallax)
      ============================================ */
   if (!prefersReduced && hasHover) {
     document.querySelectorAll('[data-tilt]').forEach((el) => {
@@ -638,10 +638,14 @@
         const r = el.getBoundingClientRect();
         const x = (e.clientX - r.left) / r.width;
         const y = (e.clientY - r.top) / r.height;
-        el.style.transform = `perspective(1200px) rotateX(${-(y - 0.5) * 10}deg) rotateY(${(x - 0.5) * 10}deg)`;
-        // Animate reflection layer on hero__spec
-        const reflection = el.querySelector('.hero__spec') ? el : (el.classList.contains('hero__spec') ? el : null);
-        const before = el.style;
+        const rotX = -(y - 0.5) * 18;
+        const rotY = (x - 0.5) * 18;
+        const shadowX = -(x - 0.5) * 20;
+        const shadowY = -(y - 0.5) * 20;
+        el.style.transform = `perspective(1200px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(20px)`;
+        el.style.boxShadow = `${shadowX}px ${shadowY}px 30px rgba(14,14,14,0.12)`;
+        el.style.setProperty('--mx', x.toFixed(3));
+        el.style.setProperty('--my', y.toFixed(3));
         if (el.classList.contains('hero__spec') || el.closest('.hero__spec')) {
           const target = el.classList.contains('hero__spec') ? el : el.closest('.hero__spec');
           if (target) {
@@ -650,7 +654,7 @@
           }
         }
       });
-      el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+      el.addEventListener('mouseleave', () => { el.style.transform = ''; el.style.boxShadow = ''; el.style.removeProperty('--mx'); el.style.removeProperty('--my'); });
     });
   }
 
@@ -699,25 +703,25 @@
   });
 
   /* ============================================
-     HERO GENERATIVE VIDEO (morphing geometry system)
-     Central morphing shape, flowing field lines, simplex noise
+     HERO CANVAS - OSINT Investigation Graph
+     Force-directed graph with typed nodes and flowing edges
      ============================================ */
   const heroCanvas = document.getElementById('heroCanvas');
+  let noise2D; // shared simplex noise
   if (heroCanvas && !prefersReduced) {
     const ctx = heroCanvas.getContext('2d');
     let w, h, dpr;
     let hmx = -999, hmy = -999;
     let running = true;
 
-    /* Minimal 2D simplex noise implementation */
-    const noise2D = (() => {
+    /* Minimal 2D simplex noise */
+    noise2D = (() => {
       const F2 = 0.5 * (Math.sqrt(3) - 1);
       const G2 = (3 - Math.sqrt(3)) / 6;
       const grad = [[1,1],[-1,1],[1,-1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]];
       const perm = new Uint8Array(512);
       const p = new Uint8Array(256);
       for (let i = 0; i < 256; i++) p[i] = i;
-      // Fisher-Yates shuffle with fixed seed
       let seed = 42;
       for (let i = 255; i > 0; i--) {
         seed = (seed * 16807 + 0) % 2147483647;
@@ -725,16 +729,12 @@
         const tmp = p[i]; p[i] = p[j]; p[j] = tmp;
       }
       for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
-
       return function(x, y) {
         const s = (x + y) * F2;
-        const i = Math.floor(x + s);
-        const j = Math.floor(y + s);
+        const i = Math.floor(x + s), j = Math.floor(y + s);
         const t = (i + j) * G2;
-        const X0 = i - t, Y0 = j - t;
-        const x0 = x - X0, y0 = y - Y0;
-        const i1 = x0 > y0 ? 1 : 0;
-        const j1 = x0 > y0 ? 0 : 1;
+        const x0 = x - (i - t), y0 = y - (j - t);
+        const i1 = x0 > y0 ? 1 : 0, j1 = x0 > y0 ? 0 : 1;
         const x1 = x0 - i1 + G2, y1 = y0 - j1 + G2;
         const x2 = x0 - 1 + 2 * G2, y2 = y0 - 1 + 2 * G2;
         const ii = i & 255, jj = j & 255;
@@ -749,258 +749,118 @@
       };
     })();
 
-    /* Shape definitions: returns points on a unit shape at angle t [0..1] */
-    function shapeCircle(t) {
-      const a = t * Math.PI * 2;
-      return { x: Math.cos(a), y: Math.sin(a) };
-    }
-    function shapeHexagon(t) {
-      const a = t * Math.PI * 2;
-      const sector = Math.floor(t * 6);
-      const frac = t * 6 - sector;
-      const a1 = (sector / 6) * Math.PI * 2;
-      const a2 = ((sector + 1) / 6) * Math.PI * 2;
-      return { x: Math.cos(a1) + (Math.cos(a2) - Math.cos(a1)) * frac, y: Math.sin(a1) + (Math.sin(a2) - Math.sin(a1)) * frac };
-    }
-    function shapeTriangle(t) {
-      const sector = Math.floor(t * 3);
-      const frac = t * 3 - sector;
-      const a1 = (sector / 3) * Math.PI * 2 - Math.PI / 2;
-      const a2 = ((sector + 1) / 3) * Math.PI * 2 - Math.PI / 2;
-      return { x: Math.cos(a1) + (Math.cos(a2) - Math.cos(a1)) * frac, y: Math.sin(a1) + (Math.sin(a2) - Math.sin(a1)) * frac };
-    }
-    function shapeDiamond(t) {
-      const sector = Math.floor(t * 4);
-      const frac = t * 4 - sector;
-      const angles = [0, Math.PI / 2, Math.PI, Math.PI * 1.5];
-      const a1 = angles[sector];
-      const a2 = angles[(sector + 1) % 4];
-      const x1 = Math.cos(a1), y1 = Math.sin(a1);
-      const x2 = Math.cos(a2), y2 = Math.sin(a2);
-      return { x: x1 + (x2 - x1) * frac, y: y1 + (y2 - y1) * frac };
-    }
+    const brandColors = [{r:255,g:77,b:21},{r:33,g:54,b:240},{r:183,g:255,b:46}];
+    const nodeTypes = ['person','wallet','transaction','domain','ip','email','phone','organization'];
+    const nodeLabels = ['Agent','0x742d..','TX-4f1a','scopnum.ai','185.x.x.12','analyst@','tel+7','ScopnumLtd',
+      'Target','0xabc1..','TX-9e2c','darknet.io','92.x.x.44','info@','tel+1','ShellCorp',
+      'Witness','0xdef3..','TX-7b8d','mixer.io','10.x.x.1','admin@','tel+44','FundCo'];
+    const graphNodes = [];
+    const graphEdges = [];
+    let graphTime = 0, lastNodeSpawn = 0;
+    const MAX_NODES = 20, SPAWN_INTERVAL = 1.4;
 
-    const shapes = [shapeCircle, shapeHexagon, shapeTriangle, shapeDiamond];
-    const MORPH_DURATION = 4; // seconds per shape transition
-    const SHAPE_POINTS = 64;
-    const FIELD_LINES = 18;
-    const FIELD_SEGMENTS = 20;
-
-    // Brand colors for ambient glow
-    const brandColors = [
-      { r: 255, g: 77, b: 21 },   // orange
-      { r: 33, g: 54, b: 240 },   // indigo
-      { r: 183, g: 255, b: 46 },  // lime
-    ];
+    function drawShape(ctx2, x, y, r, type) {
+      ctx2.beginPath();
+      if (type === 'person') { ctx2.arc(x, y, r, 0, Math.PI * 2); }
+      else if (type === 'wallet') { for (let i = 0; i < 6; i++) { const a = (i/6)*Math.PI*2 - Math.PI/2; if (i===0) ctx2.moveTo(x+Math.cos(a)*r, y+Math.sin(a)*r); else ctx2.lineTo(x+Math.cos(a)*r, y+Math.sin(a)*r); } ctx2.closePath(); }
+      else if (type === 'transaction') { ctx2.moveTo(x,y-r); ctx2.lineTo(x+r,y); ctx2.lineTo(x,y+r); ctx2.lineTo(x-r,y); ctx2.closePath(); }
+      else if (type === 'domain') { ctx2.rect(x-r*0.8,y-r*0.8,r*1.6,r*1.6); }
+      else { ctx2.arc(x, y, r, 0, Math.PI * 2); }
+    }
 
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      w = heroCanvas.offsetWidth;
-      h = heroCanvas.offsetHeight;
-      heroCanvas.width = w * dpr;
-      heroCanvas.height = h * dpr;
+      w = heroCanvas.offsetWidth; h = heroCanvas.offsetHeight;
+      heroCanvas.width = w * dpr; heroCanvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
-
-    heroCanvas.addEventListener('mousemove', (e) => {
-      const r = heroCanvas.getBoundingClientRect();
-      hmx = e.clientX - r.left;
-      hmy = e.clientY - r.top;
-    });
+    heroCanvas.addEventListener('mousemove', (e) => { const r = heroCanvas.getBoundingClientRect(); hmx = e.clientX - r.left; hmy = e.clientY - r.top; });
     heroCanvas.addEventListener('mouseleave', () => { hmx = -999; hmy = -999; });
     window.addEventListener('resize', resize);
     resize();
 
-    let time = 0;
     let lastFrameTime = performance.now();
     const draw = () => {
       if (!running) return;
       const now = performance.now();
-      time += (now - lastFrameTime) * 0.001;
+      const dt = Math.min((now - lastFrameTime) * 0.001, 0.05);
       lastFrameTime = now;
+      graphTime += dt;
+
+      if (graphNodes.length < MAX_NODES && graphTime - lastNodeSpawn > SPAWN_INTERVAL) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 60 + Math.random() * 100;
+        const ci = graphNodes.length % 3;
+        graphNodes.push({ x: w/2 + Math.cos(angle)*dist, y: h/2 + Math.sin(angle)*dist, vx:0, vy:0, type: nodeTypes[graphNodes.length%8], label: nodeLabels[graphNodes.length%nodeLabels.length], color: brandColors[ci], r: 4+Math.random()*4, opacity:0 });
+        if (graphNodes.length > 1) { const tgt = Math.floor(Math.random()*(graphNodes.length-1)); graphEdges.push({from:graphNodes.length-1,to:tgt,dash:0}); if (Math.random()>0.5 && graphNodes.length>2) { const t2 = Math.floor(Math.random()*(graphNodes.length-1)); if (t2!==tgt) graphEdges.push({from:graphNodes.length-1,to:t2,dash:0}); } }
+        lastNodeSpawn = graphTime;
+      }
+
       ctx.clearRect(0, 0, w, h);
+      const cx = w/2, cy = h/2;
 
-      const cx = w / 2;
-      const cy = h / 2;
-      const baseRadius = Math.min(w, h) * 0.18;
-
-      // Determine current and next shape for morphing
-      const totalCycle = MORPH_DURATION * shapes.length;
-      const cycleTime = time % totalCycle;
-      const shapeIdx = Math.floor(cycleTime / MORPH_DURATION);
-      const nextIdx = (shapeIdx + 1) % shapes.length;
-      const morphT = (cycleTime % MORPH_DURATION) / MORPH_DURATION;
-      // Smooth easing for morph
-      const ease = morphT < 0.5 ? 2 * morphT * morphT : 1 - Math.pow(-2 * morphT + 2, 2) / 2;
-
-      const currentShape = shapes[shapeIdx];
-      const nextShape = shapes[nextIdx];
-
-      // Generate morphed shape points with noise displacement
-      const shapePoints = [];
-      for (let i = 0; i < SHAPE_POINTS; i++) {
-        const t = i / SHAPE_POINTS;
-        const p1 = currentShape(t);
-        const p2 = nextShape(t);
-        const mx2 = p1.x + (p2.x - p1.x) * ease;
-        const my2 = p1.y + (p2.y - p1.y) * ease;
-        // Noise displacement for organic movement
-        const noiseVal = noise2D(t * 3 + time * 0.5, time * 0.3) * 0.15;
-        const noiseVal2 = noise2D(t * 3 + 100, time * 0.4 + 50) * 0.1;
-        const px = cx + (mx2 + noiseVal) * baseRadius;
-        const py = cy + (my2 + noiseVal2) * baseRadius;
-        shapePoints.push({ x: px, y: py });
-      }
-
-      // Draw ambient glow behind shape
-      for (let gi = 0; gi < 3; gi++) {
-        const c = brandColors[gi];
-        const angle = time * 0.3 + gi * (Math.PI * 2 / 3);
-        const glowX = cx + Math.cos(angle) * baseRadius * 0.3;
-        const glowY = cy + Math.sin(angle) * baseRadius * 0.3;
-        const grad = ctx.createRadialGradient(glowX, glowY, 0, glowX, glowY, baseRadius * 1.8);
-        grad.addColorStop(0, `rgba(${c.r}, ${c.g}, ${c.b}, 0.06)`);
-        grad.addColorStop(1, `rgba(${c.r}, ${c.g}, ${c.b}, 0)`);
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(glowX, glowY, baseRadius * 1.8, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // Draw flowing field lines radiating from center
-      for (let i = 0; i < FIELD_LINES; i++) {
-        const baseAngle = (i / FIELD_LINES) * Math.PI * 2 + time * 0.1;
-        const colorIdx = i % 3;
-        const c = brandColors[colorIdx];
-
-        ctx.beginPath();
-        let prevX = cx;
-        let prevY = cy;
-
-        for (let s = 1; s <= FIELD_SEGMENTS; s++) {
-          const progress = s / FIELD_SEGMENTS;
-          const dist = baseRadius * 0.4 + progress * baseRadius * 1.8;
-          // Field lines respond to mouse
-          let angleOffset = 0;
-          if (hmx > 0) {
-            const mouseAngle = Math.atan2(hmy - cy, hmx - cx);
-            const diff = baseAngle - mouseAngle;
-            angleOffset = Math.sin(diff) * 0.15 * (1 - progress);
-          }
-          const noiseOffset = noise2D(i * 2 + progress * 4, time * 0.6) * 0.4;
-          const angle = baseAngle + noiseOffset + angleOffset;
-          const px = cx + Math.cos(angle) * dist;
-          const py = cy + Math.sin(angle) * dist;
-
-          if (s === 1) {
-            ctx.moveTo(px, py);
-          } else {
-            // Use bezier curves for flowing lines
-            const cpx = (prevX + px) / 2 + noise2D(i + s, time * 0.4) * 15;
-            const cpy = (prevY + py) / 2 + noise2D(i + s + 50, time * 0.4) * 15;
-            ctx.quadraticCurveTo(cpx, cpy, px, py);
-          }
-          prevX = px;
-          prevY = py;
+      // Physics
+      for (let i = 0; i < graphNodes.length; i++) {
+        const n = graphNodes[i];
+        if (n.opacity < 1) n.opacity = Math.min(1, n.opacity + dt*2);
+        for (let j = i+1; j < graphNodes.length; j++) {
+          const m = graphNodes[j];
+          let dx = n.x-m.x, dy = n.y-m.y;
+          const d = Math.sqrt(dx*dx+dy*dy)||1;
+          if (d < 120) { const f = (120-d)*0.003; n.vx += (dx/d)*f; n.vy += (dy/d)*f; m.vx -= (dx/d)*f; m.vy -= (dy/d)*f; }
         }
-
-        // Pulsing opacity for field lines
-        const pulse = 0.5 + Math.sin(time * 2 + i * 0.7) * 0.3;
-        const alpha = 0.08 * pulse;
-        ctx.strokeStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`;
-        ctx.lineWidth = 1 + Math.sin(time + i) * 0.5;
-        ctx.stroke();
+        const dcx = cx-n.x, dcy = cy-n.y, dc = Math.sqrt(dcx*dcx+dcy*dcy)||1;
+        n.vx += (dcx/dc)*0.02; n.vy += (dcy/dc)*0.02;
+        if (hmx > 0) { const mdx=n.x-hmx, mdy=n.y-hmy, md=Math.sqrt(mdx*mdx+mdy*mdy)||1; if(md<150){const mf=(150-md)*0.005; n.vx+=(mdx/md)*mf; n.vy+=(mdy/md)*mf;} }
+        n.vx += noise2D(i*0.5+graphTime*0.3,0)*0.3;
+        n.vy += noise2D(0,i*0.5+graphTime*0.3)*0.3;
+        const ang = Math.atan2(n.y-cy,n.x-cx);
+        n.vx += -Math.sin(ang)*0.001*dc; n.vy += Math.cos(ang)*0.001*dc;
+        n.vx *= 0.92; n.vy *= 0.92;
+        n.x += n.vx; n.y += n.vy;
+        if(n.x<40) n.vx+=0.5; if(n.x>w-40) n.vx-=0.5; if(n.y<40) n.vy+=0.5; if(n.y>h-40) n.vy-=0.5;
+      }
+      for (let e = 0; e < graphEdges.length; e++) {
+        const edge = graphEdges[e]; const a = graphNodes[edge.from], b = graphNodes[edge.to];
+        if(!a||!b) continue;
+        const dx=b.x-a.x, dy=b.y-a.y, d=Math.sqrt(dx*dx+dy*dy)||1, f=(d-100)*0.001;
+        a.vx+=(dx/d)*f; a.vy+=(dy/d)*f; b.vx-=(dx/d)*f; b.vy-=(dy/d)*f;
       }
 
-      // Draw morphed central shape outline with bezier curves
-      ctx.beginPath();
-      for (let i = 0; i < shapePoints.length; i++) {
-        const curr = shapePoints[i];
-        const next = shapePoints[(i + 1) % shapePoints.length];
-        const prev = shapePoints[(i - 1 + shapePoints.length) % shapePoints.length];
-        if (i === 0) {
-          ctx.moveTo(curr.x, curr.y);
-        } else {
-          const cpx = (prev.x + curr.x) / 2 + (curr.x - prev.x) * 0.1;
-          const cpy = (prev.y + curr.y) / 2 + (curr.y - prev.y) * 0.1;
-          ctx.quadraticCurveTo(cpx, cpy, curr.x, curr.y);
-        }
-      }
-      ctx.closePath();
-      const shapeAlpha = 0.25 + Math.sin(time * 1.5) * 0.08;
-      ctx.strokeStyle = `rgba(14, 14, 14, ${shapeAlpha})`;
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-
-      // Draw inner morph shape (smaller, offset rotation)
-      ctx.beginPath();
-      for (let i = 0; i < SHAPE_POINTS; i++) {
-        const t = i / SHAPE_POINTS;
-        const p1 = currentShape(t);
-        const p2 = nextShape(t);
-        const mx2 = p1.x + (p2.x - p1.x) * ease;
-        const my2 = p1.y + (p2.y - p1.y) * ease;
-        const noiseVal = noise2D(t * 4 + time * 0.7 + 10, time * 0.5 + 20) * 0.12;
-        const px = cx + (mx2 + noiseVal) * baseRadius * 0.55;
-        const py = cy + (my2 + noiseVal) * baseRadius * 0.55;
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
-      }
-      ctx.closePath();
-      ctx.strokeStyle = `rgba(255, 77, 21, ${0.12 + Math.sin(time * 2) * 0.04})`;
-      ctx.lineWidth = 0.8;
-      ctx.stroke();
-
-      // Draw bezier connections between shape points (sparse, pulsing)
-      for (let i = 0; i < shapePoints.length; i += 8) {
-        const a = shapePoints[i];
-        const b = shapePoints[(i + Math.floor(SHAPE_POINTS / 3)) % SHAPE_POINTS];
-        const midX = (a.x + b.x) / 2 + noise2D(i + time, time * 0.3) * 30;
-        const midY = (a.y + b.y) / 2 + noise2D(i + time + 100, time * 0.3) * 30;
-        const alpha = 0.04 + Math.sin(time * 1.5 + i * 0.5) * 0.03;
-        ctx.strokeStyle = `rgba(33, 54, 240, ${alpha})`;
-        ctx.lineWidth = 0.6;
-        ctx.beginPath();
-        ctx.moveTo(a.x, a.y);
-        ctx.quadraticCurveTo(midX, midY, b.x, b.y);
-        ctx.stroke();
+      // Draw edges
+      for (let e = 0; e < graphEdges.length; e++) {
+        const edge = graphEdges[e]; const a = graphNodes[edge.from], b = graphNodes[edge.to];
+        if(!a||!b) continue;
+        edge.dash -= 0.5;
+        ctx.save(); ctx.setLineDash([4,8]); ctx.lineDashOffset = edge.dash;
+        ctx.strokeStyle = 'rgba('+a.color.r+','+a.color.g+','+a.color.b+','+(Math.min(a.opacity,b.opacity)*0.3)+')';
+        ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); ctx.restore();
       }
 
-      // Noise-displaced orbital dots
-      for (let i = 0; i < 24; i++) {
-        const angle = (i / 24) * Math.PI * 2 + time * 0.2;
-        const dist = baseRadius * (1.3 + noise2D(i, time * 0.5) * 0.4);
-        const dx = cx + Math.cos(angle) * dist;
-        const dy = cy + Math.sin(angle) * dist;
-        const colorIdx = i % 3;
-        const c = brandColors[colorIdx];
-        const dotAlpha = 0.2 + noise2D(i * 3, time) * 0.15;
-        const dotR = 1.5 + noise2D(i * 2, time * 0.8) * 1;
-        ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${dotAlpha})`;
-        ctx.beginPath();
-        ctx.arc(dx, dy, dotR, 0, Math.PI * 2);
-        ctx.fill();
+      // Draw nodes
+      for (let i = 0; i < graphNodes.length; i++) {
+        const n = graphNodes[i];
+        const grad = ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r*4);
+        grad.addColorStop(0,'rgba('+n.color.r+','+n.color.g+','+n.color.b+','+(n.opacity*0.15)+')');
+        grad.addColorStop(1,'rgba('+n.color.r+','+n.color.g+','+n.color.b+',0)');
+        ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(n.x,n.y,n.r*4,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'rgba('+n.color.r+','+n.color.g+','+n.color.b+','+(n.opacity*0.7)+')';
+        drawShape(ctx,n.x,n.y,n.r,n.type); ctx.fill();
+        ctx.strokeStyle = 'rgba('+n.color.r+','+n.color.g+','+n.color.b+','+n.opacity+')'; ctx.lineWidth=1;
+        drawShape(ctx,n.x,n.y,n.r,n.type); ctx.stroke();
+        const la = n.opacity*(0.4+Math.sin(graphTime*1.5+i)*0.2);
+        if(la>0.2){ctx.font='9px "IBM Plex Mono",monospace';ctx.fillStyle='rgba(14,14,14,'+la+')';ctx.textAlign='center';ctx.fillText(n.label,n.x,n.y+n.r+14);}
       }
 
-      // Mouse interaction: attraction ring
-      if (hmx > 0) {
-        const mouseDist = Math.sqrt((hmx - cx) * (hmx - cx) + (hmy - cy) * (hmy - cy));
-        if (mouseDist < baseRadius * 3) {
-          const alpha = (1 - mouseDist / (baseRadius * 3)) * 0.15;
-          ctx.strokeStyle = `rgba(255, 77, 21, ${alpha})`;
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.arc(hmx, hmy, 30 + Math.sin(time * 3) * 5, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-      }
+      // Scanline
+      ctx.fillStyle = 'rgba(255,77,21,0.012)';
+      ctx.fillRect(0,(graphTime*60)%h,w,2);
 
       requestAnimationFrame(draw);
     };
     draw();
-
     const heroEl = document.querySelector('.hero');
-    if (heroEl) new IntersectionObserver((e) => { running = e[0].isIntersecting; if (running) { lastFrameTime = performance.now(); draw(); } }, { threshold: 0 }).observe(heroEl);
+    if (heroEl) new IntersectionObserver((e) => { running = e[0].isIntersecting; if(running){lastFrameTime=performance.now();draw();} }, {threshold:0}).observe(heroEl);
   }
 
   /* ============================================
@@ -1130,6 +990,363 @@
   })();
 
   /* ============================================
+     INTERACTIVE TERMINAL ANIMATION
+     ============================================ */
+  const terminalBody = document.getElementById('terminalLines');
+  let terminalRunning = false;
+
+  if (terminalBody) {
+    const termScript = [
+      { type: 'prompt', text: '$ investigate wallet 0x742d35Cc6634C0532925a3b844Bc9e7595f2bD' },
+      { type: 'pause', ms: 600 },
+      { type: 'stage', text: '[aggregator] scanning 60+ sources........... done' },
+      { type: 'stage', text: '[brain]      tribunal routing query.......... done' },
+      { type: 'stage', text: '[crypto]     tracing 3 hops on ETH........... done' },
+      { type: 'stage', text: '[snp]        47 cells activated.............. done' },
+      { type: 'stage', text: '[report]     generating STIX 2.1............. done' },
+      { type: 'pause', ms: 400 },
+      { type: 'result', text: '--- RESULT ---' },
+      { type: 'result', text: 'clusters: 4 | risk_score: 0.89 | hops: 3' },
+      { type: 'result', text: 'linked_entities: 12 | mixer_detected: true' },
+      { type: 'result', text: 'report: /out/STX-2025-0742d.json' },
+    ];
+
+    function runTerminal() {
+      if (!terminalRunning) return;
+      terminalBody.innerHTML = '';
+      let delay = 0;
+      termScript.forEach((item, idx) => {
+        if (item.type === 'pause') { delay += item.ms; return; }
+        delay += item.type === 'prompt' ? 80 : 300;
+        const d = delay;
+        setTimeout(() => {
+          if (!terminalRunning) return;
+          const line = document.createElement('span');
+          line.className = 'terminal__line terminal__line--' + item.type;
+          line.textContent = item.text;
+          terminalBody.appendChild(line);
+        }, d);
+        if (item.type === 'prompt') delay += item.text.length * 30;
+      });
+      delay += 5000;
+      setTimeout(() => { if (terminalRunning) runTerminal(); }, delay);
+    }
+
+    const termObs = new IntersectionObserver((entries) => {
+      terminalRunning = entries[0].isIntersecting;
+      if (terminalRunning) runTerminal();
+    }, { threshold: 0.2 });
+    termObs.observe(terminalBody.closest('.terminal-section'));
+  }
+
+  /* ============================================
+     PRODUCT CARD MINI CANVAS VISUALIZATIONS
+     ============================================ */
+  function initMiniCanvas(id, drawFn) {
+    const el = document.getElementById(id);
+    if (!el || prefersReduced) return null;
+    const ctx2 = el.getContext('2d');
+    let cw, ch, cdpr, cRunning = false, cTime = 0, cLast = performance.now();
+
+    function resize() {
+      cdpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      cw = el.parentElement.offsetWidth;
+      ch = el.parentElement.offsetHeight;
+      el.width = cw * cdpr; el.height = ch * cdpr;
+      el.style.width = cw + 'px'; el.style.height = ch + 'px';
+      ctx2.setTransform(cdpr, 0, 0, cdpr, 0, 0);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function tick() {
+      if (!cRunning) return;
+      const now = performance.now();
+      cTime += (now - cLast) * 0.001;
+      cLast = now;
+      ctx2.clearRect(0, 0, cw, ch);
+      drawFn(ctx2, cw, ch, cTime);
+      requestAnimationFrame(tick);
+    }
+
+    new IntersectionObserver((entries) => {
+      cRunning = entries[0].isIntersecting;
+      if (cRunning) { cLast = performance.now(); tick(); }
+    }, { threshold: 0 }).observe(el);
+
+    return { ctx: ctx2, el: el };
+  }
+
+  // OSINT mini graph
+  initMiniCanvas('osintCanvas', function(ctx2, cw, ch, t) {
+    const nodes = [];
+    for (let i = 0; i < 10; i++) {
+      const a = (i / 10) * Math.PI * 2 + t * 0.3;
+      const r = 30 + Math.sin(t + i) * 10;
+      nodes.push({ x: cw/2 + Math.cos(a) * r, y: ch/2 + Math.sin(a) * r });
+    }
+    ctx2.strokeStyle = 'rgba(255,77,21,0.3)'; ctx2.lineWidth = 0.6;
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        if ((i + j) % 3 === 0) { ctx2.beginPath(); ctx2.moveTo(nodes[i].x, nodes[i].y); ctx2.lineTo(nodes[j].x, nodes[j].y); ctx2.stroke(); }
+      }
+    }
+    for (let i = 0; i < nodes.length; i++) {
+      const pulse = 0.5 + Math.sin(t * 2 + i) * 0.3;
+      ctx2.fillStyle = 'rgba(255,77,21,' + pulse + ')';
+      ctx2.beginPath(); ctx2.arc(nodes[i].x, nodes[i].y, 3, 0, Math.PI * 2); ctx2.fill();
+    }
+  });
+
+  // Crypto blockchain flow
+  initMiniCanvas('cryptoCanvas', function(ctx2, cw, ch, t) {
+    const blockCount = 6;
+    const spacing = cw / (blockCount + 1);
+    for (let i = 0; i < blockCount; i++) {
+      const x = spacing * (i + 1) + Math.sin(t * 0.5 + i) * 5;
+      const y = ch / 2 + Math.cos(t * 0.7 + i * 0.8) * 15;
+      const s = 12;
+      ctx2.strokeStyle = 'rgba(33,54,240,0.5)'; ctx2.lineWidth = 1;
+      ctx2.strokeRect(x - s, y - s, s * 2, s * 2);
+      if (i < blockCount - 1) {
+        const nx = spacing * (i + 2) + Math.sin(t * 0.5 + i + 1) * 5;
+        const ny = ch / 2 + Math.cos(t * 0.7 + (i + 1) * 0.8) * 15;
+        ctx2.beginPath(); ctx2.moveTo(x + s, y); ctx2.lineTo(nx - s, ny);
+        ctx2.setLineDash([3, 4]); ctx2.lineDashOffset = -t * 20; ctx2.stroke(); ctx2.setLineDash([]);
+      }
+    }
+  });
+
+  // Globe wireframe
+  initMiniCanvas('globeCanvas', function(ctx2, cw, ch, t) {
+    const cx2 = cw / 2, cy2 = ch / 2, r = Math.min(cw, ch) * 0.35;
+    ctx2.strokeStyle = 'rgba(14,14,14,0.2)'; ctx2.lineWidth = 0.6;
+    ctx2.beginPath(); ctx2.arc(cx2, cy2, r, 0, Math.PI * 2); ctx2.stroke();
+    for (let i = 1; i <= 3; i++) {
+      const rx = r * (i / 4);
+      ctx2.beginPath(); ctx2.ellipse(cx2, cy2, rx, r, 0, 0, Math.PI * 2); ctx2.stroke();
+    }
+    for (let i = 0; i < 4; i++) {
+      const lat = (i / 4 - 0.5) * Math.PI;
+      const ry = Math.cos(lat) * r;
+      const yOff = Math.sin(lat) * r;
+      ctx2.beginPath(); ctx2.ellipse(cx2, cy2 + yOff, r, Math.abs(ry) * 0.3, t * 0.2 + i, 0, Math.PI * 2); ctx2.stroke();
+    }
+    const dots = [[0.3, 0.7], [0.7, 0.4], [0.5, 0.8], [0.8, 0.6]];
+    ctx2.fillStyle = 'rgba(183,255,46,0.8)';
+    dots.forEach((d) => {
+      const dx = cx2 + (d[0] - 0.5) * r * 1.5 * Math.cos(t * 0.4);
+      const dy = cy2 + (d[1] - 0.5) * r * 1.5;
+      ctx2.beginPath(); ctx2.arc(dx, dy, 3, 0, Math.PI * 2); ctx2.fill();
+    });
+  });
+
+  // SNP neural mesh
+  initMiniCanvas('snpCanvas', function(ctx2, cw, ch, t) {
+    const cols = 5, rows = 4;
+    const sx = cw / (cols + 1), sy = ch / (rows + 1);
+    const pts = [];
+    for (let r2 = 0; r2 < rows; r2++) {
+      for (let c = 0; c < cols; c++) {
+        pts.push({ x: sx * (c + 1), y: sy * (r2 + 1), active: Math.sin(t * 3 + r2 * cols + c) > 0.5 });
+      }
+    }
+    ctx2.strokeStyle = 'rgba(33,54,240,0.15)'; ctx2.lineWidth = 0.5;
+    for (let i = 0; i < pts.length; i++) {
+      for (let j = i + 1; j < pts.length; j++) {
+        const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+        if (Math.sqrt(dx * dx + dy * dy) < sx * 1.8) { ctx2.beginPath(); ctx2.moveTo(pts[i].x, pts[i].y); ctx2.lineTo(pts[j].x, pts[j].y); ctx2.stroke(); }
+      }
+    }
+    pts.forEach((p) => {
+      ctx2.fillStyle = p.active ? 'rgba(255,77,21,0.7)' : 'rgba(33,54,240,0.3)';
+      ctx2.beginPath(); ctx2.arc(p.x, p.y, p.active ? 4 : 2.5, 0, Math.PI * 2); ctx2.fill();
+    });
+  });
+
+  /* ============================================
+     PER-SECTION CANVAS BACKGROUNDS
+     ============================================ */
+  function initSectionBg(id, drawFn) {
+    const el = document.getElementById(id);
+    if (!el || prefersReduced || isMobile) return;
+    const ctx2 = el.getContext('2d');
+    let sw, sh, sdpr, sRunning = false, sTime = 0, sLast = performance.now();
+
+    function resize() {
+      sdpr = Math.min(window.devicePixelRatio || 1, 1);
+      sw = el.parentElement.offsetWidth; sh = el.parentElement.offsetHeight;
+      el.width = sw * sdpr; el.height = sh * sdpr;
+      el.style.width = sw + 'px'; el.style.height = sh + 'px';
+      ctx2.setTransform(sdpr, 0, 0, sdpr, 0, 0);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function tick() {
+      if (!sRunning) return;
+      const now = performance.now();
+      sTime += (now - sLast) * 0.001;
+      sLast = now;
+      ctx2.clearRect(0, 0, sw, sh);
+      drawFn(ctx2, sw, sh, sTime);
+      requestAnimationFrame(tick);
+    }
+
+    new IntersectionObserver((entries) => {
+      sRunning = entries[0].isIntersecting;
+      if (sRunning) { sLast = performance.now(); tick(); }
+    }, { threshold: 0 }).observe(el);
+  }
+
+  // About: flowing connection lines
+  initSectionBg('aboutBgCanvas', function(ctx2, sw, sh, t) {
+    ctx2.strokeStyle = 'rgba(14,14,14,0.06)'; ctx2.lineWidth = 0.8;
+    for (let i = 0; i < 8; i++) {
+      ctx2.beginPath();
+      const y0 = sh * 0.2 + i * sh * 0.08;
+      ctx2.moveTo(0, y0);
+      for (let x = 0; x <= sw; x += 40) {
+        const n = noise2D ? noise2D(x * 0.005 + t * 0.2, i * 2 + t * 0.1) : Math.sin(x * 0.01 + t + i);
+        ctx2.lineTo(x, y0 + n * 30);
+      }
+      ctx2.stroke();
+    }
+  });
+
+  // Bento: pulsing dot grid
+  initSectionBg('bentoBgCanvas', function(ctx2, sw, sh, t) {
+    const spacing = 40;
+    const cols = Math.ceil(sw / spacing);
+    const rows = Math.ceil(sh / spacing);
+    for (let r2 = 0; r2 < rows; r2++) {
+      for (let c = 0; c < cols; c++) {
+        const x = c * spacing + spacing / 2;
+        const y = r2 * spacing + spacing / 2;
+        const pulse = 0.3 + Math.sin(t * 1.5 + c * 0.3 + r2 * 0.5) * 0.2;
+        ctx2.fillStyle = 'rgba(14,14,14,' + (pulse * 0.08) + ')';
+        ctx2.beginPath();
+        ctx2.arc(x, y, 1.5 + pulse, 0, Math.PI * 2);
+        ctx2.fill();
+      }
+    }
+  });
+
+  // Stats: counting particles
+  initSectionBg('statsBgCanvas', function(ctx2, sw, sh, t) {
+    for (let i = 0; i < 30; i++) {
+      const x = (i * 73 + t * 20) % sw;
+      const y = sh - ((i * 47 + t * 15) % sh);
+      const alpha = 0.1 + Math.sin(t + i) * 0.06;
+      ctx2.fillStyle = 'rgba(255,77,21,' + alpha + ')';
+      ctx2.beginPath();
+      ctx2.arc(x, y, 2, 0, Math.PI * 2);
+      ctx2.fill();
+    }
+  });
+
+  /* ============================================
+     MICRO-INTERACTIONS
+     ============================================ */
+  // Glitch text on hover for .section__tag
+  document.querySelectorAll('.section__tag').forEach(function(el) {
+    var textEl = el.querySelector('span');
+    if (!textEl) return;
+    var original = textEl.textContent;
+    var glitchChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*<>[]';
+    el.addEventListener('mouseenter', function() {
+      var iterations = 0;
+      var maxIter = 10;
+      var interval = setInterval(function() {
+        textEl.textContent = original.split('').map(function(ch, idx) {
+          if (idx < iterations || ch === ' ') return ch;
+          return glitchChars[Math.floor(Math.random() * glitchChars.length)];
+        }).join('');
+        iterations += original.length / maxIter;
+        if (iterations >= original.length) { textEl.textContent = original; clearInterval(interval); }
+      }, 30);
+    });
+  });
+
+  // Particle burst on CTA click
+  document.querySelectorAll('.hero__cta, .cta__mail, .btn--pill').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      var colors = ['#ff4d15', '#2136f0', '#b7ff2e'];
+      for (var i = 0; i < 10; i++) {
+        var dot = document.createElement('div');
+        dot.className = 'particle-burst';
+        dot.style.left = e.clientX + 'px';
+        dot.style.top = e.clientY + 'px';
+        dot.style.background = colors[i % 3];
+        var angle = (i / 10) * Math.PI * 2 + Math.random() * 0.5;
+        var dist = 40 + Math.random() * 60;
+        dot.style.animation = 'burstOut .6s var(--ease-out) forwards';
+        dot.style.transform = 'translate(' + (Math.cos(angle) * dist) + 'px,' + (Math.sin(angle) * dist) + 'px) scale(0)';
+        document.body.appendChild(dot);
+        setTimeout(function(d) { d.remove(); }, 700, dot);
+      }
+    });
+  });
+
+  /* ============================================
+     LIVE DATA SIMULATION
+     ============================================ */
+  // Hero spec counter fluctuation
+  var heroSpecVal = document.querySelector('.hero__spec-val strong');
+  if (heroSpecVal) {
+    setInterval(function() {
+      var val = 99.95 + Math.random() * 0.04;
+      heroSpecVal.textContent = val.toFixed(2);
+    }, 3000);
+  }
+
+  // Footer live status rotation
+  var footerLive = document.querySelector('.footer__live');
+  if (footerLive) {
+    var statuses = ['[9 services \u00b7 nominal]', '[aggregator \u00b7 indexing]', '[snp \u00b7 47 cells active]', '[crypto \u00b7 16 chains synced]', '[globe \u00b7 sgp4 tracking]'];
+    var statusIdx = 0;
+    setInterval(function() {
+      statusIdx = (statusIdx + 1) % statuses.length;
+      footerLive.innerHTML = '<i></i> ' + statuses[statusIdx];
+    }, 4000);
+  }
+
+  /* ============================================
+     ENHANCED PARALLAX - horizontal geo-deco drift + manifesto title scale
+     ============================================ */
+  var geoDecos = document.querySelectorAll('.geo-deco__shape');
+  var manifestoTitle = document.querySelector('.manifesto__title');
+  var footerHuge = document.querySelector('.footer__huge');
+
+  function enhancedParallaxTick() {
+    if (prefersReduced || isMobile) return;
+    // Horizontal drift on geo-deco shapes
+    geoDecos.forEach(function(el, i) {
+      var dir = i % 2 === 0 ? 1 : -1;
+      el.style.transform = 'translateX(' + (smoothY * 0.03 * dir) + 'px)';
+    });
+    // Scale on scroll for manifesto title
+    if (manifestoTitle) {
+      var rect = manifestoTitle.getBoundingClientRect();
+      var vh = window.innerHeight;
+      if (rect.top < vh && rect.bottom > 0) {
+        var progress = 1 - (rect.top / vh);
+        var scale = 1 + clamp(progress * 0.05, 0, 0.05);
+        manifestoTitle.style.transform = 'scale(' + scale.toFixed(4) + ')';
+      }
+    }
+    // Stronger parallax on footer huge
+    if (footerHuge) {
+      var r2 = footerHuge.getBoundingClientRect();
+      var vh2 = window.innerHeight;
+      if (r2.top < vh2 && r2.bottom > 0) {
+        var offset = (r2.top - vh2 / 2) * 0.35;
+        footerHuge.style.transform = 'translateY(' + (-offset) + 'px)';
+      }
+    }
+  }
+
+  /* ============================================
      MASTER RAF LOOP
      ============================================ */
   function masterLoop() {
@@ -1146,6 +1363,7 @@
     cineTick();
     footerCanvasTick();
     sectionThemeTick();
+    enhancedParallaxTick();
     requestAnimationFrame(masterLoop);
   }
   requestAnimationFrame(masterLoop);
