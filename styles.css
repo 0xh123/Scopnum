@@ -975,13 +975,13 @@ html.no-smooth body { overflow-y: auto; }
   z-index: 5;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 220px;
+  padding: 0 120px;
   width: 100%;
 }
 
 .hero__title {
   font-family: var(--font-display);
-  font-size: clamp(3.5rem, 11vw, 11rem);
+  font-size: clamp(3.5rem, 9vw, 9rem);
   line-height: .88;
   font-weight: 600;
   letter-spacing: -.04em;
@@ -1466,7 +1466,7 @@ html.no-smooth body { overflow-y: auto; }
 .h-scroll__track {
   display: flex;
   gap: 32px;
-  padding: 20px 15vw 40px;
+  padding: 20px 5vw 40px 5vw;
   height: 100%;
   align-items: center;
   will-change: transform;
@@ -1569,7 +1569,7 @@ html.no-smooth body { overflow-y: auto; }
   line-height: 1;
 }
 .card__title i { font-style: italic; font-weight: 400; color: var(--accent); }
-.card__desc { font-size: .88rem; color: var(--ink-dim); }
+.card__desc { font-size: .88rem; color: var(--ink-dim); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 .card__tags {
   display: flex;
   flex-wrap: wrap;
@@ -2200,8 +2200,9 @@ html.no-smooth body { overflow-y: auto; }
 
 /* Manifesto clip-path reveal */
 .manifesto__inner {
-  clip-path: circle(15% at 50% 50%);
-  transition: clip-path 1.8s var(--ease-out);
+  clip-path: circle(30% at 50% 50%);
+  transition: clip-path 1.2s var(--ease-out);
+  will-change: clip-path;
 }
 .manifesto__inner.is-visible {
   clip-path: circle(85% at 50% 50%);
@@ -2790,7 +2791,7 @@ html.no-smooth body { overflow-y: auto; }
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: .35;
+  opacity: .12;
   z-index: 0;
 }
 .band { position: relative; }
@@ -2817,38 +2818,38 @@ html.no-smooth body { overflow-y: auto; }
    ============================================= */
 
 .bento {
-  perspective: 2000px;
+  perspective: 1200px;
   transform-style: preserve-3d;
 }
-.bento__cell--a { transform: translateZ(10px); }
-.bento__cell--a:hover { transform: translateZ(10px) scale(1.03); }
-.bento__cell--b { transform: translateZ(-5px); }
-.bento__cell--b:hover { transform: translateZ(-5px) scale(1.03); }
-.bento__cell--c { transform: translateZ(15px); }
-.bento__cell--c:hover { transform: translateZ(15px) scale(1.03); }
-.bento__cell--d { transform: translateZ(-10px); }
-.bento__cell--d:hover { transform: translateZ(-10px) scale(1.03); }
-.bento__cell--e { transform: translateZ(8px); }
-.bento__cell--e:hover { transform: translateZ(8px) scale(1.03); }
-.bento__cell--f { transform: translateZ(-8px); }
-.bento__cell--f:hover { transform: translateZ(-8px) scale(1.03); }
+.bento__cell--a { transform: translateZ(20px); }
+.bento__cell--a:hover { transform: translateZ(40px) scale(1.05); box-shadow: var(--shadow-xl); }
+.bento__cell--b { transform: translateZ(-15px); }
+.bento__cell--b:hover { transform: translateZ(35px) scale(1.05); box-shadow: var(--shadow-xl); }
+.bento__cell--c { transform: translateZ(30px); }
+.bento__cell--c:hover { transform: translateZ(40px) scale(1.05); box-shadow: var(--shadow-xl); }
+.bento__cell--d { transform: translateZ(-20px); }
+.bento__cell--d:hover { transform: translateZ(35px) scale(1.05); box-shadow: var(--shadow-xl); }
+.bento__cell--e { transform: translateZ(20px); }
+.bento__cell--e:hover { transform: translateZ(40px) scale(1.05); box-shadow: var(--shadow-xl); }
+.bento__cell--f { transform: translateZ(-15px); }
+.bento__cell--f:hover { transform: translateZ(35px) scale(1.05); box-shadow: var(--shadow-xl); }
 
 .stats-grid {
-  perspective: 1800px;
+  perspective: 1000px;
   transform-style: preserve-3d;
 }
-.sg:nth-child(1) { transform: translateZ(5px); }
-.sg:nth-child(2) { transform: translateZ(-5px); }
-.sg:nth-child(3) { transform: translateZ(8px); }
-.sg:nth-child(4) { transform: translateZ(-8px); }
-.sg.is-visible:nth-child(1) { transform: translateX(0) translateY(0) translateZ(5px); }
-.sg.is-visible:nth-child(1):hover { transform: translateX(0) translateY(0) translateZ(5px) scale(1.02); }
-.sg.is-visible:nth-child(2) { transform: translateX(0) translateY(0) translateZ(-5px); }
-.sg.is-visible:nth-child(2):hover { transform: translateX(0) translateY(0) translateZ(-5px) scale(1.02); }
-.sg.is-visible:nth-child(3) { transform: translateX(0) translateY(0) translateZ(8px); }
-.sg.is-visible:nth-child(3):hover { transform: translateX(0) translateY(0) translateZ(8px) scale(1.02); }
-.sg.is-visible:nth-child(4) { transform: translateX(0) translateY(0) translateZ(-8px); }
-.sg.is-visible:nth-child(4):hover { transform: translateX(0) translateY(0) translateZ(-8px) scale(1.02); }
+.sg:nth-child(1) { transform: translateZ(10px); }
+.sg:nth-child(2) { transform: translateZ(-10px); }
+.sg:nth-child(3) { transform: translateZ(16px); }
+.sg:nth-child(4) { transform: translateZ(-16px); }
+.sg.is-visible:nth-child(1) { transform: translateX(0) translateY(0) translateZ(10px); }
+.sg.is-visible:nth-child(1):hover { transform: translateX(0) translateY(0) translateZ(10px) scale(1.02); }
+.sg.is-visible:nth-child(2) { transform: translateX(0) translateY(0) translateZ(-10px); }
+.sg.is-visible:nth-child(2):hover { transform: translateX(0) translateY(0) translateZ(-10px) scale(1.02); }
+.sg.is-visible:nth-child(3) { transform: translateX(0) translateY(0) translateZ(16px); }
+.sg.is-visible:nth-child(3):hover { transform: translateX(0) translateY(0) translateZ(16px) scale(1.02); }
+.sg.is-visible:nth-child(4) { transform: translateX(0) translateY(0) translateZ(-16px); }
+.sg.is-visible:nth-child(4):hover { transform: translateX(0) translateY(0) translateZ(-16px) scale(1.02); }
 
 .faq__item[open] {
   transform: perspective(1800px) rotateX(-1deg);
@@ -3042,8 +3043,8 @@ html.no-smooth body { overflow-y: auto; }
 
 /* --- Step 7: Horizontal scroll edge fade masks --- */
 .h-scroll__track {
-  -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
-  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 3%, black 97%, transparent);
+  mask-image: linear-gradient(90deg, transparent, black 3%, black 97%, transparent);
 }
 
 /* --- Step 8: Bento cell hover glow border --- */

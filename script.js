@@ -1226,7 +1226,7 @@
         const x = c * spacing + spacing / 2;
         const y = r2 * spacing + spacing / 2;
         const pulse = 0.3 + Math.sin(t * 1.5 + c * 0.3 + r2 * 0.5) * 0.2;
-        ctx2.fillStyle = 'rgba(14,14,14,' + (pulse * 0.08) + ')';
+        ctx2.fillStyle = 'rgba(14,14,14,' + (pulse * 0.03) + ')';
         ctx2.beginPath();
         ctx2.arc(x, y, 1.5 + pulse, 0, Math.PI * 2);
         ctx2.fill();
@@ -1239,7 +1239,7 @@
     for (let i = 0; i < 30; i++) {
       const x = (i * 73 + t * 20) % sw;
       const y = sh - ((i * 47 + t * 15) % sh);
-      const alpha = 0.1 + Math.sin(t + i) * 0.06;
+      const alpha = 0.04 + Math.sin(t + i) * 0.02;
       ctx2.fillStyle = 'rgba(255,77,21,' + alpha + ')';
       ctx2.beginPath();
       ctx2.arc(x, y, 2, 0, Math.PI * 2);
